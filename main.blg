@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99d (TeX Live 2023/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: ieeetr.bst
+Database file #1: Extensions/references.bib
+Warning--empty journal in sundan2024proactive
+Warning--empty journal in Sundan2024MultiLayered
+Warning--empty journal in Peng2024GATGTCN
+Warning--empty journal in mudgal2025adaptive
+Warning--empty journal in loshchilov2019decoupled
+You've used 92 entries,
+            1876 wiz_defined-function locations,
+            997 strings with 21833 characters,
+and the built_in function-call counts, 26494 in all, are:
+= -- 2619
+> -- 1092
+< -- 0
++ -- 397
+- -- 305
+* -- 1807
+:= -- 3641
+add.period$ -- 93
+call.type$ -- 92
+change.case$ -- 92
+chr.to.int$ -- 0
+cite$ -- 97
+duplicate$ -- 1484
+empty$ -- 2427
+format.name$ -- 305
+if$ -- 6530
+int.to.chr$ -- 0
+int.to.str$ -- 92
+missing$ -- 89
+newline$ -- 280
+num.names$ -- 92
+pop$ -- 330
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 1073
+stack$ -- 0
+substring$ -- 1647
+swap$ -- 672
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 5
+while$ -- 243
+width$ -- 94
+write$ -- 895
+(There were 5 warnings)

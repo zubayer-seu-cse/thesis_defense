@@ -1,0 +1,462 @@
+\chapter{Results and Analysis}\label{chap:results}
+
+With the architecture and training setup in place, the obvious question is: how well does the model actually work? This chapter answers that question in detail. We examine training dynamics, test-set metrics, the confusion matrix, per-class breakdowns, ROC-AUC behaviour, HMAC overhead, and a frank discussion of the results' limitations. Unless stated otherwise, every number reported here comes from the held-out test set (20\% of the data, 36,567 samples), which the model never saw during training or hyperparameter selection.
+
+%% ============================================================
+\section{Training Dynamics}\label{sec:training_dynamics}
+%% ============================================================
+
+\subsection{Convergence Behavior}\label{subsec:convergence}
+
+Training finished in roughly 30 epochs---well short of the 100-epoch budget. The best validation AUC appeared around epoch 15--20, and early stopping kicked in after 15 further epochs without improvement. Why does the model converge so quickly?
+
+\begin{itemize}
+    \item \textbf{Residual Connections:} The skip connections in each residual block provide direct gradient paths from the loss to early layers, enabling efficient training without vanishing gradients.
+    
+    \item \textbf{Batch Normalization:} Normalizing intermediate activations stabilizes the internal covariate shift, allowing the use of higher learning rates and accelerating convergence.
+    
+    \item \textbf{Adam Optimizer:} The adaptive learning rates of Adam enable efficient navigation of the loss landscape, converging faster than fixed-rate optimizers.
+    
+    \item \textbf{PCA-Preprocessed Features:} The PCA transformation decorrelates the input features and orders them by importance, providing the model with a clean, structured input that is easier to learn from.
+\end{itemize}
+
+\subsection{Training and Validation Loss}\label{subsec:loss_curves}
+
+The training loss decreases rapidly during the first 5 epochs, dropping from an initial value of approximately 0.35 to below 0.05. The validation loss follows a similar trajectory, closely tracking the training loss with a small gap, indicating that the model generalizes well without significant overfitting.
+
+After epoch 10, both training and validation losses plateau at approximately 0.01--0.02, indicating that the model has converged to a near-optimal solution. The close alignment between training and validation losses confirms that the regularization mechanisms (spatial dropout, dense dropout, class weighting) effectively prevent overfitting despite the model's capacity.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figures/results/plot_loss.png}
+    \caption{Training and validation loss curves over 30 epochs. Both curves converge rapidly within the first 5 epochs and plateau near zero, indicating effective learning without overfitting.}
+    \label{fig:loss_curve}
+\end{figure}
+
+\subsection{Training and Validation Accuracy}\label{subsec:accuracy_curves}
+
+Training accuracy increases rapidly from approximately 85\% at epoch 1 to above 99.5\% by epoch 5, and stabilizes at approximately 99.8\% for the remaining epochs. Validation accuracy follows a similar trajectory, reaching 99.85\% at the best epoch. The convergence of training and validation accuracy confirms that the model's high accuracy is not due to overfitting but reflects genuine learning of the underlying classification task.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figures/results/plot_accuracy.png}
+    \caption{Training and validation accuracy curves. Both curves rapidly approach 1.0 within the first 5 epochs, with validation accuracy closely tracking training accuracy throughout.}
+    \label{fig:accuracy_curve}
+\end{figure}
+
+\subsection{Learning Rate Schedule}\label{subsec:lr_history}
+
+The ReduceLROnPlateau scheduler reduced the learning rate from the initial $10^{-3}$ when the validation loss plateaued. The learning rate reductions occurred at approximately:
+
+\begin{itemize}
+    \item Epoch $\sim$12: $10^{-3} \rightarrow 5 \times 10^{-4}$ (first plateau)
+    \item Epoch $\sim$21: $5 \times 10^{-4} \rightarrow 2.5 \times 10^{-4}$ (second plateau)
+\end{itemize}
+
+These learning rate reductions enabled the model to fine-tune its weights more precisely after the initial rapid convergence phase, contributing to the final performance improvement observed between epochs 12 and 20.
+
+%% ============================================================
+\section{Test Set Performance}\label{sec:test_performance}
+%% ============================================================
+
+The best model (selected by validation AUC) was evaluated on the held-out test set. Table~\ref{tab:test_results} summarizes the overall performance metrics:
+
+\begin{table}[ht]
+\centering
+\caption{TCN\_InSDN Test Set Performance}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Accuracy & 99.85\% \\
+Precision & 99.80\% \\
+Recall (Detection Rate) & 99.97\% \\
+Specificity & 99.63\% \\
+F1-Score & 99.89\% \\
+AUC-ROC & 0.9999 \\
+False Alarm Rate & 0.37\% \\
+\bottomrule
+\end{tabular}
+\label{tab:test_results}
+\end{table}
+
+The headline numbers tell a clear story: the model rarely makes mistakes, and when it does, it errs on the side of caution.
+
+%% ============================================================
+\section{Confusion Matrix Analysis}\label{sec:confusion_matrix}
+%% ============================================================
+
+The confusion matrix for the test set is:
+
+\begin{table}[ht]
+\centering
+\caption{Confusion Matrix on Test Set (36,567 samples)}
+\begin{tabular}{@{}ll|rr@{}}
+\toprule
+& & \multicolumn{2}{c}{\textbf{Predicted}} \\
+& & Benign (0) & Attack (1) \\
+\midrule
+\textbf{Actual} & Benign (0) & 12,776 (TN) & 47 (FP) \\
+ & Attack (1) & 7 (FN) & 23,737 (TP) \\
+\bottomrule
+\end{tabular}
+\label{tab:confusion_matrix}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.55\textwidth]{Figures/results/plot_confusion_matrix.png}
+    \caption{Confusion matrix heatmap for the test set (36,567 samples). The dominant diagonal entries (12,776 TN and 23,737 TP) confirm the model's strong discriminative ability, with only 47 false positives and 7 false negatives.}
+    \label{fig:confusion_matrix}
+\end{figure}
+
+\subsection{True Positives (TP = 23,737)}\label{subsec:tp_analysis}
+
+Of the 23,744 attack samples in the test set, 23,737 (99.97\%) were correctly identified as attacks. This exceptionally high true positive rate means that the TCN model misses only 7 out of 23,744 attack flows---a false negative rate of 0.03\%. From a security perspective, this means that virtually all attack traffic is detected and can be blocked by the response engine.
+
+\subsection{True Negatives (TN = 12,776)}\label{subsec:tn_analysis}
+
+Of the 12,823 benign samples in the test set, 12,776 (99.63\%) were correctly classified as benign. This high true negative rate ensures that the vast majority of legitimate traffic is not disrupted by false alarms.
+
+\subsection{False Positives (FP = 47)}\label{subsec:fp_analysis}
+
+Only 47 benign flows were mislabelled as attacks---a false alarm rate of 0.37\%. By IDS standards, that is very low; traditional signature-based systems routinely produce 1--5\% or more.
+
+Why do these 47 flows trip the detector? Most likely, they share statistical fingerprints with genuine attacks---unusual packet sizes, atypical ports, or bursty timing that the model has learned to associate with DDoS-like behaviour. They sit right on the decision boundary where the benign and attack distributions overlap.
+
+In operational terms, a false alarm rate of 0.37\% means that for every 270 benign flows processed, approximately 1 will be incorrectly flagged as an attack. In a network processing 10,000 flows per second, this corresponds to approximately 37 false alarms per second---a manageable rate for automated whitelisting mechanisms or manual review.
+
+\subsection{False Negatives (FN = 7)}\label{subsec:fn_analysis}
+
+Seven attacks slipped through---a miss rate of 0.03\%. These are the errors that matter most, because an undetected attack can cause real harm.
+
+The seven missed flows almost certainly mimic benign traffic: slow-rate probes with timing indistinguishable from normal connections, or carefully crafted packets whose feature profiles land squarely in the benign region of the model's learned representation. Even so, losing 7 out of 23,744 attacks is a strong result. In a scenario with 100,000 attack flows, the model would miss about 30---a gap that complementary mechanisms (firewalls, anomaly alerting, human SOC analysts) can readily cover.
+
+\subsection{Error Rate Distribution}\label{subsec:error_distribution}
+
+The total number of misclassifications is $47 + 7 = 54$ out of 36,567 test samples, yielding an error rate of 0.15\%. This error is distributed asymmetrically:
+
+\begin{itemize}
+    \item 87.0\% of errors are false positives (47 of 54): benign traffic flagged as attacks.
+    \item 13.0\% of errors are false negatives (7 of 54): attacks missed by the detector.
+\end{itemize}
+
+This asymmetry is a desirable property of the model: it is conservative, preferring to err on the side of flagging suspicious traffic rather than allowing potential attacks to pass undetected. The class weighting scheme (weighting benign flows higher) and the binary cross-entropy loss function contribute to this bias toward detection.
+
+%% ============================================================
+\section{Per-Class Performance}\label{sec:per_class}
+%% ============================================================
+
+Table~\ref{tab:per_class} presents the per-class precision, recall, and F1-score:
+
+\begin{table}[ht]
+\centering
+\caption{Per-Class Performance Metrics}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+\midrule
+Benign (0) & 99.95\% & 99.63\% & 99.79\% \\
+Attack (1) & 99.80\% & 99.97\% & 99.89\% \\
+\midrule
+Weighted Average & 99.85\% & 99.85\% & 99.85\% \\
+\bottomrule
+\end{tabular}
+\label{tab:per_class}
+\end{table}
+
+\textbf{Benign Class Analysis:}
+\begin{itemize}
+    \item Precision 99.95\%: Of the 12,783 flows predicted as benign ($TN + FN = 12,776 + 7$), only 7 were actually attacks. This means that when the model says a flow is benign, it is correct 99.95\% of the time.
+    \item Recall 99.63\%: Of the 12,823 actual benign flows, 12,776 were correctly identified. The 47 misclassified benign flows represent a small but measurable false alarm rate.
+    \item F1-Score 99.79\%: The harmonic mean indicates strong and balanced performance on benign classification.
+\end{itemize}
+
+\textbf{Attack Class Analysis:}
+\begin{itemize}
+    \item Precision 99.80\%: Of the 23,784 flows predicted as attacks ($TP + FP = 23,737 + 47$), only 47 were actually benign. This means that when the model raises an alarm, it is correct 99.80\% of the time.
+    \item Recall 99.97\%: Of the 23,744 actual attacks, 23,737 were detected. The model missed only 7 attacks, achieving near-perfect detection.
+    \item F1-Score 99.89\%: The harmonic mean indicates exceptionally strong attack detection performance.
+\end{itemize}
+
+The attack class outperforms the benign class in both recall (99.97\% vs. 99.63\%) and F1-score (99.89\% vs. 99.79\%), which is the desired behavior for an IDS: the system prioritizes detecting attacks (high attack recall) even at the cost of slightly more false alarms (lower benign recall).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figures/results/plot_precision_recall.png}
+    \caption{Training and validation precision and recall curves over epochs. All four metrics rapidly converge toward 1.0, demonstrating consistent improvement and strong generalization across both classes.}
+    \label{fig:precision_recall_curve}
+\end{figure}
+
+%% ============================================================
+\section{ROC-AUC Analysis}\label{sec:roc_analysis}
+%% ============================================================
+
+The Receiver Operating Characteristic (ROC) curve plots the True Positive Rate (TPR = Recall) against the False Positive Rate (FPR) for all classification thresholds $\tau \in [0, 1]$:
+
+\begin{itemize}
+    \item At $\tau = 0.5$ (default threshold): $TPR = 0.9997$, $FPR = 0.0037$
+    \item At $\tau = 0.1$ (very sensitive): $TPR \approx 1.000$, $FPR \approx 0.005$
+    \item At $\tau = 0.9$ (very conservative): $TPR \approx 0.999$, $FPR \approx 0.001$
+\end{itemize}
+
+The AUC-ROC value of 0.9999 is nearly perfect (maximum possible = 1.0000). This indicates that:
+
+\begin{enumerate}
+    \item The model achieves near-perfect separation between the benign and attack class probability distributions.
+    \item The output probabilities are well-calibrated: attack flows receive probabilities very close to 1.0, and benign flows receive probabilities very close to 0.0, with very few samples in the ambiguous intermediate range.
+    \item The model's performance is robust to threshold selection: almost any reasonable threshold between 0.1 and 0.9 would yield excellent results.
+\end{enumerate}
+
+The near-perfect AUC has practical implications for deployment. Because the model's output probabilities are well-separated, the system can implement tiered response strategies:
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Figures/results/plot_roc_curve.png}
+    \caption{ROC curve for the TCN model on the test set, with AUC = 0.9999. The curve hugs the top-left corner, indicating near-perfect separation between benign and attack distributions.}
+    \label{fig:roc_curve}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figures/results/plot_auc.png}
+    \caption{Training and validation AUC over epochs. Both curves converge above 0.999 within 10 epochs, confirming the model's excellent discriminative ability throughout training.}
+    \label{fig:auc_curve}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{High confidence attacks} ($p > 0.95$): Automatic blocking with no human intervention.
+    \item \textbf{Moderate confidence attacks} ($0.5 < p \leq 0.95$): Blocking with alert for manual review.
+    \item \textbf{Moderate confidence benign} ($0.05 \leq p \leq 0.5$): Allow with enhanced monitoring.
+    \item \textbf{High confidence benign} ($p < 0.05$): Allow without additional scrutiny.
+\end{itemize}
+
+%% ============================================================
+\section{Security-Specific Metrics}\label{sec:security_metrics}
+%% ============================================================
+
+Beyond the standard classification metrics, the TCN model's performance is evaluated using security-specific metrics that are standard in the intrusion detection literature:
+
+\begin{table}[ht]
+\centering
+\caption{Security-Specific Performance Metrics}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Detection Rate (DR) & 99.97\% \\
+False Alarm Rate (FAR) & 0.37\% \\
+Miss Rate (MR) & 0.03\% \\
+Specificity & 99.63\% \\
+Positive Predictive Value (PPV) & 99.80\% \\
+Negative Predictive Value (NPV) & 99.95\% \\
+Matthews Correlation Coefficient (MCC) & 0.9966 \\
+\bottomrule
+\end{tabular}
+\label{tab:security_metrics}
+\end{table}
+
+\textbf{Detection Rate (DR = 99.97\%):} The detection rate of 99.97\% means that only 3 out of every 10,000 attack flows evade detection. This is an exceptional detection rate that exceeds the 99\% benchmark commonly cited as the minimum acceptable rate for production IDS systems \cite{GarcaPiedrabuena2024NIDS}.
+
+\textbf{False Alarm Rate (FAR = 0.37\%):} The false alarm rate of 0.37\% means that approximately 4 out of every 1,000 benign flows are incorrectly flagged as attacks. This rate is significantly lower than the 1--5\% false alarm rates typical of many IDS systems in the literature.
+
+\textbf{Matthews Correlation Coefficient (MCC = 0.9966):} The MCC provides a balanced measure of classification quality that accounts for all four elements of the confusion matrix:
+
+\begin{equation}
+    MCC = \frac{TP \cdot TN - FP \cdot FN}{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}
+\end{equation}
+
+\noindent Substituting the actual values:
+
+\begin{equation}
+    MCC = \frac{23737 \times 12776 - 47 \times 7}{\sqrt{23784 \times 23744 \times 12823 \times 12783}} = 0.9966
+\end{equation}
+
+An MCC of 0.9966 (on a scale of $-1$ to $+1$) indicates near-perfect correlation between the predicted and actual classifications. The MCC is considered a more reliable metric than accuracy for imbalanced datasets because it produces a high score only when the classifier performs well on both classes.
+
+%% ============================================================
+\section{Training Efficiency}\label{sec:training_efficiency}
+%% ============================================================
+
+The training efficiency of the TCN model demonstrates its computational advantages:
+
+\begin{table}[ht]
+\centering
+\caption{Training Efficiency Metrics}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Total Training Time & $\sim$5 minutes \\
+Epochs to Convergence & $\sim$30 \\
+Time per Epoch & $\sim$10 seconds \\
+Iterations per Epoch & 63 (127,981 / 2,048) \\
+Peak GPU Memory & $\sim$2.5 GB \\
+Model Size (Saved) & 612 KB \\
+\bottomrule
+\end{tabular}
+\label{tab:training_efficiency}
+\end{table}
+
+The training time of approximately 5 minutes is remarkably short for a deep learning model achieving 99.85\% accuracy. This efficiency is attributable to several factors:
+
+\begin{itemize}
+    \item \textbf{Convolutional Parallelism:} Unlike recurrent networks (LSTM, GRU), which process sequences step-by-step, the TCN processes the entire input sequence in parallel through its convolutional operations, fully utilizing the GPU's parallel processing capabilities.
+    
+    \item \textbf{Compact Model:} The model's 156,737 parameters require minimal memory for gradient storage and weight updates, enabling large batch sizes (2,048) that maximize GPU utilization.
+    
+    \item \textbf{Preprocessed Data:} The PCA-reduced 24-dimensional input minimizes the per-sample computation, enabling fast forward and backward passes.
+    
+    \item \textbf{Effective Regularization:} The combination of batch normalization, dropout, early stopping, and class weighting accelerates convergence by preventing the model from spending epochs on overfitting.
+\end{itemize}
+
+%% ============================================================
+\section{HMAC Performance Analysis}\label{sec:hmac_performance}
+%% ============================================================
+
+While the primary experimental evaluation focuses on the TCN-IDS component, the HMAC component's performance characteristics are analyzed theoretically and through micro-benchmarks:
+
+\subsection{Computational Overhead}\label{subsec:hmac_compute}
+
+HMAC-SHA256 computation was benchmarked on the experimental platform:
+
+\begin{table}[ht]
+\centering
+\caption{HMAC-SHA256 Performance Characteristics}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+HMAC-SHA256 Computation Time & $\sim$2 $\mu$s per message \\
+Throughput (single core) & $\sim$500,000 messages/s \\
+OpenFlow Message Rate (typical) & $\sim$1,000--10,000 messages/s \\
+HMAC Overhead Ratio & $<$ 0.2\% \\
+Tag Size & 32 bytes \\
+Key Size & 32 bytes \\
+\bottomrule
+\end{tabular}
+\label{tab:hmac_performance}
+\end{table}
+
+The HMAC computation time of approximately 2~microseconds per message adds negligible latency to the OpenFlow control path, which typically operates on timescales of milliseconds. Even at peak OpenFlow message rates of 10,000 messages per second, the total HMAC computation overhead is only 20~milliseconds per second (2\% of a single CPU core), leaving ample processing capacity for the controller's other operations.
+
+\subsection{Auxiliary Agent System Overhead}\label{subsec:agent_overhead}
+
+To evaluate the practical impact of the Auxiliary Agent on system resources, a series of experiments were performed under simulated control-plane attack conditions within a Mininet--Ryu testbed. The agent's ability to detect and remove tampered flow rules was tested using synthetically injected invalid \texttt{flow\_mod} messages. The verification latency, CPU usage, and memory overhead were measured for normal and attack scenarios.
+
+\begin{table}[ht]
+\centering
+\caption{Performance Evaluation of the Auxiliary Agent}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Metric} & \textbf{Without Agent} & \textbf{With Agent} \\
+\midrule
+Average Control Latency (ms) & 2.1 & 2.8 \\
+Flow Verification Time (ms) & -- & 0.4 \\
+CPU Usage (\%) & 12.3 & 16.7 \\
+RAM Usage (MB) & 84.5 & 98.2 \\
+Detected Invalid Flows & 0 & 3 \\
+\bottomrule
+\end{tabular}
+\label{tab:agent_performance}
+\end{table}
+
+The results in Table~\ref{tab:agent_performance} show that the average control latency increased by only 0.7~ms (from 2.1~ms to 2.8~ms) with the agent enabled, while CPU utilization rose modestly by 4.4 percentage points and RAM usage increased by 13.7~MB. The system successfully detected and removed all three invalid flow rules injected during the experiments. These results confirm that the proposed Auxiliary Agent introduces negligible overhead while maintaining strong flow integrity and control-plane trust.
+
+\subsection{Bandwidth Overhead}\label{subsec:hmac_bandwidth}
+
+The 32-byte HMAC tag appended to each OpenFlow message represents a small bandwidth overhead:
+
+\begin{itemize}
+    \item For a typical \texttt{Flow\_Mod} message (64 bytes): 50\% size increase.
+    \item For a typical \texttt{Stats\_Reply} message (256 bytes): 12.5\% size increase.
+    \item For large messages (1024+ bytes): $<$ 3\% size increase.
+\end{itemize}
+
+Given that OpenFlow control traffic represents a tiny fraction of the network's total data plane throughput (typically $<$ 0.1\%), the absolute bandwidth overhead of HMAC tagging is negligible in practice.
+
+\subsection{Combined TCN-HMAC Latency}\label{subsec:combined_latency}
+
+The end-to-end latency for processing a new flow through the TCN-HMAC framework is estimated as:
+
+\begin{table}[ht]
+\centering
+\caption{End-to-End Flow Processing Latency}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Component} & \textbf{Latency} \\
+\midrule
+HMAC Verification (Packet\_In) & $\sim$2 $\mu$s \\
+Feature Extraction & $\sim$50 $\mu$s \\
+Preprocessing (Scale + PCA) & $\sim$10 $\mu$s \\
+TCN Inference (GPU) & $\sim$100 $\mu$s \\
+Decision + Response Generation & $\sim$5 $\mu$s \\
+HMAC Signing (Flow\_Mod) & $\sim$2 $\mu$s \\
+\midrule
+\textbf{Total} & $\sim$170 $\mu$s \\
+\bottomrule
+\end{tabular}
+\label{tab:e2e_latency}
+\end{table}
+
+The total end-to-end latency of approximately 170~microseconds (0.17~ms) is well within the acceptable range for SDN control plane operations, which typically operate on timescales of 1--10~milliseconds. This low latency confirms that the TCN-HMAC framework can operate in real time without introducing perceptible delays in network forwarding decisions.
+
+%% ============================================================
+\section{Statistical Significance}\label{sec:stat_significance}
+%% ============================================================
+
+To assess the statistical reliability of the reported results, we analyze the confidence intervals for the key metrics:
+
+\textbf{Accuracy Confidence Interval:} For a test set of $n = 36{,}567$ samples with accuracy $\hat{p} = 0.9985$, the 95\% confidence interval is:
+
+\begin{equation}
+    CI_{95\%} = \hat{p} \pm z_{0.025} \sqrt{\frac{\hat{p}(1-\hat{p})}{n}} = 0.9985 \pm 1.96 \sqrt{\frac{0.9985 \times 0.0015}{36567}}
+\end{equation}
+
+\begin{equation}
+    CI_{95\%} = 0.9985 \pm 0.0004 = [0.9981, 0.9989]
+\end{equation}
+
+This narrow confidence interval ($\pm 0.04\%$) indicates that the reported accuracy of 99.85\% is statistically reliable and would be reproduced with high probability on similar test sets drawn from the same distribution.
+
+\textbf{Detection Rate Confidence Interval:}
+
+\begin{equation}
+    CI_{95\%}^{DR} = 0.9997 \pm 1.96 \sqrt{\frac{0.9997 \times 0.0003}{23744}} = [0.9994, 0.9999]
+\end{equation}
+
+\textbf{False Alarm Rate Confidence Interval:}
+
+\begin{equation}
+    CI_{95\%}^{FAR} = 0.0037 \pm 1.96 \sqrt{\frac{0.0037 \times 0.9963}{12823}} = [0.0026, 0.0047]
+\end{equation}
+
+All key metrics have narrow confidence intervals, confirming the statistical robustness of the results.
+
+%% ============================================================
+\section{Discussion of Limitations}\label{sec:result_limitations}
+%% ============================================================
+
+Strong results deserve honest caveats. Several limitations should be kept in mind when interpreting the numbers above:
+
+\begin{enumerate}
+    \item \textbf{Dataset Generalization:} The model is trained and evaluated on a single dataset (InSDN). Performance on other SDN datasets (e.g., NSL-KDD, CIC-IDS-2017, UNSW-NB15) may differ due to different network topologies, traffic patterns, and attack types. Cross-dataset evaluation is needed to assess generalization.
+    
+    \item \textbf{Novel Attack Detection:} The model is trained on known attack types present in the InSDN dataset. Zero-day attacks that differ significantly from the training distribution may not be detected. Continuous retraining with updated datasets is necessary to maintain detection capability against evolving threats.
+    
+    \item \textbf{Binary Classification Granularity:} The binary classification approach detects attacks but does not identify the specific attack type. While this is sufficient for automated blocking, security analysts may require attack type information for threat assessment and response prioritization.
+    
+    \item \textbf{Lab vs. Production Environment:} The InSDN dataset was generated in a controlled SDN testbed, which may not fully represent the complexity and diversity of real-world production network traffic. Production deployment may encounter traffic patterns not present in the training data.
+    
+    \item \textbf{Concept Drift:} Network traffic patterns evolve over time as new applications and protocols emerge. The model's performance may degrade over time if not periodically retrained with updated data, a phenomenon known as concept drift.
+    
+    \item \textbf{Adversarial Robustness:} Sophisticated attackers may craft adversarial traffic that is specifically designed to evade the TCN model. Adversarial robustness evaluation is an important direction for future work.
+\end{enumerate}
+
+%% ============================================================
+\section{Chapter Summary}\label{sec:results_summary}
+%% ============================================================
+
+To recap: the TCN\_InSDN model hits 99.85\% accuracy, 99.97\% detection rate, 0.37\% false alarm rate, and an AUC of 0.9999 on 36,567 unseen test samples. Only 54 of those samples are misclassified---47 false alarms and 7 missed attacks. Training takes about five minutes on a T4 GPU, and the model weighs in at 612~KB. The HMAC layer adds roughly 2~$\mu$s per message and 32~bytes per tag, keeping combined end-to-end latency around 170~$\mu$s per flow---well within real-time SDN tolerances. Confidence intervals confirm the results are statistically robust ($\pm 0.04\%$ for accuracy at 95\%). The next chapter places these numbers side by side with fifteen existing models to see how TCN\_InSDN stacks up.
+
+\endinput

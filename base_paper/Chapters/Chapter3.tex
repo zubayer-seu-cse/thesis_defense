@@ -1,0 +1,115 @@
+\chapter{Methodology}
+
+This section presents the design and operation of the proposed \textit{lightweight hybrid security framework}, which integrates a deep learning–based intrusion detection mechanism with cryptographic flow rule integrity and controller authenticity verification. The framework operates in two coordinated defense layers: (1) a \textit{Temporal Convolutional Network (TCN)} model running as a controller application for proactive anomaly detection, and (2) a \textit{Sidecar Auxiliary Agent} that enforces integrity and authenticity checks using Hash-based Message Authentication Codes (HMACs). This dual-layer approach ensures both early detection of potential intrusions and cryptographic validation of all control messages, thereby preventing unauthorized flow insertions and mitigating controller compromise.
+
+\subsection{System Architecture}
+
+The proposed system architecture comprises three major components: the \textit{SDN Controller}, \textit{Open vSwitch (OVS)} instances, and the \textit{Auxiliary Agent}, as shown in Fig.~\ref{fig:example}. The \textit{TCN-based intrusion detection module} is integrated into the SDN controller as a Python-based application. It continuously monitors flow statistics obtained from the controller’s northbound API and classifies traffic behavior as normal or malicious. Upon detecting suspicious activity (e.g., DDoS, probe, brute-force, or MITM attacks), the controller flags or blocks the corresponding flows and triggers an alert.
+
+The \textit{Auxiliary Agent}, operating as a sidecar process on the same host as the controller, remains isolated from external network access to minimize exposure. It performs two primary cryptographic functions: (1) verifying the integrity of flow rules using HMAC validation and (2) periodically validating controller authenticity through a challenge–response mechanism. Communication between the controller and the agent is secured using symmetric encryption, with shared secrets established via a one-time RSA-based key exchange.
+
+This layered integration of deep learning–based detection and lightweight cryptographic verification ensures that both proactive and reactive defenses work collaboratively to protect the SDN control plane.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/system_architecture.drawio.png}
+    \caption{Architecture of the proposed hybrid security framework}
+    \label{fig:example}
+\end{figure}
+
+\subsection{Temporal Convolutional Network (TCN)–Based Intrusion Detection}
+
+The first layer of defense employs a Temporal Convolutional Network (TCN) for proactive intrusion detection. The TCN is trained using the InSDN dataset, which includes a variety of attack types such as DDoS, MITM, Probe, and Brute-force. The model captures temporal dependencies in network flow statistics, making it effective for identifying sequential anomalies in SDN traffic.
+
+After training, the TCN model is exported in ONNX format and deployed as a controller-side service. It processes live flow statistics (e.g., packet count, byte count, duration, and flow-specific features) obtained via REST APIs or controller events. Each data instance is classified in real time. When abnormal patterns are detected, the controller flags the suspicious flow and restricts its forwarding behavior. The corresponding flow is then subjected to additional verification by the Auxiliary Agent. This proactive detection layer enhances the controller’s situational awareness and enables early mitigation of potential threats.
+
+\subsection{Key Establishment Between Controller and Agent}
+
+To enable HMAC-based validation, a shared symmetric secret is securely established between the controller and the Auxiliary Agent for each switch. The process utilizes an RSA-based key exchange. The Auxiliary Agent generates a random symmetric key per switch and transmits it securely to the controller. The payload, which includes the switch ID and generated key, is authenticated using an HMAC computed with a pre-shared deployment key and then encrypted with the controller’s public key. The controller decrypts the message, validates the HMAC, and stores the symmetric key for subsequent message authentication. This process guarantees confidentiality and integrity during key distribution.
+
+\begin{algorithm}[htbp]
+\caption{Secure Key Exchange for a New Switch}
+\begin{algorithmic}[1]
+\Require Agent–Controller shared key $K_{ac}$, Controller public key $PK_c$, Controller private key $PR_c$, Switch ID $SW_{id}$
+\Ensure Sharing of secret key between controller and agent for a new switch.
+\Statex
+\Comment{Agent Side}
+\State $K_{sw} \gets$ Generate random symmetric key for the switch
+\State $payload \gets SW_{id} \parallel K_{sw}$
+\State $auth\_tag \gets \text{HMAC}_{K_{ac}}(payload)$
+\State $message \gets payload \parallel auth\_tag$
+\State $encrypted \gets \text{Encrypt}_{PK_c}(message)$
+\State Send $encrypted$ to Controller
+\Statex
+\Comment{Controller Side}
+\State $decrypted \gets \text{Decrypt}_{PR_c}(encrypted)$
+\State Extract $payload$ and $auth\_tag$ from $decrypted$
+\If{$\text{HMAC}_{K_{ac}}(payload) \neq auth\_tag$}
+    \State \textbf{Reject} message
+\Else
+    \State Extract $SW_{id}$ and $K_{sw}$ from $payload$
+    \State Store $K_{sw}$ associated with $SW_{id}$
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Flow Rule Verification Mechanism}
+
+When the SDN controller installs a new flow rule, it appends an HMAC-based cookie generated using the symmetric key associated with that switch. The controller provides a hook that notifies the Auxiliary Agent of each flow modification. The agent then monitors active flow entries using the \texttt{ovs-ofctl dump-flows} command. For each active flow with nonzero traffic, it recomputes the HMAC and compares it with the cookie attached to the rule. If verification fails, the agent immediately deletes the suspicious rule, notifies the controller, and updates the topology view for consistency. This ensures that only authenticated flow rules persist in the data plane.
+
+\begin{algorithm}[htbp]
+\caption{Flow Rule Verification by the Auxiliary Agent}
+\begin{algorithmic}[1]
+\Require Flow rule $F$, received cookie $C$, switch ID $SW_{id}$
+\Ensure Validate and enforce flow integrity
+\State Parse flow: extract $eth\_src$, $eth\_dst$, $out\_port$
+\State $flow\_str \gets eth\_src \parallel eth\_dst \parallel output:out\_port$
+\State $expected\_cookie \gets \text{HMAC}_{K_{sw}}(flow\_str)$
+\If{$C \neq expected\_cookie$}
+    \State \textbf{Drop} flow rule from switch
+    \State Notify controller of invalid flow
+\Else
+    \State \textbf{Accept} and monitor flow
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Challenge–Response Mechanism}
+
+To ensure continuous trust between the controller and the Auxiliary Agent, a challenge–response mechanism is periodically executed. The agent generates a random nonce and sends it to the controller, which responds with the corresponding HMAC using the shared symmetric key. If the response is invalid or delayed beyond a threshold, the agent assumes a controller compromise and triggers a failover to a backup controller, notifying the network administrator. This periodic validation ensures controller authenticity and operational resilience.
+
+\begin{algorithm}[htbp]
+\caption{Controller Verification via Challenge–Response}
+\begin{algorithmic}[1]
+\Require Interval $T$, controller key $K_{sw}$, backup controller $C_{bk}$
+\Ensure Detect and recover from compromised controller
+\Loop \, every $T$ seconds
+    \State $nonce \gets$ Generate random challenge
+    \State Send $nonce$ to controller
+    \State Controller responds with $response = \text{HMAC}_{K_{sw}}(nonce)$
+    \If{$\text{HMAC}_{K_{sw}}(nonce) \neq response$}
+        \State Alert network administrator
+        \State Activate $C_{bk}$ as primary controller
+    \Else
+        \State Continue monitoring
+    \EndIf
+\EndLoop
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Hybrid Defense Workflow}
+
+The overall workflow of the proposed framework is summarized as follows:
+\begin{enumerate}
+    \item \textbf{Flow Monitoring:} The controller continuously gathers network flow statistics from OVS instances.
+    \item \textbf{Anomaly Detection:} The TCN model analyzes flow statistics in real time to identify potential intrusions.
+    \item \textbf{Alert and Action:} When an anomaly is detected, the controller flags or blocks the affected flows.
+    \item \textbf{Integrity Verification:} The Auxiliary Agent independently validates flow rules using HMAC-based cookies.
+    \item \textbf{Authenticity Assurance:} The agent periodically challenges the controller to confirm legitimacy.
+    \item \textbf{Response:} On detecting any compromise, the system deletes malicious flows, activates a backup controller, and issues an administrative alert.
+\end{enumerate}
+
+This hybrid design effectively combines deep learning–based proactive defense with lightweight cryptographic assurance, providing a comprehensive yet resource-efficient solution for intrusion detection and mitigation in SDN environments.
+
+
+\endinput

@@ -1,0 +1,359 @@
+\chapter{Background}\label{chap:background}
+
+Before diving into the design of the TCN-HMAC framework, it is worth laying out the conceptual groundwork. This chapter covers the three pillars on which the framework rests: the Software-Defined Networking architecture, the theory behind Temporal Convolutional Networks, and the mathematics of Hash-based Message Authentication Codes. Along the way, it also introduces the evaluation metrics and dimensionality-reduction techniques referenced throughout the rest of the thesis.
+
+%% ============================================================
+\section{Software-Defined Networking Architecture}\label{sec:bg_sdn}
+%% ============================================================
+
+At its core, SDN is a paradigm shift: instead of scattering control logic across dozens of routers and switches---each running its own instance of OSPF or BGP---you pull that logic into a single piece of software sitting on a commodity server. The payoff is a unified view of the network and the ability to program its behaviour from one place. The cost, as we discuss later, is a new class of security risks. The subsections that follow walk through each architectural layer, the protocols that stitch them together, and the forwarding model that dictates how traffic actually moves.
+
+\subsection{Data Plane}\label{subsec:bg_data_plane}
+
+The data plane, also referred to as the infrastructure layer, constitutes the lowest layer of the SDN architecture. It comprises the physical and virtual network devices---switches, routers, and access points---that are responsible for the actual forwarding, dropping, and modification of network packets. In a traditional network, these devices contain embedded control logic that independently computes forwarding decisions using distributed routing protocols. In SDN, however, data-plane devices are deliberately simplified: they function as programmable forwarding elements whose behavior is entirely dictated by flow rules received from the SDN controller \cite{pfaff2015design}.
+
+Each forwarding device in the data plane maintains one or more \textit{flow tables}, which are ordered collections of flow rules. A flow rule consists of three principal components: (1) \textit{match fields}, which define the criteria for selecting packets based on header fields such as source and destination MAC addresses, IP addresses, port numbers, VLAN tags, and protocol types; (2) \textit{actions}, which specify the operations to be performed on matched packets, such as forwarding to a specific port, dropping, modifying header fields, or encapsulating the packet for delivery to the controller; and (3) \textit{counters}, which maintain statistics about the number of packets and bytes that have matched the rule and the duration for which the rule has been active \cite{openflow2015spec}.
+
+When a packet arrives at an SDN-enabled switch, the switch performs a lookup in its flow tables, proceeding through the tables in pipeline order. If a matching rule is found, the corresponding action set is executed immediately. If no match is found in any table and a table-miss flow entry exists, the default action is performed---typically sending the packet to the controller via a \texttt{Packet-In} message. The controller then examines the packet, makes a forwarding decision, and installs appropriate flow rules in the switch to handle subsequent packets belonging to the same flow. This reactive flow installation mechanism is fundamental to understanding both the flexibility and the security vulnerabilities of SDN architectures.
+
+Open vSwitch (OVS) is the most widely deployed software-based OpenFlow switch implementation \cite{pfaff2015design}. OVS supports a comprehensive set of OpenFlow features including multiple flow tables, group tables for multipath forwarding, meter tables for rate limiting, and extensive match field support. OVS operates in both the kernel space (for high-performance packet forwarding through a fast-path datapath module) and the user space (for management, control communication, and slow-path processing). The versatility of OVS has made it the de facto standard for SDN research, development, and testing, and it is the switch implementation employed in the experimental evaluation of this thesis.
+
+\subsection{Control Plane}\label{subsec:bg_control_plane}
+
+The control plane is the central intelligence of the SDN architecture, hosted on one or more controller platforms that run on commodity servers. The SDN controller maintains a comprehensive, real-time view of the entire network topology, including the connectivity between switches, the status of all links and ports, and the flow rules currently installed in each switch. This global visibility enables the controller to make informed, network-wide forwarding decisions that would be impossible in a distributed architecture where each device operates with only local knowledge \cite{kreutz2015sdn}.
+
+The SDN controller provides a rich set of core network services, including:
+
+\begin{itemize}
+    \item \textbf{Topology Discovery:} The controller actively discovers the network topology by sending Link Layer Discovery Protocol (LLDP) packets through the data-plane switches and analyzing the resulting responses. This process enables the controller to construct and maintain an accurate graph representation of the network, which serves as the basis for path computation and forwarding decisions.
+    
+    \item \textbf{Path Computation:} Using the topology graph, the controller computes optimal paths between source and destination nodes based on configurable objectives such as shortest path, minimum latency, maximum bandwidth, or load balancing. These computed paths are translated into sequences of flow rules that are installed in the switches along the path.
+    
+    \item \textbf{Flow Management:} The controller is responsible for the installation, modification, and deletion of flow rules in the data-plane switches. Flow management encompasses both proactive rule installation (where rules are pre-installed before traffic arrives) and reactive rule installation (where rules are created in response to \texttt{Packet-In} messages triggered by new flows).
+    
+    \item \textbf{Statistics Collection:} The controller periodically requests and aggregates flow statistics, port statistics, and table statistics from all switches in the network. These statistics provide critical operational insights including per-flow traffic volumes, link utilization levels, error rates, and performance metrics.
+    
+    \item \textbf{Event Handling:} The controller processes asynchronous events from the data plane, including \texttt{Packet-In} messages (triggered by unmatched packets), \texttt{Port-Status} messages (triggered by link up/down events), and \texttt{Flow-Removed} messages (triggered by rule expiration or deletion).
+\end{itemize}
+
+The Ryu SDN Framework \cite{ryu2024framework} is an open-source, Python-based SDN controller platform that provides a well-defined API for developing network applications. Ryu is fully compliant with the OpenFlow protocol specifications and supports OpenFlow versions 1.0 through 1.5. Its modular architecture allows developers to implement custom network functions as independent Python applications that register event handlers for various OpenFlow messages. The Ryu framework is employed as the controller platform in the experimental evaluation of this thesis owing to its flexibility, extensibility, and comprehensive documentation.
+
+\subsection{Application Layer}\label{subsec:bg_app_layer}
+
+The application layer sits atop the control plane and encompasses the diverse ecosystem of network applications that leverage the programmability and global visibility provided by the SDN controller. These applications communicate with the controller through northbound APIs---typically RESTful HTTP interfaces or direct Python API calls (in the case of the Ryu framework)---and implement higher-level network functions such as:
+
+\begin{itemize}
+    \item \textbf{Traffic Engineering:} Applications that optimize traffic distribution across the network to balance load, minimize congestion, and maximize throughput.
+    
+    \item \textbf{Firewalls and Access Control:} Applications that enforce security policies by installing flow rules that permit or deny traffic based on predefined criteria.
+    
+    \item \textbf{Intrusion Detection Systems:} Applications that monitor network traffic patterns and flow statistics to detect anomalous behavior indicative of security threats---this is the category into which the TCN-based IDS component of this thesis falls.
+    
+    \item \textbf{Quality of Service (QoS) Management:} Applications that allocate network resources to ensure that critical applications receive guaranteed bandwidth, latency, and jitter levels \cite{karakus2017quality}.
+    
+    \item \textbf{Network Monitoring and Visualization:} Applications that provide real-time dashboards and alerting capabilities based on the flow statistics and topology information maintained by the controller.
+\end{itemize}
+
+The layered SDN architecture---comprising the data plane, control plane, and application plane---connected through well-defined southbound and northbound interfaces, creates a modular and extensible framework for network management. However, this same architecture introduces the security challenges detailed in Chapter~\ref{chap:intro}, which motivate the design of the TCN-HMAC framework proposed in this thesis.
+
+\subsection{OpenFlow Protocol}\label{subsec:bg_openflow}
+
+The OpenFlow protocol \cite{mckeown2008openflow, openflow2015spec} is the dominant southbound interface protocol that facilitates communication between the SDN controller and the data-plane switches. OpenFlow defines a standardized set of messages and procedures that enable the controller to install, modify, query, and delete flow rules on switches, as well as to receive asynchronous notifications about network events.
+
+The OpenFlow message types can be categorized into three classes:
+
+\begin{enumerate}
+    \item \textbf{Controller-to-Switch Messages:} These are initiated by the controller and include \texttt{Flow-Mod} (install/modify/delete flow rules), \texttt{Packet-Out} (send a packet out through a specific switch port), \texttt{Stats-Request} (query flow/port/table statistics), \texttt{Barrier-Request} (ensure processing order), and \texttt{Role-Request} (set the controller's role in multi-controller setups).
+    
+    \item \textbf{Asynchronous Messages:} These are initiated by the switch without solicitation from the controller and include \texttt{Packet-In} (unmatched packet forwarded to controller), \texttt{Flow-Removed} (notification that a flow rule has been removed), \texttt{Port-Status} (notification of port state changes), and \texttt{Error} (notification of error conditions).
+    
+    \item \textbf{Symmetric Messages:} These can be initiated by either the controller or the switch and include \texttt{Hello} (connection establishment), \texttt{Echo-Request}/\texttt{Echo-Reply} (liveness checking), and \texttt{Experimenter} (vendor-specific extensions).
+\end{enumerate}
+
+The OpenFlow specification recommends the use of Transport Layer Security (TLS) to protect the control channel between the controller and switches. However, as noted in Section~\ref{subsec:sdn_security_challenges}, TLS adoption remains inconsistent across deployments, and TLS alone does not provide end-to-end semantic integrity verification of flow rules. This gap motivates the HMAC-based verification mechanism employed in the TCN-HMAC framework.
+
+The \texttt{Flow-Mod} message is of particular importance to this thesis because it is the primary mechanism through which flow rules are installed in switches. A \texttt{Flow-Mod} message contains a cookie field---a 64-bit opaque value that the controller can set arbitrarily and that is returned in flow statistics and \texttt{Flow-Removed} messages. The TCN-HMAC framework leverages this cookie field to embed HMAC-based integrity tags without modifying the OpenFlow protocol itself.
+
+%% ============================================================
+\section{Temporal Convolutional Networks}\label{sec:bg_tcn}
+%% ============================================================
+
+Temporal Convolutional Networks (TCNs) take a different approach to sequence modelling than the recurrent networks (LSTMs, GRUs) that dominated the field for years \cite{bai2018empirical}. Rather than stepping through a sequence one element at a time, a TCN processes the whole sequence at once using one-dimensional convolutions. This seemingly simple swap has major practical consequences: training and inference are faster (because convolutions parallelise naturally on GPUs), gradients behave better during backpropagation, and the receptive field is easy to control. The subsections below unpack each of the architectural components that give TCNs these properties.
+
+\subsection{Causal Convolutions}\label{subsec:bg_causal_conv}
+
+The fundamental building block of a TCN is the causal convolution, which ensures that the output at any time step $t$ depends only on inputs from the current and preceding time steps, never from future time steps. Formally, for a one-dimensional input sequence $\mathbf{x} = (x_0, x_1, \ldots, x_{T-1})$ and a filter $\mathbf{f} = (f_0, f_1, \ldots, f_{K-1})$ of size $K$, the causal convolution at time step $t$ is defined as:
+
+\begin{equation}
+    (\mathbf{x} *_c \mathbf{f})(t) = \sum_{k=0}^{K-1} f_k \cdot x_{t-k}
+\end{equation}
+
+\noindent where $x_{t-k} = 0$ for $t - k < 0$ (zero-padding on the left side only). This formulation ensures that the output at time $t$ is computed using only inputs from times $t, t-1, \ldots, t-K+1$, preserving the temporal ordering of the sequence. Causality is a critical property for real-time applications such as network intrusion detection, where predictions must be based solely on currently available and historical data, without access to future observations.
+
+In practice, causal convolutions in TCNs are implemented using standard one-dimensional convolution operations with appropriate left-side zero-padding. Specifically, for a kernel of size $K$, $(K-1)$ zeros are prepended to the input sequence before applying a standard convolution, and the output is truncated to the same length as the original input. This padding scheme ensures that the output sequence has the same temporal length as the input sequence while maintaining strict causality.
+
+\subsection{Dilated Convolutions}\label{subsec:bg_dilated_conv}
+
+A significant limitation of standard causal convolutions is that the receptive field---the number of input time steps that influence a given output---grows linearly with the number of convolutional layers. Specifically, a stack of $L$ layers with kernel size $K$ produces a receptive field of $1 + L(K-1)$ time steps. Achieving a large receptive field therefore requires either very deep networks (many layers) or very wide kernels (large $K$), both of which increase computational cost and parameter count \cite{oord2016wavenet}.
+
+Dilated convolutions resolve this limitation by introducing a dilation factor $d$ that controls the spacing between the kernel elements. For a dilation factor $d$, the dilated causal convolution is defined as:
+
+\begin{equation}
+    (\mathbf{x} *_{d} \mathbf{f})(t) = \sum_{k=0}^{K-1} f_k \cdot x_{t - d \cdot k}
+\end{equation}
+
+\noindent where $d$ is the dilation rate. When $d = 1$, the dilated convolution reduces to a standard convolution. As $d$ increases, the kernel elements are spaced further apart, effectively allowing the convolution to ``skip'' over input elements and access a wider range of temporal context. The key insight is that by exponentially increasing the dilation factor across layers---typically using a geometric progression $d_l = 2^{l-1}$ for layer $l$---the receptive field grows exponentially with the number of layers rather than linearly. Specifically, for $L$ layers with dilation factors $d_l = 2^{l-1}$ and kernel size $K$, the receptive field is:
+
+\begin{equation}
+    R = 1 + (K - 1) \sum_{l=0}^{L-1} 2^l = 1 + (K - 1)(2^L - 1)
+\end{equation}
+
+For the TCN architecture employed in this thesis with $K = 3$ and $L = 6$ (dilation factors $[1, 2, 4, 8, 16, 32]$), the receptive field is $1 + 2 \times (2^6 - 1) = 1 + 2 \times 63 = 127$ time steps. Since the input sequence length is 24 (corresponding to 24 PCA components), this receptive field of 127 time steps is more than sufficient to capture dependencies across the entire input sequence, ensuring that the deepest layer has global context access.
+
+\subsection{Residual Connections}\label{subsec:bg_residual}
+
+Deep neural networks are susceptible to the degradation problem, wherein increasing network depth leads to higher training error due to the difficulty of learning identity mappings through multiple nonlinear transformations \cite{he2016deep}. Residual connections, introduced by He et al. in the ResNet architecture, address this problem by providing shortcut connections that allow the gradient to flow directly from later layers back to earlier layers, bypassing the nonlinear transformations in between.
+
+In a TCN residual block, the input $\mathbf{x}$ is processed through a sequence of dilated causal convolutions, batch normalization, activation functions, and dropout layers to produce a transformed output $\mathcal{F}(\mathbf{x})$. The block output is then computed as:
+
+\begin{equation}
+    \text{output} = \text{ReLU}(\mathcal{F}(\mathbf{x}) + \mathbf{x})
+\end{equation}
+
+\noindent where $\mathcal{F}(\mathbf{x})$ represents the residual function learned by the convolutional layers, and $\mathbf{x}$ is the identity shortcut connection. When the dimensionality of $\mathbf{x}$ does not match that of $\mathcal{F}(\mathbf{x})$---for example, when the number of channels (filters) changes between layers---a $1 \times 1$ convolutional projection is applied to $\mathbf{x}$ to align the dimensions:
+
+\begin{equation}
+    \text{output} = \text{ReLU}(\mathcal{F}(\mathbf{x}) + W_s \mathbf{x})
+\end{equation}
+
+\noindent where $W_s$ is the $1 \times 1$ convolution weight matrix. This projection adds a small number of additional parameters but ensures that the residual connection can function regardless of dimensional mismatches.
+
+Residual connections provide several important benefits for TCN training: (1) they enable the training of substantially deeper networks by mitigating the vanishing gradient problem; (2) they facilitate the learning of identity mappings, allowing the network to effectively ``skip'' layers that do not contribute useful transformations; and (3) they promote feature reuse across layers, improving the representational efficiency of the network.
+
+\subsection{Batch Normalization}\label{subsec:bg_batchnorm}
+
+Batch normalization \cite{ioffe2015batch} is a regularization technique that normalizes the activations of each layer to have zero mean and unit variance within each mini-batch during training. For a mini-batch $\mathcal{B} = \{x_1, x_2, \ldots, x_m\}$ of $m$ activation values at a particular layer, batch normalization computes:
+
+\begin{equation}
+    \hat{x}_i = \frac{x_i - \mu_{\mathcal{B}}}{\sqrt{\sigma_{\mathcal{B}}^2 + \epsilon}}
+\end{equation}
+
+\noindent where $\mu_{\mathcal{B}} = \frac{1}{m}\sum_{i=1}^{m} x_i$ is the mini-batch mean, $\sigma_{\mathcal{B}}^2 = \frac{1}{m}\sum_{i=1}^{m}(x_i - \mu_{\mathcal{B}})^2$ is the mini-batch variance, and $\epsilon$ is a small constant (typically $10^{-5}$) added for numerical stability. The normalized values are then scaled and shifted using learned parameters $\gamma$ and $\beta$:
+
+\begin{equation}
+    y_i = \gamma \hat{x}_i + \beta
+\end{equation}
+
+Batch normalization addresses the internal covariate shift problem---the phenomenon where the distribution of layer inputs changes during training as the parameters of preceding layers are updated. By stabilizing these distributions, batch normalization enables the use of higher learning rates, reduces sensitivity to weight initialization, and acts as a regularizer that can reduce the need for dropout in some architectures. In the TCN architecture employed in this thesis, batch normalization is applied after each convolutional layer and before the activation function, following the convention established in the original TCN literature \cite{bai2018empirical}.
+
+\subsection{Dropout and Spatial Dropout}\label{subsec:bg_dropout}
+
+Dropout \cite{srivastava2014dropout} is a regularization technique that randomly sets a fraction $p$ of the activations to zero during each training iteration. This prevents the network from developing co-dependent feature detectors and encourages the learning of more robust, distributed representations. During inference, all activations are retained but scaled by a factor of $(1 - p)$ to compensate for the difference in expected activation magnitude (or, equivalently, the training activations can be scaled by $\frac{1}{1-p}$, which is the inverted dropout approach used in most modern frameworks).
+
+For one-dimensional convolutional networks processing sequential data, standard element-wise dropout can disrupt the spatial structure of the feature maps. Spatial dropout addresses this issue by dropping entire feature map channels rather than individual elements. Specifically, for a feature tensor of shape $(N, T, C)$ where $N$ is the batch size, $T$ is the temporal dimension, and $C$ is the number of channels, spatial dropout creates a binary mask of shape $(N, 1, C)$ and broadcasts it across the temporal dimension. This ensures that when a channel is dropped, it is dropped for all time steps simultaneously, preserving the temporal coherence of the remaining channels.
+
+The TCN architecture in this thesis employs spatial dropout with a rate of $p = 0.2$ after each pair of convolutional-batch normalization-activation operations within the residual blocks. Standard dropout with the same rate is applied in the dense classification head. These dropout rates were determined through preliminary hyperparameter search and provide an effective balance between regularization strength and model expressiveness.
+
+\subsection{Global Average Pooling}\label{subsec:bg_gap}
+
+After the sequence of residual blocks, the TCN produces a three-dimensional feature tensor of shape $(N, T, C)$, where $N$ is the batch size, $T$ is the sequence length, and $C$ is the number of channels in the final convolutional layer. To convert this temporal feature representation into a fixed-length vector suitable for classification, global average pooling (GAP) is applied along the temporal dimension:
+
+\begin{equation}
+    z_c = \frac{1}{T} \sum_{t=0}^{T-1} h_{t,c}
+\end{equation}
+
+\noindent where $h_{t,c}$ is the activation at time step $t$ for channel $c$, and $z_c$ is the resulting pooled value for channel $c$. GAP reduces the feature tensor from shape $(N, T, C)$ to $(N, C)$, producing a compact representation that captures the average temporal behavior across the entire sequence for each feature channel.
+
+GAP offers several advantages over alternative aggregation strategies such as flattening or temporal max pooling: (1) it is parameter-free, adding no additional trainable weights; (2) it provides inherent robustness to temporal shifts in the input, since averaging over time is less sensitive to the exact position of discriminative patterns; and (3) it produces a more compact representation than flattening, reducing the risk of overfitting in the subsequent dense layers.
+
+\subsection{Advantages of TCNs over Recurrent Architectures}\label{subsec:bg_tcn_advantages}
+
+TCNs offer several compelling advantages over recurrent neural network architectures such as Long Short-Term Memory (LSTM) \cite{hochreiter1997long} and Gated Recurrent Units (GRU) \cite{cho2014learning} for the network intrusion detection task:
+
+\begin{enumerate}
+    \item \textbf{Parallelism:} TCN computations are fully parallelizable across time steps because each convolutional operation processes all time steps simultaneously. In contrast, RNNs must process the sequence one time step at a time, with each step depending on the hidden state computed at the previous step. This sequential dependency prevents effective parallelization and results in significantly longer training and inference times, particularly for long sequences.
+    
+    \item \textbf{Stable Gradients:} TCNs exhibit stable gradient behavior during backpropagation because the gradient path from output to input passes through only a fixed number of convolutional layers, regardless of the sequence length. RNNs, by contrast, propagate gradients through a number of computational steps equal to the sequence length, making them susceptible to vanishing and exploding gradient problems that can destabilize training and degrade model performance.
+    
+    \item \textbf{Controllable Receptive Field:} The receptive field of a TCN is precisely deterministic and controllable through the choice of kernel size, dilation factors, and number of layers. This allows the network designer to explicitly specify the temporal context available to the model, ensuring that important long-range dependencies are captured without unnecessary computational overhead. In RNNs, the effective memory span is learned implicitly and is often shorter than the sequence length due to gradient decay.
+    
+    \item \textbf{Memory Efficiency:} TCNs share convolutional filters across all time steps, resulting in a parameter count that is independent of the sequence length. RNNs, while also sharing parameters across time steps through their recurrent connections, require maintaining hidden states for the duration of the sequence during both training (for backpropagation through time) and inference, consuming additional memory proportional to the sequence length.
+    
+    \item \textbf{Empirical Performance:} Bai et al.\ \cite{bai2018empirical} conducted a comprehensive empirical evaluation demonstrating that TCNs achieve competitive or superior performance compared to canonical recurrent architectures (LSTM, GRU) across a diverse range of sequence modeling benchmarks. Subsequent studies specifically in the network intrusion detection domain \cite{Lopes2023TCN, LiLi2025TCNSE, Nazre2024TCN} have confirmed these findings, showing that TCNs offer favorable accuracy--latency tradeoffs for real-time security applications.
+\end{enumerate}
+
+These advantages collectively make TCNs an attractive choice for the intrusion detection component of the TCN-HMAC framework, where real-time inference speed, training stability, and high detection accuracy are primary requirements.
+
+%% ============================================================
+\section{Hash-Based Message Authentication Codes}\label{sec:bg_hmac}
+%% ============================================================
+
+An HMAC is, at its heart, a way to slap a tamper-evident seal on a message using a shared secret \cite{krawczyk1997hmac}. Unlike digital signatures, which rely on public-key cryptography and are comparatively expensive, HMACs use symmetric keys and run fast---fast enough to authenticate thousands of messages per second without anyone noticing the overhead. That speed is precisely why HMACs suit SDN flow-rule verification so well.
+
+\subsection{Mathematical Definition}\label{subsec:bg_hmac_math}
+
+Given a cryptographic hash function $H$ (such as SHA-256 \cite{nist2015sha}), a secret key $K$, and a message $M$, the HMAC is computed as:
+
+\begin{equation}
+    \text{HMAC}(K, M) = H\bigl((K' \oplus opad) \,\|\, H((K' \oplus ipad) \,\|\, M)\bigr)
+\end{equation}
+
+\noindent where:
+\begin{itemize}
+    \item $K'$ is the key $K$ padded to the block size $B$ of the hash function (if $|K| > B$, then $K' = H(K)$; if $|K| < B$, then $K$ is right-padded with zeros)
+    \item $\oplus$ denotes the bitwise exclusive-OR operation
+    \item $\|$ denotes concatenation
+    \item $ipad$ is the inner padding constant: the byte \texttt{0x36} repeated $B$ times
+    \item $opad$ is the outer padding constant: the byte \texttt{0x5C} repeated $B$ times
+\end{itemize}
+
+The double-hashing construction---where the message is first hashed with the key XORed with the inner pad, and the result is then hashed again with the key XORed with the outer pad---is essential for the security of the HMAC. This construction prevents length-extension attacks and other vulnerabilities that would affect a naïve $H(K \| M)$ construction.
+
+\subsection{Security Properties}\label{subsec:bg_hmac_security}
+
+HMACs provide two fundamental security guarantees:
+
+\begin{enumerate}
+    \item \textbf{Message Integrity:} Any modification to the message $M$---even a single bit change---will produce a completely different HMAC value with overwhelming probability. This property enables the recipient to detect any tampering with the message during transmission.
+    
+    \item \textbf{Message Authentication:} Only a party possessing the secret key $K$ can compute a valid HMAC for a given message. This property ensures that a message with a valid HMAC was originated by a party that knows the key, thereby authenticating the source of the message.
+\end{enumerate}
+
+The security of HMAC relies on the underlying hash function being collision-resistant and preimage-resistant. When instantiated with SHA-256, HMAC provides a 256-bit authentication tag, offering a security level of $2^{128}$ against brute-force forgery attacks (due to the birthday bound on the internal state). This security level is considered more than sufficient for all practical applications, including the flow rule verification use case in this thesis \cite{menezes2018handbook}.
+
+\subsection{Computational Efficiency}\label{subsec:bg_hmac_efficiency}
+
+A critical advantage of HMAC for SDN flow rule verification is its computational efficiency. HMAC computation requires only two invocations of the underlying hash function, regardless of the message length (for messages shorter than the hash block size). On modern processors with hardware acceleration for SHA-256 (available in Intel SHA Extensions and ARM Cryptography Extensions), a single HMAC-SHA256 computation can complete in less than $1~\mu s$ for typical flow rule messages. This efficiency is in stark contrast to asymmetric cryptographic operations such as RSA-2048 signature generation, which typically requires $0.5$--$2~ms$ per operation, or ECDSA-256 signature generation, which requires $0.1$--$0.5~ms$ per operation \cite{rivest1978method}.
+
+In the SDN context, where flow rules may be installed, modified, and deleted at rates of hundreds or thousands per second, the sub-microsecond HMAC computation time ensures that integrity verification does not introduce perceptible latency overhead. This property is fundamental to the practicality of the TCN-HMAC framework, as it enables real-time verification without degrading network performance.
+
+\subsection{HMAC in the Context of SDN Flow Rule Verification}\label{subsec:bg_hmac_sdn}
+
+The application of HMAC to SDN flow rule verification involves the following conceptual process: when the controller prepares a flow rule for installation, it computes an HMAC over the essential fields of the flow rule (match fields and actions) using a symmetric key shared with the verification agent. The resulting HMAC tag is embedded in the cookie field of the OpenFlow \texttt{Flow-Mod} message. The verification agent, which has access to the same symmetric key, can independently recompute the HMAC from the flow rule fields and compare it with the embedded cookie. A mismatch indicates that the flow rule has been tampered with in transit or was not originated by the legitimate controller \cite{Ahmed2023HMACSDN}.
+
+This verification scheme has several desirable properties: (1) it requires no modifications to the OpenFlow protocol, as it uses the existing cookie field; (2) it does not require modifications to the switch hardware or firmware; (3) it is computationally lightweight, with negligible impact on controller and switch performance; and (4) it can be deployed incrementally, as it operates independently of other security mechanisms that may or may not be present in the deployment.
+
+%% ============================================================
+\section{Deep Learning for Network Intrusion Detection}\label{sec:bg_dl_ids}
+%% ============================================================
+
+Network Intrusion Detection Systems (NIDS) monitor live traffic for signs of malicious activity, policy violations, or unusual behaviour \cite{moustafa2023feature}. The classical approach is signature-based: compare what you see against a catalogue of known-bad patterns. This works passably well for known attacks but is blind to anything the catalogue does not already contain. That blind spot---zero-day attacks, novel exploit chains, traffic patterns that have never been seen before---has pushed the community toward anomaly-based methods that learn what ``normal'' looks like and raise an alarm when something deviates.
+
+\subsection{Machine Learning Approaches}\label{subsec:bg_ml_ids}
+
+Classical machine learning algorithms have been extensively applied to network intrusion detection. Random Forests \cite{breiman2001random} construct ensembles of decision trees trained on random subsets of features and samples, achieving robust classification through majority voting. XGBoost \cite{chen2016xgboost} extends gradient-boosted decision trees with regularization and second-order optimization, offering strong performance on tabular data. Support Vector Machines (SVMs) find optimal hyperplanes for class separation in high-dimensional feature spaces. These methods have demonstrated moderate success on benchmark intrusion detection datasets but share several limitations: they require extensive manual feature engineering, struggle with high-dimensional and correlated features, and have limited ability to capture complex nonlinear patterns and temporal dependencies in network traffic \cite{pan2023feature}.
+
+\subsection{Deep Learning Approaches}\label{subsec:bg_dl_ids_approaches}
+
+Deep learning architectures have emerged as powerful alternatives that can automatically learn hierarchical feature representations from raw or minimally preprocessed data, eliminating the need for manual feature engineering \cite{ismail2019deep}.
+
+\textbf{Convolutional Neural Networks (CNNs):} One-dimensional CNNs can extract local spatial patterns from feature vectors by applying sliding convolutional filters. While effective for capturing local correlations between adjacent features, standard CNNs lack inherent temporal awareness and treat the input as a fixed-length feature vector rather than a temporal sequence. This limits their ability to model the sequential dependencies present in network flow data.
+
+\textbf{Recurrent Neural Networks (RNNs):} LSTM networks \cite{hochreiter1997long} and GRUs \cite{cho2014learning} are designed to model sequential data by maintaining hidden states that capture temporal dependencies. LSTMs introduce gating mechanisms (input, forget, and output gates) that control the flow of information through the network, enabling the selective retention and updating of long-term memories. While highly effective for sequence modeling, LSTMs and GRUs suffer from sequential processing constraints that limit parallelism and increase inference latency.
+
+\textbf{Autoencoders:} Autoencoder-based approaches \cite{yang2022autoencoder} learn compressed representations of normal traffic patterns and detect anomalies based on reconstruction error. Inputs that cannot be accurately reconstructed by the autoencoder (i.e., those with high reconstruction error) are flagged as anomalous. While effective for unsupervised anomaly detection, autoencoders may struggle with complex attack patterns that partially overlap with normal traffic in the learned feature space.
+
+\textbf{Transformers:} Transformer-based architectures \cite{vaswani2017attention, wu2022rtids} use self-attention mechanisms to model dependencies between all positions in a sequence simultaneously, enabling the capture of long-range interactions without the sequential processing constraint of RNNs. However, the quadratic computational complexity of self-attention with respect to the sequence length makes Transformers computationally expensive for long sequences, and the large number of parameters in typical Transformer configurations can lead to overfitting on small to medium-sized intrusion detection datasets.
+
+\textbf{Temporal Convolutional Networks:} TCNs \cite{bai2018empirical} combine the parallel processing efficiency of CNNs with the temporal modeling capability of dilated causal convolutions, achieving a favorable balance between detection accuracy, inference speed, and model complexity. The application of TCNs to network intrusion detection has been explored in several recent studies \cite{Lopes2023TCN, Benfarhat2025TCN, LiLi2025TCNSE, Nazre2024TCN, Sun2025TCN}, with results demonstrating competitive or superior performance compared to recurrent alternatives.
+
+\subsection{Feature Engineering for Intrusion Detection}\label{subsec:bg_feature_eng}
+
+Effective feature engineering is critical for the performance of both machine learning and deep learning-based intrusion detection systems. Network flow features can be broadly categorized as:
+
+\begin{itemize}
+    \item \textbf{Packet Header Features:} Information extracted from packet headers, including source and destination IP addresses, port numbers, protocol types, and flag fields. These features capture the communication patterns and endpoint characteristics of network flows.
+    
+    \item \textbf{Flow Duration Features:} Temporal characteristics of flows, including total duration, inter-packet arrival times, and the timing of the first and last packets. These features are particularly useful for detecting attacks with distinctive temporal signatures, such as DDoS floods (short inter-arrival times) or slow probes (long inter-arrival times).
+    
+    \item \textbf{Volume Features:} Quantitative measures of traffic volume, including total bytes transferred, total packets, forward and backward packet counts, and payload sizes. These features help distinguish between bandwidth-intensive attacks and normal traffic.
+    
+    \item \textbf{Statistical Features:} Higher-order statistics computed over packet-level measurements, including mean, standard deviation, minimum, maximum, and inter-quartile range of packet sizes and inter-arrival times. These features capture the distributional characteristics of traffic that can reveal anomalous behavior.
+\end{itemize}
+
+Feature selection and dimensionality reduction techniques are commonly employed to remove redundant and irrelevant features, reducing computational cost and improving model generalization. Pearson correlation-based feature selection identifies and removes highly correlated feature pairs, while Principal Component Analysis (PCA) projects the feature space onto a lower-dimensional subspace that captures the maximum variance \cite{benesty2009pearson}. Both techniques are employed in the preprocessing pipeline of this thesis, as detailed in Chapter~\ref{chap:dataset}.
+
+%% ============================================================
+\section{Evaluation Metrics for Intrusion Detection}\label{sec:bg_metrics}
+%% ============================================================
+
+The performance of intrusion detection systems is evaluated using a set of standard classification metrics derived from the confusion matrix. For a binary classification task with positive (attack) and negative (benign) classes, the confusion matrix contains four quantities: True Positives (TP), True Negatives (TN), False Positives (FP), and False Negatives (FN) \cite{sokolova2009systematic}.
+
+\textbf{Accuracy} measures the proportion of correctly classified samples out of the total number of samples:
+\begin{equation}
+    \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\end{equation}
+
+\textbf{Precision} measures the proportion of predicted positives that are truly positive, reflecting the reliability of positive predictions:
+\begin{equation}
+    \text{Precision} = \frac{TP}{TP + FP}
+\end{equation}
+
+\textbf{Recall} (also called Sensitivity or Detection Rate) measures the proportion of actual positives that are correctly identified:
+\begin{equation}
+    \text{Recall} = \frac{TP}{TP + FN}
+\end{equation}
+
+\textbf{F1-Score} is the harmonic mean of precision and recall, providing a single metric that balances both concerns:
+\begin{equation}
+    \text{F1} = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}
+\end{equation}
+
+\textbf{Specificity} measures the proportion of actual negatives that are correctly identified:
+\begin{equation}
+    \text{Specificity} = \frac{TN}{TN + FP}
+\end{equation}
+
+\textbf{False Alarm Rate} (FAR), also called False Positive Rate (FPR), measures the proportion of actual negatives that are incorrectly classified as positive:
+\begin{equation}
+    \text{FAR} = \frac{FP}{FP + TN} = 1 - \text{Specificity}
+\end{equation}
+
+\textbf{Receiver Operating Characteristic (ROC) Curve and Area Under the Curve (AUC):} The ROC curve \cite{fawcett2006introduction} plots the True Positive Rate (Recall) against the False Positive Rate at various classification thresholds. The AUC summarizes the ROC curve as a single scalar value between 0 and 1, where 1 indicates perfect classification and 0.5 indicates random chance. AUC is particularly useful for evaluating classifiers on imbalanced datasets, as it is invariant to the class distribution.
+
+In the context of intrusion detection, recall (detection rate) is typically considered the most critical metric because a missed attack (false negative) can have severe security consequences. However, a high false alarm rate (low precision) can lead to alert fatigue and desensitization of security operators. The ideal intrusion detection system achieves high recall and precision simultaneously, which is reflected by a high F1-score.
+
+%% ============================================================
+\section{Principal Component Analysis}\label{sec:bg_pca}
+%% ============================================================
+
+Principal Component Analysis (PCA) is a linear dimensionality reduction technique that projects high-dimensional data onto a lower-dimensional subspace defined by the directions of maximum variance. Given a dataset $\mathbf{X} \in \mathbb{R}^{n \times p}$ with $n$ samples and $p$ features, PCA computes the eigendecomposition of the covariance matrix $\mathbf{C} = \frac{1}{n-1}\mathbf{X}^T\mathbf{X}$ (assuming centered data) to obtain a set of orthogonal eigenvectors $\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_p$ and corresponding eigenvalues $\lambda_1 \geq \lambda_2 \geq \ldots \geq \lambda_p$. The eigenvectors, called principal components, define the directions of maximum variance, and the eigenvalues quantify the variance captured along each direction.
+
+Dimensionality reduction is achieved by projecting the data onto the first $k < p$ principal components:
+\begin{equation}
+    \mathbf{Z} = \mathbf{X} \mathbf{V}_k
+\end{equation}
+\noindent where $\mathbf{V}_k = [\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_k]$ is the matrix of the first $k$ eigenvectors. The proportion of total variance retained by the $k$-component projection is:
+\begin{equation}
+    \text{Variance Retained} = \frac{\sum_{i=1}^{k} \lambda_i}{\sum_{i=1}^{p} \lambda_i}
+\end{equation}
+
+In this thesis, PCA is applied to reduce the 48-dimensional feature space of the preprocessed InSDN dataset to 24 principal components that retain 95.43\% of the total variance. This reduction halves the input dimensionality while preserving the vast majority of the discriminative information, resulting in faster model training and inference, reduced risk of overfitting, and improved model generalization. The 24 PCA components are subsequently treated as a temporal sequence of length 24 with a single channel, which serves as the input to the TCN model.
+
+%% ============================================================
+\section{Class Imbalance Handling}\label{sec:bg_class_imbalance}
+%% ============================================================
+
+Class imbalance is a pervasive challenge in intrusion detection datasets, where attack samples typically constitute a small fraction of the total traffic. In the InSDN dataset used in this thesis, the class distribution after preprocessing and deduplication is approximately 35\% benign and 65\% attack, representing a moderate level of imbalance. Class imbalance can bias the model toward the majority class, leading to high overall accuracy but poor detection of the minority class \cite{johnson2019survey}.
+
+Several strategies have been proposed to address class imbalance:
+
+\textbf{Oversampling:} The Synthetic Minority Over-sampling Technique (SMOTE) \cite{chawla2002smote} generates synthetic samples for the minority class by interpolating between existing minority samples and their nearest neighbors. While effective, SMOTE can introduce artificial patterns that may not reflect real-world traffic distributions.
+
+\textbf{Undersampling:} Random undersampling reduces the number of majority class samples to match the minority class. While simple, this approach discards potentially valuable data.
+
+\textbf{Class Weighting:} Instead of modifying the dataset, class weighting adjusts the loss function to assign higher weights to minority class samples during training. This approach preserves the original data distribution while ensuring that the model penalizes misclassifications of the minority class more heavily. For a binary classification task with class counts $n_0$ (benign) and $n_1$ (attack), the class weights are typically computed as:
+\begin{equation}
+    w_c = \frac{N}{C \cdot n_c}
+\end{equation}
+\noindent where $N$ is the total number of samples, $C$ is the number of classes, and $n_c$ is the number of samples in class $c$.
+
+In this thesis, class weighting is employed as the primary strategy for handling class imbalance, with computed weights of 1.4258 for the benign class and 0.7700 for the attack class. This approach was chosen over SMOTE because it preserves the authentic distribution of the training data, does not introduce synthetic samples that might reduce model generalizability, and integrates seamlessly with the binary cross-entropy loss function used for training.
+
+%% ============================================================
+\section{Chapter Summary}\label{sec:bg_summary}
+%% ============================================================
+
+This chapter has surveyed the technical building blocks underpinning the TCN-HMAC framework. We began with the layered SDN architecture---data plane, control plane, application plane, and the OpenFlow protocol that connects them---and then turned to the TCN, walking through causal and dilated convolutions, residual connections, batch normalisation, dropout, and global average pooling. The HMAC was examined next: its mathematical construction, its security properties, and its suitability for high-throughput flow-rule verification. Finally, we reviewed deep learning-based IDS approaches, the standard evaluation metrics, PCA, and class-imbalance handling strategies. With this groundwork in place, the chapters that follow can focus on how these pieces fit together in the proposed framework.
+
+\endinput

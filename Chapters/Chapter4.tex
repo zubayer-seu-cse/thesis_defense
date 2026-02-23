@@ -1,0 +1,425 @@
+\chapter{Dataset and Preprocessing}\label{chap:dataset}
+
+A model is only as good as the data it learns from, so getting the data right matters as much as getting the architecture right. This chapter walks through the InSDN dataset---its composition, features, class distributions, and attack scenarios---and then describes the fifteen-stage preprocessing pipeline that turns the raw captures into a clean, compact, TCN-ready representation. Along the way, we explain why each preprocessing decision was made and how it affects downstream performance.
+
+%% ============================================================
+\section{The InSDN Dataset}\label{sec:insdn_overview}
+%% ============================================================
+
+Most publicly available IDS datasets---NSL-KDD, UNSW-NB15, CICIDS-2017---were captured in traditional network architectures, and applying them to SDN research introduces a domain mismatch. The InSDN dataset \cite{elsayed2020insdn} was purpose-built to avoid that problem: it was generated inside a dedicated SDN testbed, so the traffic flows, feature distributions, and attack manifestations genuinely reflect the way an SDN operates \cite{Khalid2024InSDNSurvey}.
+
+\subsection{Dataset Generation Environment}\label{subsec:insdn_env}
+
+The InSDN dataset was generated in a controlled SDN testbed environment comprising an SDN controller, OpenFlow-enabled switches, and multiple end hosts. The testbed topology was designed to simulate a realistic enterprise network with multiple segments, including server farms, client workstations, and external network connections. Traffic generation was performed using a combination of legitimate traffic generators (to produce realistic benign traffic patterns) and attack tools (to generate representative malicious traffic across multiple attack categories). The CICFlowMeter tool was used to extract flow-level features from the captured network traffic, producing a comprehensive set of 84 flow-level features for each observed network flow.
+
+\subsection{Source Files and Composition}\label{subsec:insdn_files}
+
+The InSDN dataset is distributed as three separate CSV files, each representing traffic captured from a different segment or perspective of the SDN testbed:
+
+\begin{table}[ht]
+\centering
+\caption{InSDN Dataset Source Files}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Source File} & \textbf{Traffic Type} & \textbf{Description} \\
+\midrule
+\texttt{Normal\_data.csv} & Benign & Normal/benign network traffic \\
+\texttt{OVS.csv} & Mixed & Open vSwitch traffic traces \\
+\texttt{metasploitable-2.csv} & Mixed & Traffic including Metasploitable-2 attacks \\
+\midrule
+\textbf{Combined (raw)} & \textbf{Mixed} & \textbf{343,889 total rows} \\
+\bottomrule
+\end{tabular}
+\label{tab:insdn_files}
+\end{table}
+
+All three files share an identical 84-column schema, ensuring seamless concatenation during preprocessing. The combined raw dataset contains 343,889 network flow records spanning both benign traffic and multiple attack categories. The \texttt{Label} column contains free-text class names that identify each flow as either ``Normal'' (benign) or as a specific attack type string.
+
+\subsection{Feature Schema}\label{subsec:insdn_features}
+
+The InSDN dataset contains 84 features per flow record, capturing a comprehensive set of flow-level statistics extracted by CICFlowMeter. These features can be categorized into the following groups:
+
+\textbf{Identifier Features:} These include \texttt{Flow~ID}, \texttt{Src~IP}, \texttt{Src~Port}, \texttt{Dst~IP}, \texttt{Dst~Port}, and \texttt{Timestamp}. These features uniquely identify individual flows and their endpoints but do not carry generalizable information for classification. They are removed during preprocessing to prevent the model from memorizing flow-specific identifiers rather than learning generalizable patterns.
+
+\textbf{Duration Features:} \texttt{Flow Duration} captures the total duration of each flow in microseconds. Longer flows may indicate persistent connections (potentially benign) or sustained attacks, while very short flows may indicate scanning or probing activity.
+
+\textbf{Packet Count Features:} Features such as \texttt{Total Fwd Packets}, \texttt{Total Bwd Packets}, and their derived statistics capture the volume and directionality of packet exchanges. Attack flows often exhibit asymmetric packet counts (e.g., DDoS attacks generate many forward packets with few backward packets).
+
+\textbf{Byte Count Features:} \texttt{Total Length of Fwd Packets}, \texttt{Total Length of Bwd Packets}, and related features quantify the volume of data transferred in each direction. These features help distinguish between data-heavy attacks (e.g., exfiltration) and lightweight attacks (e.g., probes).
+
+\textbf{Packet Length Statistics:} Features including \texttt{Fwd Packet Length Max/Min/Mean/Std} and \texttt{Bwd Packet Length Max/Min/Mean/Std} provide distributional statistics about packet sizes. Attack traffic often exhibits distinctive packet size distributions---for example, DDoS floods may use uniformly sized packets, while normal traffic exhibits greater variability.
+
+\textbf{Inter-Arrival Time Features:} \texttt{Flow IAT Mean/Std/Max/Min} and their forward/backward variants capture the timing patterns between consecutive packets. These features are particularly valuable for detecting attacks with distinctive temporal signatures, such as high-rate floods (very low IAT) or slow-and-low attacks (very high IAT).
+
+\textbf{Flag Features:} Features based on TCP flags (\texttt{FIN Flag Count}, \texttt{SYN Flag Count}, \texttt{RST Flag Count}, \texttt{PSH Flag Count}, \texttt{ACK Flag Count}, \texttt{URG Flag Count}, \texttt{CWE Flag Count}, \texttt{ECE Flag Count}) capture the protocol behavior of each flow. Abnormal flag patterns are strong indicators of specific attack types---for example, SYN floods generate disproportionately many SYN flags without corresponding ACKs, and port scans produce flows with high RST flag counts.
+
+\textbf{Flow-Level Metrics:} Features such as \texttt{Flow Bytes/s}, \texttt{Flow Packets/s}, \texttt{Down/Up Ratio}, and \texttt{Average Packet Size} provide normalized and derived metrics that capture the overall characteristics and intensity of each flow.
+
+\textbf{Sub-flow Features:} \texttt{Subflow Fwd/Bwd Packets} and \texttt{Subflow Fwd/Bwd Bytes} capture the packet and byte counts at the sub-flow level, providing finer-grained visibility into the flow's internal structure.
+
+\textbf{Active/Idle Features:} \texttt{Active Mean/Std/Max/Min} and \texttt{Idle Mean/Std/Max/Min} characterize the active and idle periods within each flow, capturing the burstiness and periodicity of traffic patterns.
+
+\subsection{Attack Categories}\label{subsec:insdn_attacks}
+
+The InSDN dataset includes four major categories of network attacks that represent the most prevalent and impactful threats to SDN environments:
+
+\textbf{Distributed Denial of Service (DDoS):} DDoS attack flows in the InSDN dataset include various flooding techniques targeting the SDN infrastructure. These attacks generate high volumes of traffic with distinctive characteristics such as high packet rates, uniform packet sizes, and low flow durations. In the SDN context, DDoS attacks are particularly dangerous due to the table-flooding vulnerability, where the reactive flow installation mechanism can be exploited to overwhelm the controller.
+
+\textbf{Man-in-the-Middle (MITM):} MITM attack flows capture scenarios where an adversary intercepts and potentially modifies communications between legitimate parties. These flows exhibit patterns such as ARP spoofing signatures, duplicated packet sequences, and anomalous timing characteristics that differ from normal point-to-point communications.
+
+\textbf{Probe (Reconnaissance):} Probe attack flows represent systematic scanning activities including TCP SYN scans, UDP scans, ICMP sweeps, and service enumeration. These flows are typically characterized by many short-lived connections to multiple ports or hosts, high SYN/RST flag ratios, and systematic address or port incrementation patterns.
+
+\textbf{Brute-Force:} Brute-force attack flows capture credential-guessing attempts against network services such as SSH, FTP, HTTP, and SNMP. These flows exhibit patterns of repeated connection attempts to authentication ports, short session durations followed by re-connection, and systematic variation in authentication payloads.
+
+\subsection{Raw Label Distribution}\label{subsec:insdn_label_dist}
+
+The raw InSDN dataset exhibits a significant class imbalance between benign and attack flows:
+
+\begin{table}[ht]
+\centering
+\caption{Raw Label Distribution in the InSDN Dataset}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Class} & \textbf{Count} & \textbf{Share (\%)} \\
+\midrule
+Benign (Label = 0) & 68,424 & 19.9 \\
+Attack (Label = 1) & 275,465 & 80.1 \\
+\midrule
+\textbf{Total} & \textbf{343,889} & \textbf{100.0} \\
+\bottomrule
+\end{tabular}
+\label{tab:raw_label_dist}
+\end{table}
+
+The attack class constitutes approximately 80\% of the raw dataset, with benign flows comprising only 20\%. This class imbalance reflects the intensive traffic generation methodology used during dataset creation, where multiple attack tools were employed simultaneously to ensure comprehensive attack coverage. The imbalance is addressed through class weighting during model training, as described in Section~\ref{sec:class_weighting}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Figures/results/eda_class_distribution.png}
+    \caption{Class distribution in the raw InSDN dataset. Left: bar chart showing absolute counts (275,465 attack vs. 68,424 benign). Right: pie chart showing the 80.1\% to 19.9\% class imbalance ratio.}
+    \label{fig:class_distribution}
+\end{figure}
+
+%% ============================================================
+\section{Preprocessing Pipeline}\label{sec:preprocessing}
+%% ============================================================
+
+Turning the raw InSDN captures into something a TCN can learn from takes fifteen sequential stages. The first nine---consolidation, cleaning, feature reduction---run in the \texttt{preprocess.py} script and produce a consolidated CSV. The remaining six---second-pass cleaning, deduplication, scaling, PCA, splitting, and class weighting---execute inside the training notebook (\texttt{tcn\_insdn\_colab.ipynb}). Each stage addresses a specific data-quality or representation concern, as detailed below.
+
+\subsection{Stage 1: Data Consolidation}\label{subsec:pp_consolidation}
+
+The first preprocessing stage concatenates the three source CSV files (\texttt{Normal\_data.csv}, \texttt{OVS.csv}, and \texttt{metasploitable-2.csv}) into a single unified dataset. All three files share the same 84-column schema, enabling straightforward vertical concatenation using the \texttt{pandas.concat} function. The resulting consolidated dataset contains 343,889 rows and 84 columns.
+
+\subsection{Stage 2: Column Name and String Value Cleaning}\label{subsec:pp_cleaning}
+
+Whitespace inconsistencies in column names and string values can cause silent errors during feature selection and label encoding. This stage strips leading and trailing whitespace from all column names and all string-type cell values in the dataset. This ensures consistent column referencing throughout the preprocessing pipeline and accurate label matching during binary encoding.
+
+\subsection{Stage 3: Identifier Column Removal}\label{subsec:pp_identifier_removal}
+
+Identifier and metadata columns (\texttt{Flow~ID}, \texttt{Src~IP}, \texttt{Src~Port}, \texttt{Dst~IP}, \texttt{Dst~Port}, \texttt{Timestamp}) are removed from the dataset. These columns contain flow-specific identifiers that do not generalize to unseen traffic. If retained, the model might learn to associate specific IP addresses or port numbers with attack labels, leading to overfitting on the training data distribution and poor generalization to different network environments. After this stage, the dataset contains 78 columns (77 features + 1 label column).
+
+\subsection{Stage 4: Binary Label Encoding}\label{subsec:pp_label_encoding}
+
+The original \texttt{Label} column contains free-text class names (``Normal'' for benign traffic and various attack-specific strings for different attack types). For the binary classification task of distinguishing benign from malicious traffic, all labels are encoded as:
+\begin{itemize}
+    \item \texttt{Normal} $\rightarrow$ 0 (Benign)
+    \item All other labels $\rightarrow$ 1 (Attack)
+\end{itemize}
+
+This binary encoding simplifies the classification task to a detection problem: is the given flow benign or malicious? By grouping all attack types into a single class, the model learns to identify general attack characteristics that distinguish malicious traffic from normal traffic, regardless of the specific attack category. This approach is particularly appropriate for the real-time deployment scenario where the primary objective is to flag suspicious flows for further investigation, rather than to classify the specific attack type at the point of detection. After encoding, the dataset contains 68,424 benign flows (19.9\%) and 275,465 attack flows (80.1\%).
+
+\subsection{Stage 5: Handling Infinite and Missing Values}\label{subsec:pp_inf_nan}
+
+Network flow feature extraction can produce infinite values (e.g., when computing rates from zero-duration flows) and missing values (e.g., from failed feature computations). This stage performs two sequential cleaning operations:
+
+\begin{enumerate}
+    \item \textbf{Infinite Value Replacement:} All \texttt{Inf} and \texttt{-Inf} values are replaced with \texttt{NaN} to enable uniform handling of all non-finite values.
+    \item \textbf{NaN Row Removal:} All rows containing any \texttt{NaN} values are dropped from the dataset. This approach was chosen over imputation (e.g., mean/median filling) because the proportion of affected rows is small and because imputation could introduce artificial values that distort the learned feature distributions.
+\end{enumerate}
+
+\subsection{Stage 6: Zero-Variance Feature Removal}\label{subsec:pp_zero_var}
+
+Features that exhibit zero variance (i.e., have the same value for all samples) carry no discriminative information and consume computational resources without contributing to classification performance. This stage identifies and removes all constant columns from the dataset. In the InSDN dataset, 12 features were identified as having zero variance and were removed. These features were primarily flag-related columns (e.g., certain rarely-used TCP flag counts) and sub-flow features that did not vary across the recorded flows.
+
+\subsection{Stage 7: Near-Constant Feature Removal}\label{subsec:pp_near_constant}
+
+Beyond zero-variance features, features that are nearly constant---defined as having more than 99.9\% of their values equal to a single value---provide minimal discriminative value. Such features can cause numerical instability during normalization and may introduce noise during model training. This stage identifies and removes features exceeding the 99.9\% near-constant threshold. In the InSDN dataset, no additional features were removed at this stage, indicating that all remaining features after zero-variance removal exhibit sufficient variability to be potentially informative.
+
+\subsection{Stage 8: Correlation-Based Feature Reduction}\label{subsec:pp_correlation}
+
+When two features carry essentially the same information, keeping both only inflates the input dimension without helping the classifier. This stage computes the Pearson correlation coefficient \cite{benesty2009pearson} for every feature pair and drops one member of each pair whose absolute correlation exceeds 0.98.
+
+The Pearson correlation coefficient between features $X$ and $Y$ is defined as:
+\begin{equation}
+    r_{XY} = \frac{\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{n}(x_i - \bar{x})^2} \sqrt{\sum_{i=1}^{n}(y_i - \bar{y})^2}}
+\end{equation}
+
+A threshold of $|r| > 0.98$ identifies feature pairs that are nearly perfectly correlated or anti-correlated. For each identified pair, one feature is retained (typically the one with higher variance or earlier position in the feature list) and the other is removed. This stage removed 17 features from the dataset, reducing the feature count from 65 to 48. The removed features were primarily redundant volume metrics (e.g., forward byte count features that were nearly perfectly correlated with forward packet count features) and bidirectional versions of the same statistic.
+
+\subsection{Stage 9: Preprocessing Output}\label{subsec:pp_output}
+
+After completing all eight preprocessing stages, the cleaned dataset is saved as \texttt{insdn\_consolidated.csv} with the following characteristics:
+
+\begin{table}[ht]
+\centering
+\caption{Preprocessing Output Summary}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Property} & \textbf{Value} \\
+\midrule
+File Name & \texttt{insdn\_consolidated.csv} \\
+File Size & 71 MB \\
+Total Rows & 343,889 \\
+Total Columns & 49 (48 features + 1 label) \\
+Features Retained & 48 \\
+Features Removed & 36 (6 identifier + 12 zero-variance + 0 near-constant + 17 correlated + 1 label encoding) \\
+Benign Flows (Label = 0) & 68,424 (19.9\%) \\
+Attack Flows (Label = 1) & 275,465 (80.1\%) \\
+\bottomrule
+\end{tabular}
+\label{tab:pp_output}
+\end{table}
+
+%% ============================================================
+\section{Second-Pass Cleaning and Deduplication}\label{sec:deduplication}
+%% ============================================================
+
+The training notebook applies a second pass of cleaning and deduplication to handle any artifacts introduced during file I/O and to remove duplicate flow records that could bias model training.
+
+\subsection{Second-Pass Infinite and Missing Value Check}\label{subsec:second_pass_clean}
+
+After loading the consolidated CSV into the training environment, a safety-net check is performed for infinite and missing values. In the case of the InSDN dataset, zero infinite values and zero NaN values were detected at this stage, confirming the thoroughness of the initial preprocessing.
+
+\subsection{Duplicate Row Removal}\label{subsec:dedup}
+
+Duplicate flow records are identified and removed based on exact equality across all 49 columns. Duplicate rows are problematic for several reasons: (1) they artificially inflate the dataset size, giving disproportionate weight to certain flow patterns; (2) they can leak information between training and test sets if the same flow appears in both splits; and (3) they reduce the effective diversity of the training data, potentially leading to overfitting on repeated patterns.
+
+The deduplication stage identified and removed 160,058 duplicate rows, reducing the dataset from 343,889 to 182,831 unique flow records---a 46.5\% reduction. This large number of duplicates reflects the traffic generation methodology: the raw OVS and metasploitable-2 captures contain many identical flow records resulting from repeated traffic patterns during the data collection process.
+
+\begin{table}[ht]
+\centering
+\caption{Impact of Deduplication on Dataset Size}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Metric} & \textbf{Before Dedup} & \textbf{After Dedup} \\
+\midrule
+Total Rows & 343,889 & 182,831 \\
+Duplicate Rows Removed & --- & 160,058 \\
+Reduction Percentage & --- & 46.5\% \\
+\bottomrule
+\end{tabular}
+\label{tab:dedup_impact}
+\end{table}
+
+After deduplication, the class distribution shifts slightly:
+
+\begin{table}[ht]
+\centering
+\caption{Post-Deduplication Label Distribution}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Class} & \textbf{Count} & \textbf{Share (\%)} \\
+\midrule
+Benign (Label = 0) & 64,114 & 35.1 \\
+Attack (Label = 1) & 118,717 & 64.9 \\
+\midrule
+\textbf{Total} & \textbf{182,831} & \textbf{100.0} \\
+\bottomrule
+\end{tabular}
+\label{tab:postdedup_label_dist}
+\end{table}
+
+The deduplication process disproportionately removes attack flows (from 80.1\% to 64.9\%), suggesting that the attack traffic generation tools produced more repetitive flow patterns than the benign traffic generators. The resulting 35:65 benign-to-attack ratio represents a moderate class imbalance that is addressed through class weighting during training.
+
+%% ============================================================
+\section{Feature Scaling}\label{sec:scaling}
+%% ============================================================
+
+Raw network-flow features span wildly different ranges---byte counts can run into the millions while flag counts stay in single digits. Without scaling, the large-valued features would dominate the gradient during back-propagation, and the model would effectively ignore the rest. Feature scaling levels the playing field.
+
+\textbf{StandardScaler} normalization is applied to transform each feature to have zero mean and unit variance:
+\begin{equation}
+    x'_i = \frac{x_i - \mu_i}{\sigma_i}
+\end{equation}
+\noindent where $\mu_i$ and $\sigma_i$ are the mean and standard deviation of feature $i$ computed on the \textit{training set only}. The same transformation parameters ($\mu_i$, $\sigma_i$) are then applied to the validation and test sets to prevent data leakage.
+
+StandardScaler was chosen over MinMaxScaler (which scales to $[0, 1]$) for several reasons: (1) StandardScaler is less sensitive to outliers because it does not bound the transformed values; (2) it preserves the relative distances between data points; and (3) it produces feature distributions that are well-suited for the gradient-based optimization algorithms used in deep learning training.
+
+%% ============================================================
+\section{Principal Component Analysis}\label{sec:pca}
+%% ============================================================
+
+Even after dropping correlated features, some redundancy remains---linear correlations below the 0.98 threshold and nonlinear dependencies that Pearson simply cannot detect. PCA mops up that residual redundancy. We set a 95\% variance retention threshold, meaning we keep the fewest principal components needed to explain at least 95\% of the total variance.
+
+\begin{table}[ht]
+\centering
+\caption{PCA Configuration and Results}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Input Dimensionality & 48 features \\
+Variance Threshold & 95\% \\
+\textbf{Output Dimensionality} & \textbf{24 principal components} \\
+\textbf{Actual Variance Retained} & \textbf{95.43\%} \\
+Dimensionality Reduction & 50\% (48 $\rightarrow$ 24) \\
+\bottomrule
+\end{tabular}
+\label{tab:pca_config}
+\end{table}
+
+The PCA transformation reduces the feature space from 48 dimensions to 24 principal components, achieving a 50\% reduction in dimensionality while retaining 95.43\% of the total variance. This reduction offers several benefits:
+
+\begin{itemize}
+    \item \textbf{Reduced Computational Cost:} The halved feature dimensionality directly translates to reduced computation in the TCN's input layer and throughout the network, enabling faster training and inference.
+    
+    \item \textbf{Reduced Overfitting Risk:} By projecting the data onto the directions of maximum variance, PCA removes noise components that might otherwise cause the model to overfit to irrelevant variations in the training data.
+    
+    \item \textbf{Decorrelated Features:} The principal components are orthogonal by construction, meaning they are linearly uncorrelated. This decorrelation eliminates multicollinearity issues that might affect learning efficiency.
+    
+    \item \textbf{Interpretable Variance Capture:} The cumulative explained variance curve provides a clear visualization of how much information is retained at each dimensionality level, enabling informed decisions about the trade-off between compression and information loss.
+\end{itemize}
+
+The first few principal components capture the largest variance contributions: the first component captures approximately 15\% of the total variance, the first five components capture approximately 50\%, and the first 15 components capture approximately 85\%. The rapid initial increase followed by a gradual plateau is characteristic of datasets with significant redundancy among features, confirming that the correlation-based feature reduction in Stage 8 was effective but that additional redundancy exists in the form of nonlinear correlations that Pearson correlation cannot detect.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Figures/results/pca_explained_variance.png}
+    \caption{PCA cumulative explained variance curve. The 95\% variance retention threshold (dashed red line) is reached at 24 principal components, achieving 95.43\% variance retention with a 50\% reduction in dimensionality from 48 to 24 features.}
+    \label{fig:pca_variance}
+\end{figure}
+
+The PCA transformation is fitted on the training set only and applied to the validation and test sets using the same transformation matrix. This ensures that no information from the validation or test sets leaks into the PCA computation, maintaining the integrity of the evaluation protocol.
+
+%% ============================================================
+\section{Data Splitting}\label{sec:splitting}
+%% ============================================================
+
+The deduplicated and PCA-transformed dataset is split into training, validation, and test sets using stratified random sampling. Stratification ensures that the class ratio (benign:attack) is preserved across all three subsets, preventing split-induced class distribution shifts that could bias model training or evaluation.
+
+\begin{table}[ht]
+\centering
+\caption{Stratified Train/Validation/Test Split}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Split} & \textbf{Samples} & \textbf{Attack} & \textbf{Benign} & \textbf{Share (\%)} \\
+\midrule
+Train & 127,981 & 83,101 & 44,880 & 70.0 \\
+Validation & 18,283 & 11,872 & 6,411 & 10.0 \\
+Test & 36,567 & 23,744 & 12,823 & 20.0 \\
+\midrule
+\textbf{Total} & \textbf{182,831} & \textbf{118,717} & \textbf{64,114} & \textbf{100.0} \\
+\bottomrule
+\end{tabular}
+\label{tab:data_split}
+\end{table}
+
+The 70/10/20 split ratio was chosen based on the following considerations:
+
+\begin{itemize}
+    \item \textbf{70\% Training:} A large training set provides sufficient data for the TCN model to learn robust feature representations. With 127,981 training samples, the model has access to a diverse range of flow patterns for both classes.
+    
+    \item \textbf{10\% Validation:} The validation set is used for monitoring training progress, early stopping, learning rate scheduling, and model checkpoint selection. The 18,283-sample validation set provides statistically reliable estimates of generalization performance during training.
+    
+    \item \textbf{20\% Test:} A substantial test set of 36,567 samples enables robust evaluation of the final model with narrow confidence intervals on all performance metrics. The test set is never used during training or hyperparameter tuning, ensuring an unbiased estimate of out-of-sample performance.
+\end{itemize}
+
+\subsection{Input Reshaping for TCN}\label{subsec:reshaping}
+
+After PCA transformation and splitting, each data sample is a 24-dimensional vector corresponding to the 24 principal components. To serve as input to the TCN model, which expects three-dimensional input tensors of shape \texttt{(batch\_size, sequence\_length, channels)}, each sample is reshaped from $(24,)$ to $(24, 1)$. This reshaping treats the 24 PCA components as a temporal sequence of length 24 with a single channel.
+
+This interpretation is meaningful because: (1) the PCA components are ordered by decreasing variance, establishing a natural ordering; (2) the dilated causal convolutions of the TCN can learn local and global patterns across this ordered representation; and (3) the residual blocks with exponentially increasing dilation factors enable the model to capture dependencies between components at multiple scales of the variance hierarchy.
+
+The final input shapes for each split are:
+
+\begin{table}[ht]
+\centering
+\caption{Input Tensor Shapes After Reshaping}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Split} & \textbf{Shape (samples, sequence\_length, channels)} \\
+\midrule
+Train & (127,981, 24, 1) \\
+Validation & (18,283, 24, 1) \\
+Test & (36,567, 24, 1) \\
+\bottomrule
+\end{tabular}
+\label{tab:input_shapes}
+\end{table}
+
+%% ============================================================
+\section{Class Weighting}\label{sec:class_weighting}
+%% ============================================================
+
+After deduplication the dataset sits at roughly 35\% benign versus 65\% attack---not extreme, but enough to bias a na\"ive model toward always predicting ``attack.'' Rather than synthesising new samples or throwing away existing ones, we handle the imbalance with class weights computed from inverse frequencies:
+
+\begin{equation}
+    w_c = \frac{N}{C \cdot n_c}
+\end{equation}
+
+\noindent where $N = 127{,}981$ is the total number of training samples, $C = 2$ is the number of classes, and $n_c$ is the number of training samples in class $c$.
+
+\begin{table}[ht]
+\centering
+\caption{Computed Class Weights}
+\begin{tabular}{@{}lcr@{}}
+\toprule
+\textbf{Class} & \textbf{Training Samples} & \textbf{Weight} \\
+\midrule
+Benign (0) & 44,880 & 1.4258 \\
+Attack (1) & 83,101 & 0.7700 \\
+\bottomrule
+\end{tabular}
+\label{tab:class_weights}
+\end{table}
+
+The benign class receives a weight of 1.4258, which is approximately 1.85$\times$ the attack class weight of 0.7700. This weighting ensures that the model penalizes misclassification of benign flows (false positives) more heavily relative to misclassification of attack flows (false negatives), compensating for the underrepresentation of benign samples in the training data. The weighted loss function effectively makes each benign sample count as 1.85 samples during gradient computation, preventing the model from achieving high accuracy by simply classifying all flows as attacks.
+
+Class weighting was chosen over alternative strategies (such as SMOTE \cite{chawla2002smote} oversampling or random undersampling) for the following reasons:
+
+\begin{enumerate}
+    \item \textbf{No Synthetic Data Introduction:} Unlike SMOTE, class weighting does not generate synthetic minority samples that may not accurately represent real traffic patterns. This preserves the authenticity of the training data distribution.
+    
+    \item \textbf{No Data Discarding:} Unlike undersampling, class weighting retains all training samples, maximizing the information available for model learning.
+    
+    \item \textbf{Seamless Integration:} Class weights integrate directly with the binary cross-entropy loss function used for training, requiring no modifications to the data pipeline or model architecture.
+    
+    \item \textbf{Computational Efficiency:} Class weighting adds no computational overhead during training, as the weights are simply multiplied with the per-sample loss values.
+\end{enumerate}
+
+%% ============================================================
+\section{Preprocessing Pipeline Summary}\label{sec:pp_summary}
+%% ============================================================
+
+Table~\ref{tab:pp_pipeline_summary} provides a comprehensive summary of the complete preprocessing pipeline, documenting each stage, the action performed, and the resulting dataset state.
+
+\begin{table}[ht]
+\centering
+\caption{Complete Preprocessing Pipeline Summary}
+\begin{tabular}{@{}clr@{}}
+\toprule
+\textbf{Stage} & \textbf{Action} & \textbf{Result} \\
+\midrule
+1 & Load and concatenate 3 CSVs & 343,889 $\times$ 84 \\
+2 & Strip whitespace from names/values & --- \\
+3 & Drop 6 identifier columns & 343,889 $\times$ 78 \\
+4 & Binary label encoding & Benign: 68,424; Attack: 275,465 \\
+5 & Replace Inf, drop NaN rows & --- \\
+6 & Remove 12 zero-variance columns & 343,889 $\times$ 66 \\
+7 & Remove near-constant columns & 343,889 $\times$ 66 \\
+8 & Remove 17 correlated features & 343,889 $\times$ 49 \\
+9 & Save consolidated CSV & 71 MB \\
+10 & Deduplicate rows & 182,831 $\times$ 49 \\
+11 & StandardScaler normalization & --- \\
+12 & PCA (95\% variance) & 182,831 $\times$ 24 \\
+13 & Stratified train/val/test split & 70/10/20 \\
+14 & Reshape to (N, 24, 1) & TCN-ready input \\
+15 & Compute class weights & [1.4258, 0.7700] \\
+\bottomrule
+\end{tabular}
+\label{tab:pp_pipeline_summary}
+\end{table}
+
+Starting from 343,889 raw flow records spread across three CSV files, the pipeline delivers 182,831 deduplicated, standardised, PCA-compressed samples in a 70/10/20 train/validation/test split---ready for the TCN model described in the next chapter. Every decision along the way, from dropping identifier columns to choosing StandardScaler over MinMaxScaler, was driven by the twin goals of maximising generalisation and keeping the computational footprint small.
+
+\endinput

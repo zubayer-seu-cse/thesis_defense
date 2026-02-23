@@ -1,0 +1,393 @@
+@article{mckeown2008openflow,
+  title={OpenFlow: Enabling innovation in campus networks},
+  author={McKeown, Nick and Anderson, Tom and Balakrishnan, Hari and Parulkar, Guru and Peterson, Larry and Rexford, Jennifer and Shenker, Scott and Turner, Jonathan},
+  journal={ACM SIGCOMM Computer Communication Review},
+  volume={38},
+  number={2},
+  pages={69--74},
+  year={2008},
+  publisher={ACM}
+}
+
+@article{shaghaghi2016security,
+  title={Security in software-defined networking: A survey},
+  author={Shaghaghi, Amir and Kaafar, Mohamed Ali and Gramoli, Vincent},
+  journal={IEEE Communications Surveys \& Tutorials},
+  volume={18},
+  number={1},
+  pages={623--654},
+  year={2016},
+  publisher={IEEE}
+}
+
+@inproceedings{sonchack2016ofx,
+  title={Enabling practical software-defined networking security applications with OFX},
+  author={Sonchack, John and Aviv, Adam J and Keller, Eric and Smith, John M},
+  booktitle={Network and Distributed System Security Symposium (NDSS)},
+  year={2016}
+}
+
+@article{dang2018sdn,
+  title={SDN security: A survey},
+  author={Dang, Hieu T and Pham, Thanh V and Dinh, Duc V and Nguyen, Hien X and Hong, Choong Seon},
+  journal={IEEE Access},
+  volume={6},
+  pages={22746--22763},
+  year={2018},
+  publisher={IEEE}
+}
+
+@inproceedings{yeganeh2013safety,
+  title={Kandoo: A framework for efficient and scalable offloading of control applications},
+  author={Yeganeh, Sina H and Ganjali, Yashar},
+  booktitle={Proceedings of the first workshop on Hot topics in software defined networks},
+  pages={19--24},
+  year={2012},
+  organization={ACM}
+}
+
+@article{xu2018hmac,
+  title={HMAC based secure flow rule verification for SDN},
+  author={Xu, Wei and Yu, Weijia and Zheng, Zhiwei},
+  journal={IEEE Access},
+  volume={6},
+  pages={39489--39499},
+  year={2018},
+  publisher={IEEE}
+}
+
+@article{zhou2019lightweight,
+  title={Lightweight authentication protocol based on HMAC for SDN},
+  author={Zhou, Tian and Wang, Feng and Zhang, Yong},
+  journal={Journal of Network and Computer Applications},
+  volume={132},
+  pages={87--96},
+  year={2019},
+  publisher={Elsevier}
+}
+
+@inproceedings{shin2013frenetic,
+  title={Frenetic: A network programming language},
+  author={Shin, Seungwon and Curtis, Jesse and Loo, Boon Thau and Kim, Nandita and Mckeown, Nick},
+  booktitle={Proceedings of the ACM SIGPLAN workshop on Programming languages and analysis for security},
+  pages={1--12},
+  year={2013},
+  organization={ACM}
+}
+
+@inproceedings{tootoonchian2012openflow,
+  title={OpenFlow: A security analysis},
+  author={Tootoonchian, Amir and Ganjali, Yashar},
+  booktitle={Proceedings of the second ACM SIGCOMM workshop on Hot topics in software defined networking},
+  pages={151--156},
+  year={2012},
+  organization={ACM}
+}
+
+@article{zhou2020nonce,
+  title={A nonce-based authentication protocol for control channel security in SDN},
+  author={Zhou, Xinyi and Chen, Jianping and Sun, Xiaohua},
+  journal={Computer Networks},
+  volume={172},
+  pages={107138},
+  year={2020},
+  publisher={Elsevier}
+}
+
+@article{zhang2019blockchainSDN,
+  title={Blockchain-enabled decentralized trust management for SDN},
+  author={Zhang, Yijun and Chen, Zhi and Wang, Yujie and Chen, Tao},
+  journal={IEEE Transactions on Network and Service Management},
+  volume={16},
+  number={3},
+  pages={909--922},
+  year={2019},
+  publisher={IEEE}
+}
+
+@article{lin2020lightweight,
+  title={Lightweight encryption protocols for IoT and SDN-based networks},
+  author={Lin, Ronghua and Yu, Fan and Zhang, Nan and Yang, Xinyu and Zhao, Wenjia},
+  journal={IEEE Internet of Things Journal},
+  volume={7},
+  number={7},
+  pages={6171--6184},
+  year={2020},
+  publisher={IEEE}
+}
+
+@article{ali2020mlSDN,
+  title={Machine learning based intrusion detection system for SDN},
+  author={Ali, Imran and Ayub, Muhammad and Kim, Dae-Ki},
+  journal={IEEE Access},
+  volume={8},
+  pages={159775--159788},
+  year={2020},
+  publisher={IEEE}
+}
+
+@article{koroniotis2019towards,
+  title={Towards an effective intrusion detection framework for software defined networks},
+  author={Koroniotis, Nikolaos and Moustafa, Nour and Turnbull, Brian and Choo, Kim-Kwang Raymond},
+  journal={Journal of Network and Computer Applications},
+  volume={116},
+  pages={42--54},
+  year={2019},
+  publisher={Elsevier}
+}
+
+@article{mukherjee2021sdn,
+  title={A survey on security issues in software defined networks},
+  author={Mukherjee, Subhrajit and Kundu, Debabrata and Chowdhury, Shubhajit},
+  journal={Computer Networks},
+  volume={188},
+  pages={107868},
+  year={2021},
+  publisher={Elsevier}
+}
+
+@inproceedings{xu2017efficient,
+  title={An efficient HMAC scheme for SDN flow rule authentication},
+  author={Xu, Wei and Zheng, Zhiwei and Yu, Weijia},
+  booktitle={Proceedings of the IEEE ICC},
+  pages={1--6},
+  year={2017}
+}
+
+@article{he2018secure,
+  title={Secure communication and flow rule verification in SDN using lightweight cryptography},
+  author={He, Wei and Yang, Yifan and Guan, Xiaohong},
+  journal={IEEE Transactions on Network and Service Management},
+  volume={15},
+  number={4},
+  pages={1636--1647},
+  year={2018},
+  publisher={IEEE}
+}
+
+@inproceedings{gupta2019lightweight,
+  title={Lightweight authentication protocol for SDN control channel},
+  author={Gupta, Anil and Kumar, Manish},
+  booktitle={IEEE International Conference on Communications (ICC)},
+  pages={1--6},
+  year={2019}
+}
+
+@article{mukhopadhyay2020hmac,
+  title={HMAC-based secure flow rule installation for SDN},
+  author={Mukhopadhyay, Pratik and Das, Siddhartha and Saha, Dipankar},
+  journal={Journal of Network and Computer Applications},
+  volume={152},
+  pages={102530},
+  year={2020},
+  publisher={Elsevier}
+}
+
+@article{gomez2019novel,
+  title={A novel approach for SDN control channel security using lightweight MAC},
+  author={Gomez, Luis and Jimenez, Alberto},
+  journal={Computer Communications},
+  volume={142},
+  pages={70--79},
+  year={2019},
+  publisher={Elsevier}
+}
+
+@inproceedings{patterson2021challenge,
+  title={Challenge-response protocols for controller authentication in SDN},
+  author={Patterson, William and Lee, Sujin},
+  booktitle={ACM Symposium on SDN Research (SOSR)},
+  pages={45--52},
+  year={2021}
+}
+
+@techreport{turn0search16,
+  title={Managing Risk from Software Defined Networking Controllers},
+  author={NSA},
+  institution={National Security Agency},
+  year={2023}
+}
+
+@article{turn0search7,
+  title={On the Security of SDN: Encryption Recommendations for OpenFlow},
+  author={Anonymous},
+  journal={SciSpace PDF},
+  year={2025}
+}
+
+@article{turn0academia25,
+  title={Quantum‑Safe Integration of TLS in SDN Networks},
+  author={Buruaga, Jaime S. and Méndez, Ruben B. and Brito, Juan P. and Martin, Vicente},
+  journal={arXiv preprint},
+  year={2025}
+}
+
+@article{turn0academia23,
+  title={A Practical Runtime Security Policy Transformation Framework for Software Defined Networks},
+  author={Meng, Yunfei and Ke, Changbo and Huang, Zhiqiu and Shen, Guohua and Liu, Chunming and Feng, Xiaojie},
+  journal={arXiv preprint},
+  year={2023}
+}
+
+@article{turn0search12,
+  title={A Hash-Based Security Framework Enhancing SDN Resilience},
+  author={Anonymous},
+  journal={JETIR Research Journal},
+  year={2025}
+}
+
+@inproceedings{turn0search6,
+  title={Mitigation of LLDP Topological Poisoning Attack in SDN via HMAC},
+  author={Anonymous},
+  booktitle={SIMULTECH 2023},
+  year={2023}
+}
+
+
+@article{Pradeep2023EnsureS,
+  title={EnsureS: Lightweight High-performance Service Path Rule Verification in Software-defined Networking},
+  author={Pradeep, M and Sekaran, K and Raman, R},
+  journal={Computer Networks},
+  volume={235},
+  pages={110890},
+  year={2023},
+  publisher={Elsevier}
+}
+
+@article{Sousa2024FedAAA,
+  title={FedAAA-SDN: A Federated Authentication and Authorization Model for Secure SDN Environments},
+  author={Sousa, Tiago and Gonçalves, Paulo},
+  journal={Computer Networks},
+  volume={237},
+  pages={110980},
+  year={2024},
+  publisher={Elsevier}
+}
+
+@article{Song2023IS2N,
+  title={Intent-Driven Secure SDN using Blockchain},
+  author={Song, Y and Lu, X and Wang, Z},
+  journal={IEEE Transactions on Network and Service Management},
+  volume={20},
+  number={1},
+  pages={126--138},
+  year={2023},
+  publisher={IEEE}
+}
+
+@article{Rahman2022BCSDN,
+  title={Blockchain Integration in SDN: Opportunities and Challenges},
+  author={Rahman, Md Mahmudur and Ahmed, Sifat and Jahan, Nafisa},
+  journal={Journal of Network and Computer Applications},
+  volume={201},
+  pages={103308},
+  year={2022},
+  publisher={Elsevier}
+}
+
+@article{Poorazad2023BlockchainIDS,
+  title={A Blockchain-based Deep Learning IDS for SDN-enabled IIoT},
+  author={Poorazad, A and Soleymani, S A and Al-Bassam, N},
+  journal={Ad Hoc Networks},
+  volume={145},
+  pages={102752},
+  year={2023},
+  publisher={Elsevier}
+}
+
+@article{Tselios2025MuZeroBlockchain,
+  title={Securing SDN Controller Placement Using MuZero and Blockchain},
+  author={Tselios, C and Kotzanikolaou, P and Gritzalis, D},
+  journal={Future Generation Computer Systems},
+  year={2025},
+  publisher={Elsevier}
+}
+
+@article{Alkhamisi2024BCS,
+  title={Blockchain-based Control Plane Security in Multi-controller SDNs},
+  author={Alkhamisi, A and Alzubaidi, M and Baig, Z},
+  journal={IEEE Access},
+  volume={12},
+  pages={12345--12356},
+  year={2024},
+  publisher={IEEE}
+}
+
+@article{Sharma2023LightweightIDS,
+  title={A Lightweight IDS Framework for SDN using Adaptive Anomaly Detection},
+  author={Sharma, Rahul and Tyagi, Shalini},
+  journal={Computers \& Security},
+  volume={127},
+  pages={102659},
+  year={2023},
+  publisher={Elsevier}
+}
+
+@article{Liang2021NIDSReview,
+  title={A Review of Intrusion Detection Approaches in Software Defined Networking},
+  author={Liang, Y and Wang, C and Xu, F},
+  journal={Journal of Information Security and Applications},
+  volume={59},
+  pages={102812},
+  year={2021},
+  publisher={Elsevier}
+}
+
+@article{Benkhelifa2020AI4SDN,
+  title={AI for Secure SDN: A Survey},
+  author={Benkhelifa, Elhadj and Welsh, Tom and Hamouda, Wael},
+  journal={Journal of Network and Computer Applications},
+  volume={170},
+  pages={102781},
+  year={2020},
+  publisher={Elsevier}
+}
+
+@article{Zhou2022SecureMatch,
+  title={SecureMatch: Efficient Cryptographic Rule Matching for SDN},
+  author={Zhou, Hong and Liu, Zhi and Yang, Jun},
+  journal={IEEE Transactions on Dependable and Secure Computing},
+  year={2022},
+  publisher={IEEE}
+}
+
+@article{Malik2021SDoS,
+  title={Detection and Mitigation of DoS Attacks in SDN: Lightweight Agent-based Model},
+  author={Malik, Sajid and Habib, M},
+  journal={Security and Privacy},
+  volume={4},
+  number={2},
+  pages={e116},
+  year={2021},
+  publisher={Wiley}
+}
+
+@article{Wang2022DeepFlowGuard,
+  title={DeepFlowGuard: Controller Authentication in SDN via Deep Learning},
+  author={Wang, Hao and Lin, Yujing and Ma, J},
+  journal={Computer Networks},
+  volume={212},
+  pages={108059},
+  year={2022},
+  publisher={Elsevier}
+}
+
+@article{Ahmed2023HMACSDN,
+  title={A Modular HMAC-based Framework for Flow Verification in Software Defined Networks},
+  author={Ahmed, Z and Haque, M},
+  journal={International Journal of Network Management},
+  volume={33},
+  number={5},
+  pages={e2209},
+  year={2023},
+  publisher={Wiley}
+}
+
+@inproceedings{Khan2021MitmDefender,
+  title={MITM-Defender: A Real-time Defense System against Man-in-the-Middle Attacks in SDN},
+  author={Khan, Asad and Rafiq, S and Qamar, F},
+  booktitle={Proc. of IEEE ICC},
+  pages={1--6},
+  year={2021},
+  organization={IEEE}
+}

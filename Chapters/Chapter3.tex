@@ -1,0 +1,214 @@
+\chapter{Literature Review}\label{chap:literature_review}
+
+A good literature review should do two things: map the state of the art and expose its blind spots. This chapter attempts both. We survey related work across seven thematic areas---cryptographic SDN defences, blockchain-based approaches, machine-learning and deep-learning IDS, authentication and access control, TCN-based detection, hybrid security frameworks, and dataset studies---and, along the way, tease out the research gaps that the TCN-HMAC framework is designed to fill.
+
+%% ============================================================
+\section{Cryptographic and Protocol-Based SDN Security}\label{sec:lr_crypto}
+%% ============================================================
+
+Protecting the SDN control plane with cryptography is an obvious first line of defence, and researchers have explored a range of lightweight schemes designed to guarantee integrity, authenticity, and confidentiality without imposing heavy changes on the underlying infrastructure.
+
+Pradeep et al.\ \cite{Pradeep2023EnsureS} proposed EnsureS, a lightweight flow rule verification scheme that utilizes batch hashing and tag-based checks to validate flow rules installed on OpenFlow switches. The EnsureS framework operates by computing hash-based tags over batches of flow rules and verifying them at the switch level. Their evaluation demonstrated low computational overhead, with verification latency in the sub-millisecond range. However, EnsureS focuses exclusively on flow rule integrity verification without incorporating any anomaly detection mechanism, leaving the network vulnerable to attacks that do not involve direct flow rule tampering. Furthermore, the batch verification approach introduces a trade-off between verification granularity and performance, as larger batch sizes reduce overhead but increase the window of vulnerability during which tampered rules may be active.
+
+Zhou et al.\ \cite{Zhou2022SecureMatch} introduced SecureMatch, a cryptographic rule-matching mechanism designed to ensure secure flow rule installation with minimal latency impact. SecureMatch employs a combination of symmetric encryption and hash-based verification to protect the confidentiality and integrity of flow rules during transmission from the controller to the switches. Their approach demonstrated moderate computational overhead and was evaluated in a simulated SDN environment. While SecureMatch provides stronger security guarantees than plaintext flow rule transmission, it requires modifications to the rule-matching process on the switches, which limits its deployability in heterogeneous environments with legacy switch hardware.
+
+Ahmed et al.\ \cite{Ahmed2023HMACSDN} developed a modular HMAC-based framework specifically designed for verifying flow modification (\texttt{flow\_mod}) messages in SDN environments. Their framework computes HMAC tags over the essential fields of flow rules using pre-shared symmetric keys and verifies them independently at the switch side. A key advantage of their approach is that it operates without requiring modifications to the OpenFlow protocol or the switch hardware, making it immediately deployable in existing SDN infrastructure. However, like EnsureS, the HMAC-SDN framework focuses solely on integrity verification and does not incorporate proactive threat detection capabilities. This limitation means that attacks which do not involve flow rule tampering---such as DDoS attacks, reconnaissance probes, or brute-force credential attacks---remain undetected by the framework.
+
+Buruaga et al.\ \cite{buruaga2025quantum} addressed the emerging threat of quantum computing to SDN security by proposing a quantum-safe integration of TLS for SDN networks. Their work demonstrated the feasibility of deploying post-quantum cryptographic algorithms within the TLS handshake for SDN control channel protection. While addressing a forward-looking security concern, their approach imposes significant computational overhead due to the larger key sizes and longer processing times required by post-quantum algorithms, making it less suitable for resource-constrained or latency-sensitive SDN deployments.
+
+Reddy et al.\ \cite{Reddy2025FlowTable, Reddy2024P4SDN} investigated the security of flow tables in P4-based SDN data planes and proposed mitigation strategies against flow table modification attacks. Their work highlighted the vulnerability of flow tables to both insider and outsider attacks and demonstrated that P4-programmable switches can be leveraged to implement custom security checks. However, their solutions are specific to P4-enabled switches and are not directly applicable to the more widely deployed OpenFlow-based SDN environments.
+
+Han et al.\ \cite{Han2024FlowRule} proposed an efficient flow rule conflict detection scheme for SDN networks that identifies and resolves conflicting flow rules that could be exploited by attackers to create policy violations. Their comprehensive detection approach addresses an important but narrow aspect of SDN security---flow rule conflicts---without addressing the broader spectrum of network intrusion threats.
+
+What these cryptographic and protocol-level schemes share is a reactive stance: they can verify rules after they have been issued, but they do nothing to detect the intrusions or suspicious traffic patterns that typically precede---or accompany---a control-plane attack. Filling that gap calls for proactive anomaly detection, which is exactly what we integrate into the TCN-HMAC framework.
+
+%% ============================================================
+\section{Blockchain-Based Approaches for SDN Security}\label{sec:lr_blockchain}
+%% ============================================================
+
+Blockchain has captured the imagination of SDN security researchers thanks to its promise of decentralised trust, tamper-evident logs, and distributed consensus. In practice, however, the technology's overhead makes most of these proposals impractical for real-time SDN operations.
+
+Song et al.\ \cite{Song2023IS2N} leveraged blockchain for securing intent-driven SDN, proposing a framework called IS2N that uses blockchain to record network intents and verify their faithful implementation in the data plane. Their approach provides strong guarantees that network policies are implemented as specified, with a tamper-evident audit trail. However, the consensus overhead of their blockchain protocol introduces significant latency (several seconds per transaction), making it unsuitable for real-time security operations that require sub-second response times.
+
+Rahman et al.\ \cite{Rahman2022BCSDN} conducted a comprehensive survey of blockchain's potential to safeguard controller communications and flow rule integrity in SDN. Their analysis identified several promising application scenarios, including decentralized controller authentication, flow rule provenance tracking, and policy compliance auditing. However, the survey also highlighted significant challenges, including the scalability limitations of blockchain consensus protocols, the storage overhead of maintaining a growing chain of network events, and the difficulty of integrating blockchain with the fast-paced, real-time nature of SDN operations.
+
+Poorazad et al.\ \cite{Poorazad2023BlockchainIDS} combined blockchain with deep learning for real-time threat detection in Industrial IoT environments connected via SDN. Their hybrid approach uses a deep learning model for anomaly detection and records detection events on a blockchain for auditability and cross-domain sharing. While innovative, the combination of blockchain consensus and deep learning inference introduces significant computational overhead, and the system was evaluated only on a small-scale testbed with limited traffic diversity.
+
+Tselios et al.\ \cite{Tselios2025MuZeroBlockchain} applied the MuZero reinforcement learning algorithm for optimal controller placement in multi-controller SDN architectures and used blockchain-based audit trails to ensure the integrity of placement decisions. Their approach addresses the joint optimization of performance and security in distributed SDN deployments, but the complexity of the MuZero training process and the blockchain overhead limit practical applicability.
+
+Alkhamisi et al.\ \cite{Alkhamisi2024BCS} developed a blockchain-enabled control plane framework specifically designed to detect cross-controller attacks in multi-controller SDN deployments. Their framework records all controller-to-controller communications on a permissioned blockchain and uses smart contracts to enforce security policies. While effective for multi-controller scenarios, the framework is not applicable to single-controller deployments and introduces non-trivial latency for inter-controller consensus.
+
+For all their conceptual appeal, blockchain-based SDN defences consistently bump against the same wall: the consensus step takes too long and consumes too many resources. In an environment where flow rules must be verified in microseconds, waiting even a few seconds per transaction is a non-starter. TCN-HMAC sidesteps this problem entirely by relying on HMAC verification, which delivers comparable integrity guarantees with sub-millisecond overhead.
+
+%% ============================================================
+\section{Machine Learning-Based Intrusion Detection in SDN}\label{sec:lr_ml_ids}
+%% ============================================================
+
+Machine learning techniques have been widely adopted for intrusion detection in SDN environments, leveraging the centralized visibility and programmability of the SDN controller to collect comprehensive network statistics for classification.
+
+Sharma and Tyagi \cite{Sharma2023LightweightIDS} proposed a lightweight intrusion detection system for SDN that focuses on identifying Man-in-the-Middle (MITM) and Denial of Service (DoS) attacks using adaptive anomaly detection. Their system monitors flow statistics collected by the SDN controller and applies ensemble machine learning classifiers to distinguish benign from malicious traffic. The lightweight design enables deployment on resource-constrained controllers, and the system achieved detection accuracy of approximately 98.12\%. However, the system does not address flow rule integrity verification, leaving the control plane vulnerable to rule tampering attacks that occur after the detection stage.
+
+Ayad et al.\ \cite{Ayad2025MLSDN} conducted a comprehensive evaluation of machine learning techniques for intrusion detection in SDN, comparing the performance of several classifiers including Random Forest, XGBoost, Decision Tree, and K-Nearest Neighbors on multiple SDN intrusion detection datasets. Their study found that ensemble methods, particularly XGBoost and Random Forest, consistently outperformed individual classifiers. However, all evaluated models exhibited limitations in capturing temporal dependencies in traffic patterns, and the study did not consider deep learning approaches or integrity verification mechanisms.
+
+Basfar et al.\ \cite{Basfar2024EMRMR} proposed an enhanced feature selection approach called EMRMR (Enhanced Maximum Relevance Minimum Redundancy) for improving intrusion detection in SDN. Their method selects the most informative features while minimizing redundancy, resulting in improved classification performance with reduced feature dimensionality. While the feature selection methodology is compelling, the study focuses solely on the preprocessing stage and does not address the deployment and integration challenges of IDS in real-time SDN environments.
+
+Singh and Kumar \cite{singh2024flowml} evaluated SDN flow table manipulation attacks using machine learning techniques, comparing multiple classifiers on a dataset of legitimate and manipulated flow table entries. Their work provides valuable insights into the characteristics of flow table attacks but is limited to detection of flow table-specific attacks and does not address the broader spectrum of network intrusion threats.
+
+Sundan et al.\ \cite{sundan2024proactive, Sundan2024MultiLayered} proposed proactive and multi-layered security frameworks for intrusion detection in SDN environments using machine learning. Their approaches combine multiple detection layers, each targeting different attack categories, to provide comprehensive coverage. While the multi-layered concept is aligned with the defense-in-depth philosophy adopted in this thesis, their frameworks rely exclusively on traditional machine learning classifiers and do not leverage the temporal modeling capabilities of deep learning architectures.
+
+%% ============================================================
+\section{Deep Learning-Based Intrusion Detection in SDN}\label{sec:lr_dl_ids}
+%% ============================================================
+
+Deep learning approaches have demonstrated significant improvements over traditional machine learning methods for intrusion detection, owing to their ability to automatically learn hierarchical feature representations from raw or minimally preprocessed data.
+
+\subsection{CNN-Based Approaches}\label{subsec:lr_cnn}
+
+Convolutional Neural Networks (CNNs) have been applied to network intrusion detection by treating network flow features as one-dimensional spatial inputs. Said et al.\ \cite{Said2023CNNBiLSTM} proposed CNN-BiLSTM, a hybrid deep learning architecture that combines CNN feature extraction with Bidirectional LSTM temporal modeling for intrusion detection in SDN. Their architecture first applies convolutional layers to extract local feature patterns from network flow data, then uses a Bidirectional LSTM to capture temporal dependencies in both forward and backward directions. The system achieved high detection performance on the InSDN dataset, with reported accuracy of approximately 98.7\% and F1-score of 98.5\%. However, the bidirectional processing requirement means that the model needs access to future time steps for classification, limiting its applicability to real-time scenarios where only past and current data are available. Furthermore, the LSTM component introduces sequential processing constraints that increase inference latency.
+
+Shihab et al.\ \cite{Shihab2025CNNLSTM} proposed an optimized hybrid CNN-LSTM framework with multi-feature analysis and SMOTE for intrusion detection in SDN. Their approach combines CNN-based spatial feature extraction with LSTM-based temporal modeling and addresses class imbalance through SMOTE oversampling. The multi-feature analysis step identifies the most discriminative features before feeding them to the deep learning model. While achieving good detection performance, the hybrid CNN-LSTM architecture is computationally more expensive than pure convolutional approaches, and the SMOTE augmentation introduces synthetic data points that may not accurately represent real attack patterns.
+
+Yang \cite{Yang2024CNNGRU} proposed a new attack intrusion detection model based on deep learning for SDN environments, combining CNN with Gated Recurrent Units (GRU). The model uses CNN layers for initial feature extraction followed by GRU layers for temporal sequence modeling. The evaluation on multiple datasets demonstrated competitive accuracy, but the sequential nature of the GRU component remains a bottleneck for real-time deployment.
+
+\subsection{LSTM and RNN-Based Approaches}\label{subsec:lr_lstm}
+
+Recurrent architectures have been extensively explored for SDN intrusion detection due to their inherent ability to model temporal dependencies.
+
+Basfar et al.\ \cite{Basfar2025LSTM} proposed an incremental LSTM ensemble for online intrusion detection in SDN. Their approach uses multiple LSTM models trained on different data segments and combines their predictions through an ensemble mechanism. The incremental training strategy enables the model to adapt to evolving attack patterns without full retraining. However, the ensemble of LSTM models introduces significant computational overhead, and the sequential processing nature of LSTMs limits real-time inference speed.
+
+Ataa et al.\ \cite{Ataa2024SDNDL} conducted a comprehensive evaluation of deep learning approaches for intrusion detection in SDN, comparing CNN, LSTM, BiLSTM, and hybrid architectures on the InSDN dataset. Their study found that hybrid architectures combining spatial and temporal feature extraction achieved the best performance, with the best model achieving approximately 97.5\% accuracy. However, the study focused solely on detection performance without addressing deployment considerations such as inference latency, model size, or integration with SDN security mechanisms.
+
+Kumar et al.\ \cite{Kumar2025HybridDL} proposed a metaparameter-optimized hybrid deep learning model for cybersecurity in SDN environments. Their approach uses meta-heuristic optimization algorithms to automatically tune the hyperparameters of a hybrid deep learning architecture, achieving improved detection performance compared to manually tuned models. While the automated hyperparameter optimization is a notable contribution, the resulting model is significantly more complex and computationally expensive than the lightweight TCN architecture proposed in this thesis.
+
+\subsection{Transformer-Based Approaches}\label{subsec:lr_transformer}
+
+Transformer architectures have recently been applied to network intrusion detection, leveraging self-attention mechanisms for capturing long-range dependencies.
+
+Wu et al.\ \cite{wu2022rtids} proposed RT-IDS, a real-time intrusion detection system using the Transformer architecture. Their model applies multi-head self-attention to network flow features, enabling it to capture complex interactions between different feature dimensions. While achieving strong detection performance, the quadratic computational complexity of self-attention with respect to the sequence length introduces significant overhead for large-scale deployment. The Transformer's large parameter count also increases the risk of overfitting on smaller datasets.
+
+\subsection{Reinforcement Learning-Based Approaches}\label{subsec:lr_rl_ids}
+
+Kanimozhi and Ramesh \cite{Kanimozhi2025DRL} proposed a deep reinforcement learning-based intrusion detection scheme for SDN where the IDS agent learns optimal detection policies through interaction with the network environment. Their approach uses Deep Q-Networks (DQN) to learn adaptive detection strategies that can evolve with changing attack patterns. While promising for adaptive and self-learning IDS frameworks, deep reinforcement learning introduces significant training complexity, requires careful reward engineering, and may exhibit instability during training. Additionally, the real-time inference efficiency of RL-based approaches depends heavily on the complexity of the state representation and action space.
+
+\subsection{Federated and Distributed Approaches}\label{subsec:lr_federated}
+
+Wang and Huang \cite{Wang2025FederatedDL} proposed an adaptive intrusion detection framework using federated deep learning for SDN. Their approach enables multiple SDN controllers to collaboratively train a shared deep learning model without exchanging raw traffic data, preserving privacy and reducing communication overhead. Sousa and Gonçalves \cite{Sousa2024FedAAA} proposed FedAAA-SDN, a federated authentication and authorization model for secure cross-domain SDN environments. These federated approaches address important concerns regarding data privacy and multi-domain collaboration but introduce additional complexity in terms of model aggregation, communication rounds, and convergence guarantees.
+
+Feizi and AL-Talebei \cite{feizi2025dcgan} proposed using Deep Convolutional Generative Adversarial Networks (DCGAN) for data balancing to improve the accuracy of a hybrid CNN-LSTM intrusion detection framework in SDN environments. Their approach generates synthetic attack samples to balance the class distribution, achieving improved detection rates for minority attack classes. However, GAN-generated samples may introduce artifacts that are not representative of real attack patterns.
+
+%% ============================================================
+\section{TCN-Based Intrusion Detection}\label{sec:lr_tcn_ids}
+%% ============================================================
+
+The application of Temporal Convolutional Networks to network intrusion detection is a relatively recent development that has shown promising results. This section reviews the existing literature on TCN-based IDS approaches, which are most directly related to the detection component of the proposed TCN-HMAC framework.
+
+Lopes et al.\ \cite{Lopes2023TCN} proposed a network intrusion detection model based on the Temporal Convolutional architecture. Their model employs dilated causal convolutions with residual connections to capture temporal patterns in network flow features. The evaluation on multiple benchmark datasets demonstrated that the TCN model achieved competitive or superior accuracy compared to LSTM and GRU baselines while requiring significantly less inference time. Their work provided important early evidence for the viability of TCNs in the intrusion detection domain. However, their evaluation was conducted on general-purpose network datasets (not SDN-specific), and the study did not address the integration of the TCN model with SDN-specific security mechanisms such as flow rule verification.
+
+Benfarhat et al.\ \cite{Benfarhat2025TCN} proposed an advanced TCN framework for intrusion detection in electric vehicle (EV) charging stations. Their architecture extends the basic TCN with attention mechanisms and feature fusion layers to improve detection of cyber-physical attacks targeting EV charging infrastructure. While demonstrating the versatility of TCNs for specialized domains, the EV charging station context differs significantly from SDN environments in terms of traffic characteristics, attack vectors, and deployment constraints.
+
+Li and Li \cite{LiLi2025TCNSE} proposed a lightweight network intrusion detection system based on TCN enhanced with attention mechanisms. Their model incorporates squeeze-and-excitation (SE) blocks within the TCN architecture to recalibrate channel-wise feature responses, improving the model's ability to focus on the most discriminative features. The lightweight design prioritizes inference efficiency, making it suitable for deployment on edge devices. Their results demonstrated strong detection performance with reduced model complexity, aligning with the lightweight design philosophy adopted in this thesis.
+
+Nazre et al.\ \cite{Nazre2024TCN} proposed a TCN-based approach for network intrusion detection, evaluating the model on the UNSW-NB15 and CICIDS-2017 datasets. Their study confirmed the effectiveness of dilated causal convolutions for capturing attack-indicative temporal patterns and reported accuracy improvements over baseline models. However, the evaluation was limited to two non-SDN datasets, and the model architecture did not include the residual connections and spatial dropout regularization employed in this thesis.
+
+Sun \cite{Sun2025TCN} proposed using TCNs for time-series traffic modeling in network intrusion detection, treating network flow sequences as temporal signals amenable to convolutional analysis. The study demonstrated that TCNs effectively capture both short-term and long-term temporal patterns in network traffic, validating the fundamental approach adopted in this thesis.
+
+Mei et al.\ \cite{Mei2024BiTCN} proposed a bidirectional TCN (BiTCN) for intrusion detection in intelligent connected vehicles. The bidirectional architecture processes sequences in both forward and backward directions, enabling the capture of temporal patterns that depend on both past and future context. While bidirectional processing can improve detection accuracy in offline analysis scenarios, it is not suitable for real-time intrusion detection where only past and current data are available.
+
+Deng et al.\ \cite{Deng2024BiTCNMHSA} proposed a network intrusion detection model combining multi-layer bidirectional TCN with multi-headed self-attention mechanisms. Their architecture leverages both the temporal modeling capability of BiTCN and the global dependency modeling of self-attention. While achieving strong detection performance, the combined complexity of BiTCN and self-attention introduces significant computational overhead that may limit real-time deployment.
+
+Xu et al.\ \cite{Xu2025GTCNG} proposed GTCN-G, a residual graph-temporal fusion network specifically designed for imbalanced intrusion detection. Their architecture combines graph neural networks for modeling topological relationships between network entities with temporal convolutional networks for capturing temporal traffic patterns. The fusion of graph and temporal representations enables the model to leverage both structural and temporal information. However, the graph component requires knowledge of the network topology, which may not always be available in real-time detection scenarios.
+
+Peng and Zhang \cite{Peng2024GATGTCN} proposed an intrusion detection model integrating Graph Attention Networks (GAT) with Gated Temporal Convolutional Networks (GTCN) for Industrial Internet of Things environments. Their approach models the relationships between IoT devices using graph attention and captures temporal traffic patterns using gated TCN layers. While effective for IoT-specific scenarios, the graph-based approach is computationally expensive and may not scale to large SDN deployments.
+
+Robert et al.\ \cite{Robert2025TCANet} proposed TCANet, a hybrid architecture combining TCN with anomaly attention networks and Bi-GRU for network intrusion detection. Their model uses TCN for initial temporal feature extraction, anomaly attention for highlighting suspicious patterns, and Bi-GRU for bidirectional sequence refinement. While the multi-component architecture achieves strong detection performance, the complexity of the model design introduces significant deployment challenges and increases inference latency.
+
+The TCN literature as a whole makes a convincing case for temporal convolutions in network IDS. What it does \emph{not} do---and this is the critical observation---is connect TCN-based detection with any form of cryptographic control-plane protection. Most studies are also tested on general-purpose datasets rather than SDN-specific ones, and comparatively few pay attention to deployment practicalities like model size, inference latency, and integration with the SDN control loop. The TCN-HMAC framework addresses all of these omissions.
+
+%% ============================================================
+\section{Authentication and Access Control in SDN}\label{sec:lr_auth}
+%% ============================================================
+
+Authentication and access control mechanisms are essential for ensuring that only authorized entities can modify network configurations and access sensitive data in SDN environments.
+
+Wang et al.\ \cite{Wang2022DeepFlowGuard} introduced DeepFlowGuard, a deep learning-based controller authentication system for SDN. DeepFlowGuard uses a deep neural network to analyze control channel traffic patterns and identify unauthorized controllers attempting to impersonate legitimate ones. The system demonstrated effective authentication with high accuracy, but it relies on traffic pattern analysis rather than cryptographic verification, making it potentially vulnerable to sophisticated adversaries who can mimic legitimate traffic patterns.
+
+Khan et al.\ \cite{Khan2021MitmDefender} developed MITM-Defender, a real-time defense system against Man-in-the-Middle attacks in SDN that detects controller--switch anomalies using behavioral flow tracking. The system monitors the behavioral characteristics of flow installations to identify deviations from expected patterns that may indicate MITM interception. While effective for detecting a specific class of attacks, MITM-Defender focuses narrowly on MITM threats and does not provide general-purpose intrusion detection or flow rule integrity verification.
+
+Malik and Habib \cite{Malik2021SDoS} addressed DoS threats through lightweight agents deployed near SDN switches to detect abnormal flow modification activity. Their agent-based approach monitors the rate and pattern of flow installations and modifications, flagging statistical anomalies that may indicate DoS attacks targeting the control plane. The lightweight agent concept is aligned with the auxiliary agent design employed in the TCN-HMAC framework, though Malik and Habib's agents focus exclusively on DoS detection rather than providing comprehensive integrity verification and multi-threat detection.
+
+Dungarani and Gujjar \cite{Dungarani2024SDNSecurity} surveyed the security challenges of SDN network automation and discussed various defense mechanisms including role-based access control, certificate-based authentication, and network segmentation. Their comprehensive analysis highlighted the need for layered security approaches that combine multiple defense mechanisms, reinforcing the defense-in-depth philosophy adopted in this thesis.
+
+Mudgal et al.\ \cite{mudgal2025adaptive} proposed adaptive rule replacement strategies for mitigating inference attacks in serverless SDN frameworks. Their work addresses a sophisticated threat model where adversaries attempt to infer the network's forwarding policies by observing traffic patterns and probing the network. While targeting a different threat vector than the TCN-HMAC framework, their adaptive approach demonstrates the importance of proactive security mechanisms in SDN environments.
+
+%% ============================================================
+\section{Hybrid Security Approaches}\label{sec:lr_hybrid}
+%% ============================================================
+
+Hybrid security approaches that combine multiple defense mechanisms to provide comprehensive protection have gained increasing attention in the SDN security literature.
+
+Liang et al.\ \cite{Liang2021NIDSReview} comprehensively reviewed SDN-based IDS mechanisms against rule injection and replay threats, identifying the need for integrated approaches that combine detection with verification. Their survey highlighted that existing approaches typically address either detection or verification but not both, leaving security gaps that can be exploited by multi-vector attacks.
+
+Benkhelifa et al.\ \cite{Benkhelifa2020AI4SDN} discussed the role of AI-driven security methods for preventing flow tampering and policy abuse in SDN environments. Their analysis identified several promising research directions, including the integration of deep learning with cryptographic mechanisms and the development of lightweight, deployable security solutions. The TCN-HMAC framework proposed in this thesis directly addresses these identified research directions.
+
+Johanyák and Göcs \cite{Johanyak2025EdgeSDN} explored edge computing security in SDN-enabled Industrial IoT networks, discussing the unique security challenges posed by the convergence of edge computing, SDN, and IoT. Their work highlighted the need for lightweight security solutions that can operate at the edge without imposing significant computational overhead, aligning with the design objectives of the TCN-HMAC framework.
+
+\subsection{The Hybrid Gap}\label{subsec:lr_hybrid_gap}
+
+Stepping back from the individual papers, a pattern emerges. Existing hybrid solutions tend to be either heavy (deep learning plus blockchain, for instance) or narrow (tackling only DDoS, or only MITM). What is missing is a lightweight hybrid that folds temporal deep-learning detection together with efficient HMAC-based flow-rule verification and challenge--response controller authentication---all in a package that can ship as a normal SDN controller application. That is the gap this thesis sets out to close.
+
+%% ============================================================
+\section{Dataset Studies for SDN Intrusion Detection}\label{sec:lr_datasets}
+%% ============================================================
+
+The choice of dataset significantly influences the validity and generalizability of intrusion detection research. Several studies have evaluated and compared datasets for SDN intrusion detection.
+
+Elsayed et al.\ \cite{elsayed2020insdn} introduced the InSDN dataset, which was specifically designed for intrusion detection research in SDN environments. The dataset captures realistic network traffic from an SDN testbed using multiple traffic generation tools and includes both benign traffic and multiple attack categories (DDoS, MITM, Probe, and Brute-force). The InSDN dataset has become a widely-used benchmark for SDN-specific intrusion detection research due to its realistic traffic patterns, comprehensive attack coverage, and well-documented feature schema.
+
+Khalid and Aldabagh \cite{Khalid2024InSDNSurvey} conducted a survey of the latest intrusion detection datasets for SDN environments, comparing InSDN with other available datasets including CICFlowMeter-generated datasets, NSL-KDD, and custom SDN datasets. Their analysis found that InSDN provides the most comprehensive representation of SDN-specific traffic patterns and attack scenarios, making it the preferred choice for SDN intrusion detection research.
+
+Moustafa et al.\ \cite{moustafa2023feature} provided a holistic review of network anomaly detection systems, including an analysis of feature engineering approaches for various intrusion detection datasets. Their review highlighted the importance of domain-specific feature selection and the need for preprocessing pipelines tailored to the characteristics of the target dataset.
+
+Pan et al.\ \cite{pan2023feature} conducted a comparative study of feature selection methods for network intrusion detection, evaluating filter, wrapper, and embedded approaches on multiple benchmark datasets. Their findings demonstrated that correlation-based filter methods provide a favorable balance between computational efficiency and classification performance, supporting the Pearson correlation-based feature selection approach employed in this thesis.
+
+%% ============================================================
+\section{Summary of Literature and Research Gaps}\label{sec:lr_summary}
+%% ============================================================
+
+Table~\ref{tab:lit_summary} summarizes the key characteristics of the reviewed approaches across multiple dimensions relevant to SDN security.
+
+\begin{table}[ht]
+\centering
+\caption{Summary of Related Work Categorization}
+\begin{tabular}{@{}p{4cm}cccc@{}}
+\toprule
+\textbf{Approach Category} & \textbf{Detection} & \textbf{Integrity} & \textbf{Real-time} & \textbf{Lightweight} \\
+\midrule
+Cryptographic (HMAC/PKI) & \texttimes & \checkmark & \checkmark & \checkmark \\
+Blockchain-based & Partial & \checkmark & \texttimes & \texttimes \\
+ML-based IDS & \checkmark & \texttimes & \checkmark & \checkmark \\
+DL-based IDS (RNN) & \checkmark & \texttimes & Partial & Partial \\
+DL-based IDS (TCN) & \checkmark & \texttimes & \checkmark & \checkmark \\
+Hybrid (DL + Blockchain) & \checkmark & \checkmark & \texttimes & \texttimes \\
+\textbf{TCN-HMAC (Proposed)} & \textbf{\checkmark} & \textbf{\checkmark} & \textbf{\checkmark} & \textbf{\checkmark} \\
+\bottomrule
+\end{tabular}
+\label{tab:lit_summary}
+\end{table}
+
+Based on the comprehensive review of related literature, the following research gaps have been identified:
+
+\begin{enumerate}
+    \item \textbf{Gap 1: Detection without Verification.} The majority of deep learning-based IDS approaches focus exclusively on anomaly detection without incorporating integrity verification mechanisms. This leaves the SDN control plane vulnerable to attacks that bypass the detection layer or directly target flow rule integrity.
+    
+    \item \textbf{Gap 2: Verification without Detection.} Cryptographic and protocol-based approaches provide strong integrity guarantees but lack proactive threat detection capabilities. They can verify that flow rules have not been tampered with but cannot detect the broader range of network intrusion activities.
+    
+    \item \textbf{Gap 3: Heavyweight Hybrid Solutions.} Existing hybrid approaches that combine detection with verification typically rely on blockchain or heavyweight cryptographic frameworks that introduce prohibitive latency and computational overhead for real-time SDN operations.
+    
+    \item \textbf{Gap 4: Limited TCN Evaluation on SDN Datasets.} While TCN-based IDS approaches have shown strong performance on general-purpose intrusion detection datasets, their evaluation on SDN-specific datasets such as InSDN is limited, and no existing work has integrated TCN-based detection with SDN-specific security mechanisms.
+    
+    \item \textbf{Gap 5: Absence of Comprehensive Lightweight Hybrid Framework.} No existing work combines temporal deep learning-based intrusion detection with HMAC-based flow rule integrity verification and challenge--response controller authentication in a unified, lightweight, and deployable framework.
+\end{enumerate}
+
+The TCN-HMAC framework is designed to close every one of these gaps: it pairs a lightweight TCN-based IDS with an HMAC-based auxiliary agent for flow-rule verification and controller authentication, achieving broad security coverage with minimal computational footprint. The detailed design appears in Chapter~\ref{chap:methodology}, and Chapters~\ref{chap:results}--\ref{chap:comparative} report the experimental evidence.
+
+\endinput

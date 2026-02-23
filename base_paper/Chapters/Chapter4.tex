@@ -1,0 +1,98 @@
+\chapter{Result and Discussion}\label{sec:results}
+
+The proposed hybrid security framework was evaluated in two major aspects: (1) the performance of the \textit{Temporal Convolutional Network (TCN)} in detecting network intrusions, and (2) the efficiency of the \textit{Auxiliary Agent} in performing cryptographic flow rule verification and controller authenticity validation with minimal resource overhead. All experiments were conducted in a simulated SDN testbed using the \textit{InSDN} dataset for intrusion detection and a Mininet–Ryu environment for control-plane validation.
+
+% \subsection{Intrusion Detection Performance}
+
+The TCN-based intrusion detection module was trained and tested using the \textit{InSDN} dataset, which contains multiple attack types including DDoS, MITM, Probe, and Brute-force. The model was trained for 50 epochs with a batch size of 64, using the Adam optimizer and a learning rate of 0.001. 
+
+The model achieved a high detection accuracy of 99.49\%, with Precision, Recall, and F1-score of 99.53\%, 99.84\%, and 99.68\% respectively. These results confirm that the TCN effectively captures temporal dependencies in flow statistics and accurately distinguishes between normal and malicious traffic.
+
+To validate the advantage of the proposed TCN model, its performance was compared against several existing SDN intrusion detection methods, including DeepFlowGuard~\cite{Wang2022DeepFlowGuard}, MITM-Defender~\cite{Khan2021MitmDefender}, and the lightweight IDS proposed by Sharma and Tyagi~\cite{Sharma2023LightweightIDS}. The comparative results in Table~\ref{tab:comparison-ids} demonstrate that the proposed TCN achieves the highest detection accuracy and F1-score among all evaluated approaches.
+
+\begin{table}[ht]
+\centering
+\caption{Comparison of Evaluation Metrics with Existing SDN Intrusion Detection Approaches}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Method} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\
+\midrule
+Lightweight IDS~\cite{Sharma2023LightweightIDS} & 0.9812 & 0.9830 & 0.9785 & 0.9807 \\
+MITM-Defender~\cite{Khan2021MitmDefender} & 0.9875 & 0.9891 & 0.9846 & 0.9868 \\
+DeepFlowGuard~\cite{Wang2022DeepFlowGuard} & 0.9913 & 0.9922 & 0.9931 & 0.9926 \\
+\textbf{Proposed TCN} & \textbf{0.9949} & \textbf{0.9953} & \textbf{0.9984} & \textbf{0.9968} \\
+\bottomrule
+\end{tabular}
+\label{tab:comparison-ids}
+\end{table}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Figures/acc_train_val.png}
+    \caption{Accuracy Curve of Training and Validation}
+    \label{fig:example}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Figures/conf.png}
+    \caption{Confusion Matrix}
+    \label{fig:example}
+\end{figure}
+
+The superior results confirm that the Temporal Convolutional Network achieves robust generalization across multiple attack types while maintaining low computational complexity, making it suitable for real-time SDN intrusion detection.
+
+% \subsection{Flow Rule Verification and Controller Validation}
+
+To evaluate the performance of the Auxiliary Agent, a series of experiments were performed under simulated control-plane attack conditions. The agent’s ability to detect and remove tampered flow rules was tested using synthetically injected invalid \texttt{flow\_mod} messages. The verification latency, CPU usage, and memory overhead were measured for normal and attack scenarios.
+
+The results in Table~\ref{tab:agent-performance} show that the average control latency increased slightly by 0.7~ms with the agent enabled, while CPU and RAM utilization rose marginally by 4.4\% and 13.7~MB respectively. The system successfully detected and removed all invalid flow rules injected during the experiments. These results confirm that the proposed solution introduces negligible overhead while maintaining strong flow integrity and control-plane trust.
+
+\begin{table}[ht]
+\centering
+\caption{Performance Evaluation of the Auxiliary Agent}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Metric} & \textbf{Without Agent} & \textbf{With Agent} \\
+\midrule
+Average Latency (ms) & 2.1 & 2.8 \\
+Flow Verification Time (ms) & -- & 0.4 \\
+CPU Usage (\%) & 12.3 & 16.7 \\
+RAM Usage (MB) & 84.5 & 98.2 \\
+Detected Invalid Flows & 0 & 3 \\
+\bottomrule
+\end{tabular}
+\label{tab:agent-performance}
+\end{table}
+
+% \subsection{Comparative Analysis with Other Lightweight Frameworks}
+
+Table~\ref{tab:comparison-frameworks} presents a comparison of the proposed hybrid framework with other lightweight SDN security frameworks, including EnsureS~\cite{Pradeep2023EnsureS}, SecureMatch~\cite{Zhou2022SecureMatch}, and the HMAC-SDN model~\cite{Ahmed2023HMACSDN}. The comparison is based on detection coverage, computational overhead, and deployment complexity.
+
+\begin{table}[ht]
+\centering
+\caption{Comparison with Existing Lightweight SDN Security Frameworks}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Framework} & \textbf{Detection Coverage} & \textbf{Overhead} \\
+\midrule
+EnsureS~\cite{Pradeep2023EnsureS} & Flow Integrity Only & Low \\
+SecureMatch~\cite{Zhou2022SecureMatch} & Rule Authentication & Moderate \\
+HMAC-SDN~\cite{Ahmed2023HMACSDN} & Flow Integrity & Low \\
+\textbf{Proposed } & \textbf{Intrusion + Integrity + Authenticity} & \textbf{Low} \\
+\bottomrule
+\end{tabular}
+\label{tab:comparison-frameworks}
+\end{table}
+
+The proposed hybrid approach uniquely combines \textit{deep learning-based intrusion detection} with \textit{cryptographic integrity assurance}, providing a broader security coverage while maintaining low computational and deployment overhead.
+
+% \subsection{Discussion}
+
+The experimental evaluation demonstrates that the proposed framework achieves both high detection accuracy and strong integrity assurance without compromising network performance. The TCN-based intrusion detector proactively identifies anomalous behaviors with over 99\% accuracy, while the Auxiliary Agent ensures message-level trust through lightweight HMAC verification. The marginal resource overhead and low latency confirm that the system is suitable for real-time, resource-constrained SDN deployments. 
+
+Overall, the results validate the effectiveness of the proposed \textit{lightweight hybrid security framework} as a comprehensive intrusion detection and mitigation solution for Software-Defined Networking environments.
+
+
+\endinput

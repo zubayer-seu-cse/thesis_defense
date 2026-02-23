@@ -1,0 +1,83 @@
+\documentclass[12pt,notitlepage,oneside]{report}
+
+\usepackage{seucseresearchfinal}
+
+% For index creation, comment this out if you do not want to create an
+% index
+%\makeindex[intoc]
+\usepackage{blindtext}
+
+
+\usepackage{cite}
+\usepackage{amsmath}
+\let\circledS\undefined
+\usepackage{amssymb,amsfonts}
+% algorithm2e is already loaded by seucseresearchfinal.sty
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{svg}
+\usepackage{booktabs}
+
+
+\begin{document}
+\mystartingmaterials
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%EDIT BELOW THIS LINE
+%\input{filename} will include all the contents of file in the main book.
+%Comment and test different \input{filename} commands to see what happens
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TEST PDF with instructions about how to use different features
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Chapter 1: Introduction
+\input{Chapters/Chapter1.tex}
+% Chapter 2: Background
+\input{Chapters/Chapter2.tex}
+% Chapter 3: Literature Review
+\input{Chapters/Chapter3.tex}
+% Chapter 4: Dataset and Preprocessing
+\input{Chapters/Chapter4.tex}
+% Chapter 5: TCN Model Architecture
+\input{Chapters/Chapter5.tex}
+% Chapter 6: Proposed Methodology (TCN-HMAC Framework)
+\input{Chapters/Chapter6.tex}
+% Chapter 7: Experimental Setup
+\input{Chapters/Chapter7.tex}
+% Chapter 8: Results and Analysis
+\input{Chapters/Chapter8.tex}
+% Chapter 9: Comparative Analysis
+\input{Chapters/Chapter9.tex}
+% Chapter 10: Conclusion and Future Work
+\input{Chapters/Chapter10.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Main writing ends here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bibliographies and appendices
+%Comment/uncomment as suits you
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{ieeetr} %% IEEE transaction style
+% \bibliographystyle{acm} %% ACM style
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%DONE
+%do not comment the next line.
+%DO NOT EDIT THE bibliography.tex file
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{Extensions/bibliography.tex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%index and appendix sections
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Index, comment this out if you do not want to create an index
+%\printindex
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% Sample appendix section
+%Comment out algorithm and/or code files if not needed
+%%%%%%%%%%%%%%%%%%%%%%%
+% \appendix
+% Algorithms
+% \input{Extensions/algorithm_extra.tex}
+% Codes 
+% \input{Extensions/code_extra.tex}
+
+\end{document}

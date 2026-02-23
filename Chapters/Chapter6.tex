@@ -1,0 +1,448 @@
+\chapter{Proposed Methodology: TCN-HMAC Framework}\label{chap:methodology}
+
+The previous two chapters described what goes \emph{into} the system---the InSDN dataset and the TCN model. This chapter describes how those pieces, together with an HMAC-based communication-integrity layer, are woven into a single, deployable security framework. We cover the system architecture, the TCN-IDS module, the HMAC key establishment and message-authentication protocol, the flow-rule verification mechanism, the challenge--response authentication scheme, and the end-to-end operational workflow that ties everything together.
+
+%% ============================================================
+\section{System Architecture Overview}\label{sec:system_arch}
+%% ============================================================
+
+At the highest level, TCN-HMAC sits as an integrated security layer inside the standard three-plane SDN architecture. It defends two distinct boundaries with two complementary mechanisms:
+
+\begin{enumerate}
+    \item \textbf{TCN-Based Intrusion Detection:} A trained TCN model deployed at the SDN controller analyses incoming network flows in real time, classifying each flow as benign or malicious. Malicious flows trigger automated response actions including flow rule installation to block the offending traffic.
+    
+    \item \textbf{HMAC-Based Communication Integrity:} An HMAC scheme secures the communication channel between the SDN controller and the OpenFlow switches, preventing man-in-the-middle attacks, flow rule tampering, and unauthorized controller impersonation.
+\end{enumerate}
+
+The architecture positions these mechanisms at two distinct security boundaries:
+
+\begin{itemize}
+    \item \textbf{Data Plane $\rightarrow$ Control Plane Boundary:} The TCN-IDS inspects traffic flows forwarded from switches to the controller via \texttt{Packet\_In} messages. This boundary is the primary attack surface for network intrusions, as all unknown traffic must pass through the controller for routing decisions.
+    
+    \item \textbf{Control Plane $\leftrightarrow$ Data Plane Boundary:} The HMAC mechanism secures bidirectional communication between the controller and switches, protecting \texttt{Flow\_Mod} (controller $\rightarrow$ switch) and \texttt{Stats\_Reply} (switch $\rightarrow$ controller) messages from tampering or forgery.
+\end{itemize}
+
+The net effect is defense in depth. If an attacker crafts traffic that slips past the TCN detector, the HMAC mechanism still prevents that traffic from being leveraged to install rogue flow rules. Conversely, if an attacker somehow compromises the HMAC keys, the TCN-IDS will spot the resulting malicious traffic patterns. Neither layer alone is sufficient; together, they raise the cost of a successful attack substantially.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/system_architecture.drawio.png}
+    \caption{Architecture of the proposed TCN-HMAC hybrid security framework for SDN}
+    \label{fig:system_architecture}
+\end{figure}
+
+The overall system architecture is illustrated in Figure~\ref{fig:system_architecture}. The TCN-based intrusion detection module is integrated into the SDN controller as a Python-based application, continuously monitoring flow statistics obtained via the northbound API. The Auxiliary Agent, operating as a sidecar process on the same host as the controller, remains isolated from external network access to minimize exposure. Communication between the controller and the agent is secured using symmetric encryption, with shared secrets established via a one-time RSA-based key exchange.
+
+%% ============================================================
+\section{TCN-Based Intrusion Detection Module}\label{sec:tcn_ids}
+%% ============================================================
+
+\subsection{Deployment Architecture}\label{subsec:deployment}
+
+The TCN-IDS module is deployed as a dedicated application on the SDN controller, running alongside the standard networking applications (routing, topology discovery, load balancing). The module interfaces with the controller through the northbound API, receiving flow statistics and packet headers from the controller and returning classification decisions.
+
+The deployment architecture comprises three sub-components:
+
+\begin{enumerate}
+    \item \textbf{Feature Extraction Engine:} Extracts the relevant network flow features from incoming \texttt{Packet\_In} messages and flow statistics. The features correspond to the 84 original InSDN dataset features, which are then preprocessed (as described in Chapter~\ref{chap:dataset}) to produce the 24-dimensional PCA-transformed input vector.
+    
+    \item \textbf{TCN Inference Engine:} Loads the trained TCN model (\texttt{best\_tcn\_insdn.keras}) and performs inference on the preprocessed feature vector. The inference engine supports both CPU and GPU execution, with GPU execution recommended for high-throughput deployments.
+    
+    \item \textbf{Response Engine:} Translates TCN classification decisions into SDN control actions. For flows classified as attacks ($p > 0.5$), the response engine generates appropriate \texttt{Flow\_Mod} messages to block the malicious traffic at the source switch. For flows classified as benign, the response engine allows standard forwarding to proceed.
+\end{enumerate}
+
+\subsection{Real-Time Inference Pipeline}\label{subsec:inference_pipeline}
+
+The real-time inference pipeline processes incoming network flows through the following stages:
+
+\begin{enumerate}
+    \item \textbf{Flow Capture:} When a switch receives a packet that does not match any existing flow rule, it forwards the packet to the controller via a \texttt{Packet\_In} message. The controller's flow table management module extracts the flow's header fields and statistics.
+    
+    \item \textbf{Feature Construction:} The feature extraction engine constructs a feature vector $\mathbf{x} \in \mathbb{R}^{84}$ from the captured flow information. This includes bidirectional byte and packet counts, inter-arrival times, TCP flag distributions, and application-layer protocol indicators.
+    
+    \item \textbf{Preprocessing:} The feature vector undergoes the same preprocessing pipeline used during training (Section~\ref{subsec:second_pass_clean}): infinite value replacement, zero-variance feature removal, standard scaling using the saved scaler parameters, and PCA transformation using the saved PCA basis. The result is a 24-dimensional vector $\mathbf{z} \in \mathbb{R}^{24}$.
+    
+    \item \textbf{Inference:} The preprocessed vector is reshaped to $(1, 24, 1)$ and fed through the TCN model. The sigmoid output $\hat{y} \in (0, 1)$ represents the attack probability.
+    
+    \item \textbf{Decision:} If $\hat{y} > 0.5$, the flow is classified as an attack and the response engine is triggered. If $\hat{y} \leq 0.5$, the flow is classified as benign and normal forwarding proceeds.
+    
+    \item \textbf{Logging:} All classification decisions, timestamps, feature vectors, and confidence scores are logged for offline analysis and model retraining.
+\end{enumerate}
+
+\subsection{Response Actions}\label{subsec:response_actions}
+
+When the TCN model classifies a flow as malicious, the response engine can execute one or more of the following automated actions:
+
+\begin{itemize}
+    \item \textbf{Flow Blocking:} Install a drop rule on the source switch to discard all packets matching the malicious flow's header fields (source/destination IP, port, protocol). This immediately stops the attack traffic from reaching its target.
+    
+    \item \textbf{Rate Limiting:} For suspected DDoS traffic, install a meter entry on the switch to limit the rate of matching packets, reducing the impact of the attack while allowing some legitimate traffic through.
+    
+    \item \textbf{Traffic Redirection:} Redirect suspicious traffic to a honeypot or analysis server for further investigation, enabling security analysts to study the attack in detail without exposing production services.
+    
+    \item \textbf{Alert Generation:} Generate security alerts to the network administrator's dashboard, including the attack type probability, affected hosts, and recommended manual actions.
+\end{itemize}
+
+%% ============================================================
+\section{HMAC-Based Communication Integrity}\label{sec:hmac_integrity}
+%% ============================================================
+
+\subsection{Threat Model}\label{subsec:threat_model}
+
+The HMAC side of the framework exists to solve a specific problem: even if TLS encrypts the OpenFlow channel, it does not stop an insider or a compromised component from issuing perfectly well-formed but unauthorised commands. The threat model we consider includes five attack classes:
+
+\begin{itemize}
+    \item \textbf{Man-in-the-Middle (MitM) Attacks:} An attacker positioned between the controller and a switch intercepts OpenFlow messages, modifies their contents (e.g., changing flow rule actions from ``forward to port 2'' to ``forward to attacker's port''), and forwards the modified messages to the destination.
+    
+    \item \textbf{Flow Rule Injection:} An attacker that has gained access to the network sends forged \texttt{Flow\_Mod} messages to a switch, installing malicious flow rules that redirect, copy, or drop traffic.
+    
+    \item \textbf{Controller Spoofing:} An attacker impersonates the SDN controller, sending commands to switches that appear to originate from the legitimate controller.
+    
+    \item \textbf{Replay Attacks:} An attacker captures legitimate OpenFlow messages and replays them at a later time to re-install previously valid (but now inappropriate) flow rules or to trigger unnecessary controller actions.
+    
+    \item \textbf{Switch Impersonation:} An attacker impersonates a legitimate switch, sending fabricated statistics or topology information to the controller to manipulate routing decisions.
+\end{itemize}
+
+\subsection{HMAC Key Establishment Protocol}\label{subsec:key_establishment}
+
+Before HMAC-protected communication can begin, the controller and each switch must establish a shared secret key. The TCN-HMAC framework employs a key establishment protocol that operates during the switch connection phase:
+
+\textbf{Initial Key Exchange:}
+\begin{enumerate}
+    \item When a switch connects to the controller via the OpenFlow handshake, the controller generates a random 256-bit master key $K_{master}$ for the switch.
+    
+    \item The master key is transmitted to the switch over the TLS-encrypted OpenFlow connection. While TLS provides transport-layer encryption, HMAC provides application-layer message integrity as an additional defense layer.
+    
+    \item Both the controller and the switch derive two session keys from the master key using a Key Derivation Function (KDF):
+    \begin{align}
+        K_{C \rightarrow S} &= \text{HMAC-SHA256}(K_{master}, \text{``controller-to-switch''} \| \text{nonce}_C) \\
+        K_{S \rightarrow C} &= \text{HMAC-SHA256}(K_{master}, \text{``switch-to-controller''} \| \text{nonce}_S)
+    \end{align}
+    where $\text{nonce}_C$ and $\text{nonce}_S$ are random nonces exchanged during the handshake.
+    
+    \item Separate keys for each direction prevent reflection attacks, where an attacker reflects a message back to its sender.
+\end{enumerate}
+
+The secure key exchange procedure is formalized in Algorithm~\ref{alg:key_exchange}.
+
+\begin{algorithm}[htbp]
+\caption{Secure Key Exchange for a New Switch}\label{alg:key_exchange}
+\KwIn{Agent--Controller shared key $K_{ac}$, Controller public key $PK_c$, Controller private key $PR_c$, Switch ID $SW_{id}$}
+\KwOut{Shared secret key between controller and agent for a new switch}
+\BlankLine
+\tcp{Agent Side}
+$K_{sw} \leftarrow$ Generate random symmetric key for the switch\;
+$payload \leftarrow SW_{id} \parallel K_{sw}$\;
+$auth\_tag \leftarrow \text{HMAC}_{K_{ac}}(payload)$\;
+$message \leftarrow payload \parallel auth\_tag$\;
+$encrypted \leftarrow \text{Encrypt}_{PK_c}(message)$\;
+Send $encrypted$ to Controller\;
+\BlankLine
+\tcp{Controller Side}
+$decrypted \leftarrow \text{Decrypt}_{PR_c}(encrypted)$\;
+Extract $payload$ and $auth\_tag$ from $decrypted$\;
+\eIf{$\text{HMAC}_{K_{ac}}(payload) \neq auth\_tag$}{
+    \textbf{Reject} message\;
+}{
+    Extract $SW_{id}$ and $K_{sw}$ from $payload$\;
+    Store $K_{sw}$ associated with $SW_{id}$\;
+}
+\end{algorithm}
+
+\textbf{Key Rotation:}
+To limit the window of vulnerability if a key is compromised, the framework implements periodic key rotation:
+
+\begin{itemize}
+    \item Keys are rotated every $T_{rotate}$ seconds (configurable, default 3600 seconds).
+    \item The rotation uses forward secrecy: the new master key is derived from the current master key and a fresh random value:
+    \begin{equation}
+        K_{master}^{(t+1)} = \text{HMAC-SHA256}(K_{master}^{(t)}, r_t)
+    \end{equation}
+    where $r_t$ is a random 256-bit value. This ensures that compromise of a future key does not compromise past keys.
+    \item Key rotation is synchronized via a dedicated OpenFlow vendor message.
+\end{itemize}
+
+\subsection{Message Authentication}\label{subsec:message_auth}
+
+Every OpenFlow message exchanged between the controller and a switch is augmented with an HMAC tag that authenticates the message's integrity and origin:
+
+\textbf{Sending (Controller $\rightarrow$ Switch):}
+\begin{enumerate}
+    \item The controller constructs the OpenFlow message $M$ (e.g., a \texttt{Flow\_Mod} message).
+    \item A sequence number $\text{seq}$ is appended to prevent replay attacks.
+    \item The HMAC tag is computed using HMAC-SHA256:
+    \begin{equation}
+        \text{tag} = \text{HMAC-SHA256}(K_{C \rightarrow S}, M \| \text{seq} \| \text{timestamp})
+    \end{equation}
+    \item The message $(M \| \text{seq} \| \text{timestamp} \| \text{tag})$ is sent to the switch.
+\end{enumerate}
+
+\textbf{Receiving (Switch):}
+\begin{enumerate}
+    \item The switch receives the augmented message and extracts $M$, $\text{seq}$, $\text{timestamp}$, and $\text{tag}$.
+    \item The switch recomputes the expected HMAC tag using its copy of $K_{C \rightarrow S}$:
+    \begin{equation}
+        \text{tag}' = \text{HMAC-SHA256}(K_{C \rightarrow S}, M \| \text{seq} \| \text{timestamp})
+    \end{equation}
+    \item The switch performs a constant-time comparison of $\text{tag}$ and $\text{tag}'$. Constant-time comparison prevents timing side-channel attacks that could be used to forge valid tags.
+    \item If $\text{tag} = \text{tag}'$ and $\text{seq}$ is greater than the last accepted sequence number and $\text{timestamp}$ is within the acceptable window, the message is accepted and processed.
+    \item Otherwise, the message is rejected, a security alert is generated, and the invalid message is logged for forensic analysis.
+\end{enumerate}
+
+The same process operates in reverse for switch-to-controller messages, using $K_{S \rightarrow C}$.
+
+\subsection{Flow Rule Verification}\label{subsec:flow_verification}
+
+In addition to authenticating individual messages, the TCN-HMAC framework implements a flow rule verification mechanism to detect unauthorized modifications to the switch's flow table:
+
+\begin{enumerate}
+    \item The controller maintains a shadow copy of each switch's expected flow table, stored in a secure database on the controller.
+    
+    \item Periodically (every $T_{verify}$ seconds, default 30), the controller sends a \texttt{Flow\_Stats\_Request} to each switch, requesting the current flow table contents.
+    
+    \item The switch responds with a \texttt{Flow\_Stats\_Reply} containing its current flow rules, authenticated with an HMAC tag.
+    
+    \item The controller compares the received flow rules against its shadow copy. Any discrepancy (additional rules not installed by the controller, modified rules, or missing rules) indicates a potential compromise and triggers an investigation:
+    \begin{itemize}
+        \item \textbf{Extra Rules:} May indicate flow rule injection by an attacker.
+        \item \textbf{Modified Rules:} May indicate MitM modification of \texttt{Flow\_Mod} messages.
+        \item \textbf{Missing Rules:} May indicate flow rule deletion by an attacker or a legitimate timeout.
+    \end{itemize}
+    
+    \item If unauthorized modifications are detected, the controller re-installs the correct flow rules and generates a security alert.
+\end{enumerate}
+
+The flow rule verification procedure is formalized in Algorithm~\ref{alg:flow_verify}.
+
+\begin{algorithm}[htbp]
+\caption{Flow Rule Verification by the Auxiliary Agent}\label{alg:flow_verify}
+\KwIn{Flow rule $F$, received cookie $C$, switch ID $SW_{id}$}
+\KwOut{Validate and enforce flow integrity}
+Parse flow: extract $eth\_src$, $eth\_dst$, $out\_port$\;
+$flow\_str \leftarrow eth\_src \parallel eth\_dst \parallel output{:}out\_port$\;
+$expected\_cookie \leftarrow \text{HMAC}_{K_{sw}}(flow\_str)$\;
+\eIf{$C \neq expected\_cookie$}{
+    \textbf{Drop} flow rule from switch\;
+    Notify controller of invalid flow\;
+}{
+    \textbf{Accept} and monitor flow\;
+}
+\end{algorithm}
+
+\subsection{Challenge-Response Authentication}\label{subsec:challenge_response}
+
+To detect controller spoofing and switch impersonation attacks, the framework implements a challenge-response authentication mechanism:
+
+\textbf{Controller Authenticates Switch:}
+\begin{enumerate}
+    \item The controller generates a random challenge nonce $c_s \in \{0,1\}^{128}$.
+    \item The controller sends $c_s$ to the switch.
+    \item The switch computes the response $r_s = \text{HMAC-SHA256}(K_{S \rightarrow C}, c_s \| \text{switch\_id})$ and returns $r_s$.
+    \item The controller verifies $r_s$ by recomputing the expected response. If verification fails, the switch connection is terminated and an alert is generated.
+\end{enumerate}
+
+\textbf{Switch Authenticates Controller:}
+\begin{enumerate}
+    \item The switch generates a random challenge nonce $c_c \in \{0,1\}^{128}$.
+    \item The switch sends $c_c$ to the controller (via an OpenFlow vendor message).
+    \item The controller computes the response $r_c = \text{HMAC-SHA256}(K_{C \rightarrow S}, c_c \| \text{controller\_id})$ and returns $r_c$.
+    \item The switch verifies $r_c$. If verification fails, the switch disconnects from the controller and enters a safe mode where it continues forwarding based on its last known good flow table until a verified controller is available.
+\end{enumerate}
+
+Challenge-response authentication is performed during the initial handshake and can be repeated periodically (every $T_{auth}$ seconds) or triggered on demand when suspicious activity is detected.
+
+The controller verification via challenge--response is formalized in Algorithm~\ref{alg:challenge_response}.
+
+\begin{algorithm}[htbp]
+\caption{Controller Verification via Challenge--Response}\label{alg:challenge_response}
+\KwIn{Interval $T$, controller key $K_{sw}$, backup controller $C_{bk}$}
+\KwOut{Detect and recover from compromised controller}
+\For{every $T$ seconds}{
+    $nonce \leftarrow$ Generate random challenge\;
+    Send $nonce$ to controller\;
+    Controller responds with $response = \text{HMAC}_{K_{sw}}(nonce)$\;
+    \eIf{$\text{HMAC}_{K_{sw}}(nonce) \neq response$}{
+        Alert network administrator\;
+        Activate $C_{bk}$ as primary controller\;
+    }{
+        Continue monitoring\;
+    }
+}
+\end{algorithm}
+
+%% ============================================================
+\section{End-to-End Operational Workflow}\label{sec:workflow}
+%% ============================================================
+
+The complete operational workflow of the TCN-HMAC framework integrates the TCN-IDS and HMAC components into a unified security pipeline:
+
+\subsection{Network Initialization Phase}\label{subsec:init_phase}
+
+\begin{enumerate}
+    \item \textbf{Controller Startup:} The SDN controller starts and loads the TCN model, the preprocessing pipeline (scaler parameters, PCA basis), and the HMAC key management module.
+    
+    \item \textbf{Switch Connection:} Switches connect to the controller via the OpenFlow handshake. The TLS connection is established, and the HMAC key exchange protocol is executed.
+    
+    \item \textbf{Mutual Authentication:} The controller and each switch perform the challenge-response authentication to verify each other's identity.
+    
+    \item \textbf{Flow Rule Installation:} The controller installs initial flow rules (e.g., default routing, table-miss rules) on each switch, with each \texttt{Flow\_Mod} message authenticated via HMAC.
+    
+    \item \textbf{Shadow Table Initialization:} The controller initializes the shadow flow table for each switch, recording the initial flow rules.
+\end{enumerate}
+
+\subsection{Steady-State Operation Phase}\label{subsec:steady_phase}
+
+During normal operation, the framework processes network traffic through the following workflow:
+
+\begin{enumerate}
+    \item \textbf{Packet Arrival:} A packet arrives at a switch. The switch checks its flow table for a matching rule.
+    
+    \item \textbf{Known Flow:} If a matching rule exists, the packet is processed according to the rule's actions (forward, drop, modify) without controller involvement.
+    
+    \item \textbf{Unknown Flow:} If no matching rule exists, the switch sends a \texttt{Packet\_In} message to the controller (authenticated via HMAC).
+    
+    \item \textbf{TCN Classification:} The controller's TCN-IDS module extracts features from the flow, preprocesses them, and runs TCN inference.
+    
+    \item \textbf{Benign Flow:} If the flow is classified as benign, the controller computes the appropriate forwarding path and installs matching flow rules on the relevant switches via HMAC-authenticated \texttt{Flow\_Mod} messages.
+    
+    \item \textbf{Malicious Flow:} If the flow is classified as an attack, the controller installs drop rules on the source switch and generates security alerts. The drop rules are also authenticated via HMAC.
+    
+    \item \textbf{Shadow Table Update:} The controller updates its shadow flow table to reflect the newly installed rules.
+\end{enumerate}
+
+\subsection{Periodic Security Tasks}\label{subsec:periodic_tasks}
+
+In addition to the real-time traffic processing workflow, the framework executes periodic security maintenance tasks:
+
+\begin{itemize}
+    \item \textbf{Flow Table Verification} (every 30 seconds): The controller queries each switch's flow table and compares it against the shadow copy, as described in Section~\ref{subsec:flow_verification}.
+    
+    \item \textbf{Key Rotation} (every 3600 seconds): The HMAC session keys are rotated to limit the exposure window of compromised keys.
+    
+    \item \textbf{Re-Authentication} (every 1800 seconds): The controller and switches perform mutual challenge-response authentication to detect persistent compromise.
+    
+    \item \textbf{Model Health Check:} The TCN model's inference latency and memory usage are monitored. If latency exceeds a threshold (e.g., 5~ms per flow), the system alerts the administrator.
+\end{itemize}
+
+%% ============================================================
+\section{Security Analysis}\label{sec:security_analysis}
+%% ============================================================
+
+This section analyzes the security properties of the TCN-HMAC framework against the threats identified in Section~\ref{subsec:threat_model}.
+
+\subsection{Resistance to Network Intrusions}\label{subsec:resist_intrusion}
+
+The TCN-IDS component provides resistance to network intrusions through:
+
+\begin{itemize}
+    \item \textbf{High Detection Rate:} The TCN model achieves a detection rate of 99.97\% (23,737 out of 23,744 attack flows correctly identified), meaning that only 0.03\% of attack flows evade detection.
+    
+    \item \textbf{Low False Alarm Rate:} The false alarm rate is 0.37\% (47 out of 12,823 benign flows incorrectly classified), minimizing disruption to legitimate traffic.
+    
+    \item \textbf{Multi-Attack Coverage:} The binary classification approach detects a wide range of attack types (DoS, DDoS, probing, brute force, web attacks, botnet, infiltration) through learned feature representations, rather than relying on attack-specific signatures.
+    
+    \item \textbf{Real-Time Processing:} The lightweight TCN model (7.1M FLOPs per inference) enables classification within milliseconds, allowing the system to respond to attacks before significant damage occurs.
+\end{itemize}
+
+\subsection{Resistance to Man-in-the-Middle Attacks}\label{subsec:resist_mitm}
+
+The HMAC mechanism provides resistance to MitM attacks through:
+
+\begin{itemize}
+    \item \textbf{Message Integrity:} Any modification to an HMAC-protected message invalidates the HMAC tag. An attacker who modifies a \texttt{Flow\_Mod} message in transit will cause the receiving switch to reject the message.
+    
+    \item \textbf{Cryptographic Strength:} HMAC-SHA256 provides 256-bit security, making brute-force tag forgery computationally infeasible ($2^{128}$ expected operations for a birthday attack on the 256-bit output).
+    
+    \item \textbf{Sequence Numbers:} The inclusion of sequence numbers prevents replay attacks, where an attacker reuses a previously valid message.
+    
+    \item \textbf{Timestamps:} The inclusion of timestamps provides an additional defense against replay attacks with temporal freshness guarantees.
+\end{itemize}
+
+\subsection{Resistance to Controller/Switch Spoofing}\label{subsec:resist_spoofing}
+
+The challenge-response authentication mechanism prevents spoofing attacks:
+
+\begin{itemize}
+    \item \textbf{Controller Verification:} Switches verify the controller's identity through the challenge-response protocol, rejecting commands from unauthorized controllers.
+    
+    \item \textbf{Switch Verification:} The controller verifies each switch's identity, preventing rogue switches from injecting false topology or traffic information.
+    
+    \item \textbf{Key-Based Authentication:} The challenge-response responses require knowledge of the shared secret keys, which are transmitted only over TLS-encrypted connections and rotated periodically.
+\end{itemize}
+
+\subsection{Resistance to Flow Rule Tampering}\label{subsec:resist_tampering}
+
+The flow rule verification mechanism detects unauthorized modifications to switch flow tables:
+
+\begin{itemize}
+    \item \textbf{Shadow Table Comparison:} The controller's shadow flow table provides a ground truth against which the switch's actual flow table is compared.
+    
+    \item \textbf{Periodic Verification:} Regular verification ensures that tampering is detected within a bounded time window ($T_{verify}$ seconds).
+    
+    \item \textbf{Automated Remediation:} Detected discrepancies are automatically corrected by re-installing the correct flow rules.
+\end{itemize}
+
+\subsection{HMAC Overhead Analysis}\label{subsec:hmac_overhead}
+
+No security framework is worth deploying if it adds unacceptable overhead. HMAC-SHA256 is deliberately chosen because it is fast and frugal \cite{Ahmed2023HMACSDN}:
+
+\begin{itemize}
+    \item \textbf{Computation Time:} HMAC-SHA256 computation requires approximately 1--5~microseconds per message on modern processors, adding negligible latency to the OpenFlow message processing pipeline.
+    
+    \item \textbf{Bandwidth Overhead:} Each HMAC tag adds 32 bytes (256 bits) to the message. For a typical \texttt{Flow\_Mod} message of 64--128 bytes, this represents a 25--50\% size increase. However, since OpenFlow control messages are exchanged at rates of hundreds to thousands per second (not millions), this bandwidth overhead is insignificant relative to the data plane throughput.
+    
+    \item \textbf{Key Storage:} Each switch requires storage for two 256-bit session keys (64 bytes total), which is trivial even for the most resource-constrained switches.
+    
+    \item \textbf{Scalability:} In a network with $N$ switches, the controller maintains $N$ master keys and $2N$ session keys. For networks with up to 10,000 switches, the total key storage is approximately 1.9~MB, well within the controller's memory capacity.
+\end{itemize}
+
+%% ============================================================
+\section{Comparison with Alternative Approaches}\label{sec:method_comparison}
+%% ============================================================
+
+What makes TCN-HMAC distinctive is not any single component---many IDS papers exist, and HMAC is textbook cryptography---but the combination. Table~\ref{tab:method_comparison} shows how the framework stacks up against the main alternative strategies:
+
+\begin{table}[ht]
+\centering
+\caption{Comparison of SDN Security Approaches}
+\begin{tabular}{@{}p{2.2cm}p{1.8cm}p{2cm}p{2cm}p{2cm}p{2cm}@{}}
+\toprule
+\textbf{Approach} & \textbf{IDS} & \textbf{Comm. Auth.} & \textbf{Real-Time} & \textbf{Overhead} & \textbf{Defense Depth} \\
+\midrule
+Signature IDS \cite{kreutz2015sdn} & Yes & No & Limited & Low & Single \\
+ML-based IDS \cite{Tang2020SDNIDS} & Yes & No & Moderate & Moderate & Single \\
+TLS only & No & Partial & Yes & Low & Single \\
+Blockchain \cite{Song2023IS2N} & Partial & Yes & No & High & Moderate \\
+TCN-HMAC (ours) & Yes & Yes & Yes & Low & Dual \\
+\bottomrule
+\end{tabular}
+\label{tab:method_comparison}
+\end{table}
+
+The TCN-HMAC framework is unique in providing both intrusion detection and communication authentication with low overhead and real-time operation. Signature-based and ML-based IDS approaches provide detection but no communication integrity. TLS provides transport-layer encryption but not application-layer message authentication. Blockchain-based approaches provide authentication but with high computational and latency overhead that makes real-time operation impractical.
+
+%% ============================================================
+\section{Design Decisions and Trade-offs}\label{sec:design_decisions}
+%% ============================================================
+
+Every framework involves trade-offs. The ones we made---and the reasoning behind them---are worth spelling out explicitly:
+
+\begin{enumerate}
+    \item \textbf{Binary vs. Multi-Class Classification:} The TCN-IDS uses binary classification (benign vs. attack) rather than multi-class classification (identifying specific attack types). This decision was made for several reasons: (a) binary classification achieves higher accuracy than multi-class on the InSDN dataset; (b) the primary operational requirement is to detect and block attacks, not to identify their specific types; (c) binary classification produces a simpler and faster model; and (d) attack type identification can be performed offline on flagged traffic if needed.
+    
+    \item \textbf{HMAC-SHA256 vs. Digital Signatures:} HMAC was chosen over digital signatures (e.g., RSA, ECDSA) for communication authentication because: (a) HMAC computation is 100--1000$\times$ faster than signature generation/verification; (b) the SDN environment provides a natural mechanism for shared key distribution (the TLS-encrypted controller--switch connection); and (c) HMAC provides sufficient security when both parties are mutually authenticated (which is ensured by the challenge-response protocol).
+    
+    \item \textbf{TCN vs. Other Deep Learning Architectures:} TCN was chosen over LSTM, GRU, and Transformer architectures based on the analysis presented in Section~\ref{subsec:bg_tcn_advantages}: TCN provides comparable or superior accuracy with lower computational cost, parallelizable inference, deterministic gradient flow, and a smaller memory footprint.
+    
+    \item \textbf{PCA Dimensionality Reduction:} PCA was used to reduce the feature space from 48 to 24 dimensions, balancing model performance with inference speed. While the full 48-dimensional features could potentially provide marginally higher accuracy, the 24-dimensional PCA features retain 95.43\% of the variance and enable faster preprocessing and inference.
+    
+    \item \textbf{Layered Security:} The decision to combine IDS with communication authentication (rather than implementing either one in isolation) was motivated by the observation that single-layer security mechanisms can be bypassed: an IDS without communication integrity is vulnerable to flow rule tampering, and communication integrity without IDS is unable to detect application-layer attacks.
+\end{enumerate}
+
+%% ============================================================
+\section{Chapter Summary}\label{sec:method_summary}
+%% ============================================================
+
+This chapter has laid out the full design of the TCN-HMAC framework: a TCN-based IDS for real-time detection paired with an HMAC-based auxiliary agent for flow-rule verification and challenge--response controller authentication. Key design choices---binary classification, HMAC-SHA256 over digital signatures, PCA-compressed features, layered security---were driven by the need for low-overhead, real-time operation in an SDN control loop. The security analysis shows that the framework defends against network intrusions, man-in-the-middle attacks, controller/switch spoofing, and flow-rule tampering with minimal computational and bandwidth cost. The next two chapters put these claims to the test: Chapter~\ref{chap:results} reports the experimental results for the TCN-IDS, and Chapter~\ref{chap:comparative} benchmarks it against fifteen existing models.
+
+\endinput

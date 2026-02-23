@@ -1,0 +1,315 @@
+\chapter{Experimental Setup}\label{chap:experiment}
+
+Results are only as trustworthy as the setup that produces them. This chapter spells out every detail of the experimental environment---hardware, software, data splits, evaluation metrics, baselines, and reproducibility measures---so that readers can judge the results in context and, if they wish, replicate them.
+
+%% ============================================================
+\section{Computing Platform}\label{sec:computing_platform}
+%% ============================================================
+
+All experiments ran on Google Colaboratory (Colab), which provision an NVIDIA Tesla T4 GPU alongside a two-core Intel Xeon CPU. The hardware details are listed in Table~\ref{tab:hardware}.
+
+\begin{table}[ht]
+\centering
+\caption{Hardware Configuration}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Component} & \textbf{Specification} \\
+\midrule
+GPU & NVIDIA Tesla T4 (16 GB GDDR6, 2560 CUDA cores) \\
+CPU & Intel Xeon (2 cores, 2.2 GHz) \\
+RAM & 12.7 GB system memory \\
+Storage & 107 GB disk space \\
+GPU Architecture & Turing (Compute Capability 7.5) \\
+GPU Memory Bandwidth & 320 GB/s \\
+Tensor Cores & 320 (FP16/INT8 acceleration) \\
+\bottomrule
+\end{tabular}
+\label{tab:hardware}
+\end{table}
+
+The NVIDIA T4 GPU, based on the Turing architecture, provides efficient mixed-precision training capabilities through its 320 Tensor Cores. While the experiments used full 32-bit floating-point precision for maximum accuracy, the T4's Tensor Cores could be leveraged for future deployment optimization using FP16 or INT8 quantization. The T4 is a data-center class GPU commonly used in production inference environments, making it a representative platform for evaluating the model's deployment feasibility.
+
+%% ============================================================
+\section{Software Environment}\label{sec:software_env}
+%% ============================================================
+
+The software environment comprises the deep learning framework, data processing libraries, and visualization tools. Table~\ref{tab:software} lists the complete software stack:
+
+\begin{table}[ht]
+\centering
+\caption{Software Environment}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Category} & \textbf{Library} & \textbf{Version} \\
+\midrule
+Deep Learning & TensorFlow & 2.19.0 \\
+Deep Learning & Keras & Integrated in TF 2.19 \\
+Data Processing & NumPy & 1.26.x \\
+Data Processing & Pandas & 2.2.x \\
+Machine Learning & scikit-learn & 1.5.x \\
+Dimensionality Reduction & scikit-learn (PCA) & 1.5.x \\
+Visualization & Matplotlib & 3.9.x \\
+Visualization & Seaborn & 0.13.x \\
+Runtime & Python & 3.10 \\
+GPU Support & CUDA & 12.2 \\
+GPU Support & cuDNN & 8.9 \\
+\bottomrule
+\end{tabular}
+\label{tab:software}
+\end{table}
+
+TensorFlow 2.19.0 was selected as the primary deep learning framework for several reasons: (a) it provides a well-optimized Conv1D implementation for one-dimensional temporal convolutions, which is the core operation in TCN architectures; (b) TensorFlow's Keras API enables rapid prototyping with clear layer composition; (c) TensorFlow supports deployment through TensorFlow Lite and TensorFlow Serving, facilitating the transition from experimental model to production deployment; and (d) TensorFlow's GPU acceleration via CUDA and cuDNN provides efficient training on the T4 hardware.
+
+%% ============================================================
+\section{Dataset Preparation Summary}\label{sec:dataset_summary}
+%% ============================================================
+
+The complete dataset preprocessing pipeline was described in Chapter~\ref{chap:dataset}. This section provides a summary of the key aspects relevant to the experimental setup:
+
+\begin{table}[ht]
+\centering
+\caption{Dataset Summary After Preprocessing}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Property} & \textbf{Value} \\
+\midrule
+Source Dataset & InSDN \cite{elsayed2020insdn} \\
+Raw Samples & 343,889 \\
+After Deduplication & 182,831 \\
+Original Features & 84 \\
+After Cleaning & 48 \\
+After PCA & 24 \\
+PCA Variance Retained & 95.43\% \\
+Binary Classes & Benign (0), Attack (1) \\
+\bottomrule
+\end{tabular}
+\label{tab:dataset_summary}
+\end{table}
+
+\subsection{Data Splitting Strategy}\label{subsec:data_split}
+
+The 182,831 deduplicated samples were split into three disjoint subsets using stratified splitting to preserve the class distribution:
+
+\begin{table}[ht]
+\centering
+\caption{Data Split Distribution}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+\textbf{Split} & \textbf{Ratio} & \textbf{Total} & \textbf{Benign} & \textbf{Attack} & \textbf{Attack \%} \\
+\midrule
+Training & 70\% & 127,981 & 44,849 & 83,132 & 64.96\% \\
+Validation & 10\% & 18,283 & 6,407 & 11,876 & 64.96\% \\
+Test & 20\% & 36,567 & 12,823 & 23,744 & 64.93\% \\
+\midrule
+Total & 100\% & 182,831 & 64,079 & 118,752 & 64.95\% \\
+\bottomrule
+\end{tabular}
+\label{tab:data_split_exp}
+\end{table}
+
+The three-way split serves distinct purposes:
+
+\begin{itemize}
+    \item \textbf{Training Set (70\%):} Used to update the model's weights via backpropagation. The model sees this data repeatedly across epochs.
+    
+    \item \textbf{Validation Set (10\%):} Used to monitor training progress, tune hyperparameters, and make early stopping decisions. The model never trains on this data, but it influences the training process through callbacks.
+    
+    \item \textbf{Test Set (20\%):} Used exclusively for final model evaluation after training is complete. The model never sees this data during training or validation, ensuring an unbiased estimate of generalization performance.
+\end{itemize}
+
+Stratified splitting ensures that each subset maintains the same class distribution as the full dataset ($\approx$65\% attack, $\approx$35\% benign), preventing biased evaluation due to class imbalance differences between subsets.
+
+\subsection{Class Weighting}\label{subsec:exp_class_weighting}
+
+To address the class imbalance (64.95\% attack, 35.05\% benign), class weights were computed using inverse frequency weighting:
+
+\begin{equation}
+    w_c = \frac{N}{C \times n_c}
+\end{equation}
+
+\noindent where $N$ is the total number of training samples, $C = 2$ is the number of classes, and $n_c$ is the number of training samples in class $c$. The resulting weights are:
+
+\begin{itemize}
+    \item $w_0$ (Benign): $\frac{127{,}981}{2 \times 44{,}849} = 1.4258$
+    \item $w_1$ (Attack): $\frac{127{,}981}{2 \times 83{,}132} = 0.7700$
+\end{itemize}
+
+These weights are applied in the loss function during training, effectively oversampling the minority class (benign) and undersampling the majority class (attack) in the gradient computation.
+
+%% ============================================================
+\section{Input Representation}\label{sec:input_representation}
+%% ============================================================
+
+The TCN model expects input tensors of shape $(N, T, C)$ where $N$ is the batch size, $T$ is the sequence length (temporal dimension), and $C$ is the number of input channels. The 24 PCA-transformed features are treated as a temporal sequence with one channel:
+
+\begin{equation}
+    \mathbf{X} \in \mathbb{R}^{N \times 24 \times 1}
+\end{equation}
+
+This representation treats each PCA component as a time step, allowing the TCN's causal convolutions to capture relationships between sequential PCA components. While PCA components are not inherently temporal, the ordering by explained variance ratio creates a meaningful sequence from the most important to the least important features, and the TCN's causal structure captures hierarchical dependencies within this ordering.
+
+%% ============================================================
+\section{Evaluation Metrics}\label{sec:eval_metrics}
+%% ============================================================
+
+The model's performance is evaluated using a comprehensive suite of binary classification metrics, each capturing a different aspect of the model's behavior:
+
+\subsection{Primary Metrics}\label{subsec:primary_metrics}
+
+\textbf{Accuracy:} The proportion of correctly classified samples:
+\begin{equation}
+    \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\end{equation}
+
+\noindent where $TP$ (True Positives) are attacks correctly classified as attacks, $TN$ (True Negatives) are benign samples correctly classified as benign, $FP$ (False Positives) are benign samples incorrectly classified as attacks, and $FN$ (False Negatives) are attacks incorrectly classified as benign.
+
+\textbf{Precision:} The proportion of predicted attacks that are actual attacks:
+\begin{equation}
+    \text{Precision} = \frac{TP}{TP + FP}
+\end{equation}
+
+High precision indicates few false alarms, which is important for operational deployability---a system with many false alarms wastes the administrator's time and may lead to alarm fatigue.
+
+\textbf{Recall (Sensitivity, Detection Rate):} The proportion of actual attacks that are correctly detected:
+\begin{equation}
+    \text{Recall} = \frac{TP}{TP + FN}
+\end{equation}
+
+High recall is the most critical metric for an intrusion detection system, as missed attacks (false negatives) can have severe security consequences.
+
+\textbf{F1-Score:} The harmonic mean of precision and recall:
+\begin{equation}
+    F_1 = \frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}} = \frac{2 \cdot TP}{2 \cdot TP + FP + FN}
+\end{equation}
+
+The F1-score provides a balanced measure that penalizes both false positives and false negatives, making it suitable for evaluating performance on imbalanced datasets.
+
+\subsection{Threshold-Independent Metrics}\label{subsec:threshold_independent}
+
+\textbf{AUC-ROC (Area Under the Receiver Operating Characteristic Curve):} The ROC curve plots the True Positive Rate (TPR = Recall) against the False Positive Rate ($FPR = \frac{FP}{FP+TN}$) for all possible classification thresholds $\tau \in [0, 1]$. The AUC is the area under this curve:
+
+\begin{equation}
+    \text{AUC} = \int_0^1 \text{TPR}(FPR^{-1}(t))\, dt
+\end{equation}
+
+An AUC of 1.0 indicates perfect classification at all thresholds, while an AUC of 0.5 indicates random classification. The AUC is threshold-independent, making it a robust measure of the model's discriminative ability regardless of the specific decision threshold used.
+
+\subsection{Security-Specific Metrics}\label{subsec:security_metrics}
+
+\textbf{Detection Rate (DR):} Equivalent to recall, measuring the proportion of attacks detected:
+\begin{equation}
+    DR = \frac{TP}{TP + FN}
+\end{equation}
+
+\textbf{False Alarm Rate (FAR):} The proportion of benign flows incorrectly classified as attacks:
+\begin{equation}
+    FAR = \frac{FP}{FP + TN}
+\end{equation}
+
+A low FAR is essential for operational IDS systems because false alarms consume response resources, trigger unnecessary blocking actions, and reduce trust in the detection system.
+
+\textbf{Specificity (True Negative Rate):} The proportion of benign flows correctly classified as benign:
+\begin{equation}
+    \text{Specificity} = \frac{TN}{TN + FP} = 1 - FAR
+\end{equation}
+
+\subsection{Confusion Matrix}\label{subsec:confusion_matrix}
+
+The confusion matrix provides a complete summary of the model's classification decisions:
+
+\begin{equation}
+    CM = \begin{bmatrix} TN & FP \\ FN & TP \end{bmatrix}
+\end{equation}
+
+Each cell of the confusion matrix corresponds to one of the four possible outcomes of binary classification. The off-diagonal elements ($FP$ and $FN$) represent errors, while the diagonal elements ($TN$ and $TP$) represent correct classifications. The confusion matrix is the basis from which all other metrics are derived.
+
+%% ============================================================
+\section{Baseline Models}\label{sec:baseline_models}
+%% ============================================================
+
+To contextualize the TCN model's performance, results are compared against several baseline models from the literature:
+
+\begin{table}[ht]
+\centering
+\caption{Baseline Models for Comparison}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Model} & \textbf{Type} & \textbf{Key Features} & \textbf{Reference} \\
+\midrule
+CNN & Deep Learning & 1D convolutions, pooling & \cite{Ahmad2021CNN_SDN} \\
+LSTM & Deep Learning & Recurrent, gates & \cite{Basfar2025LSTM} \\
+CNN-BiLSTM & Hybrid DL & Conv + bidirectional RNNs & \cite{Said2023CNNBiLSTM} \\
+CNN-LSTM & Hybrid DL & Conv + LSTM sequence & \cite{Shihab2025CNNLSTM} \\
+CNN-GRU & Hybrid DL & Conv + GRU sequence & \cite{Yang2024CNNGRU} \\
+Random Forest & Traditional ML & Ensemble of decision trees & \cite{Latah2020RandomForest} \\
+DT & Traditional ML & Single decision tree & \cite{elsayed2020insdn} \\
+\bottomrule
+\end{tabular}
+\label{tab:baseline_models}
+\end{table}
+
+These baselines span three categories of classification approaches:
+
+\begin{enumerate}
+    \item \textbf{Traditional Machine Learning:} Random Forest and Decision Tree models serve as non-deep-learning baselines, representing the approaches commonly used in earlier SDN intrusion detection work.
+    
+    \item \textbf{Recurrent Deep Learning:} LSTM models represent the recurrent neural network family, which has been the dominant deep learning approach for sequential data in intrusion detection.
+    
+    \item \textbf{Hybrid Deep Learning:} CNN-BiLSTM, CNN-LSTM, and CNN-GRU models represent the trend of combining convolutional feature extraction with recurrent sequence modeling, which has shown strong performance in recent IDS literature.
+\end{enumerate}
+
+%% ============================================================
+\section{Reproducibility}\label{sec:reproducibility}
+%% ============================================================
+
+Claiming good performance is one thing; letting others verify it is another. We took several steps to make the results reproducible:
+
+\begin{itemize}
+    \item \textbf{Random Seed:} A fixed random seed of 42 was used for all random number generators (Python's \texttt{random}, NumPy, TensorFlow) to ensure deterministic data splitting, weight initialization, and dropout behavior.
+    
+    \item \textbf{Data Versioning:} The exact preprocessed dataset files (after deduplication, scaling, and PCA transformation) are saved as pickled objects, enabling exact reproduction of the input data.
+    
+    \item \textbf{Model Checkpointing:} The best model weights (selected by validation AUC) are saved in Keras format (\texttt{best\_tcn\_insdn.keras}), enabling exact reproduction of the evaluation results.
+    
+    \item \textbf{Training Logs:} Complete training histories (loss, accuracy, AUC, precision, recall for both training and validation sets, per epoch) are logged to \texttt{training\_log.csv}.
+    
+    \item \textbf{Configuration Documentation:} All hyperparameter values, preprocessing steps, and software versions are documented in the accompanying documentation file.
+\end{itemize}
+
+%% ============================================================
+\section{Experimental Procedure}\label{sec:procedure}
+%% ============================================================
+
+The complete experimental procedure follows these sequential steps:
+
+\begin{enumerate}
+    \item \textbf{Data Loading:} Load the five InSDN CSV files and concatenate them into a single DataFrame.
+    
+    \item \textbf{Preprocessing:} Apply the 15-stage preprocessing pipeline described in Chapter~\ref{chap:dataset}, producing the cleaned, scaled, PCA-transformed dataset.
+    
+    \item \textbf{Splitting:} Stratified split into 70\% training, 10\% validation, and 20\% test sets.
+    
+    \item \textbf{Reshaping:} Reshape the feature matrices from $(N, 24)$ to $(N, 24, 1)$ for TCN input compatibility.
+    
+    \item \textbf{Model Construction:} Build the TCN\_InSDN model architecture as described in Chapter~\ref{chap:model}.
+    
+    \item \textbf{Compilation:} Compile the model with the Adam optimizer, binary cross-entropy loss, and the evaluation metrics (accuracy, AUC, precision, recall).
+    
+    \item \textbf{Training:} Train the model on the training set with validation monitoring, using the callbacks described in Section~\ref{sec:training_config}: EarlyStopping (patience=15, monitor=val\_auc), ReduceLROnPlateau (patience=7, factor=0.5), ModelCheckpoint (monitor=val\_auc), and CSVLogger.
+    
+    \item \textbf{Best Model Loading:} Load the best model weights (by validation AUC) from the checkpoint file.
+    
+    \item \textbf{Evaluation:} Evaluate the best model on the held-out test set, computing accuracy, precision, recall, F1-score, AUC-ROC, and the confusion matrix.
+    
+    \item \textbf{Visualization:} Generate training history plots (loss and accuracy curves), confusion matrix heatmap, ROC curve, and per-class performance bar charts.
+    
+    \item \textbf{Export:} Save the trained model, scaler parameters, PCA basis, and evaluation results for deployment and documentation purposes.
+\end{enumerate}
+
+%% ============================================================
+\section{Chapter Summary}\label{sec:exp_summary}
+%% ============================================================
+
+This chapter has pinned down the experimental setting: a T4-equipped Google Colab instance running TensorFlow 2.19.0, a stratified 70/10/20 data split with class weighting, a suite of metrics covering accuracy through AUC-ROC and IDS-specific detection and false-alarm rates, and baselines drawn from traditional ML, recurrent DL, and hybrid DL families. With the stage set, the next chapter presents what the TCN\_InSDN model actually achieves.
+
+\endinput

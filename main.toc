@@ -1,0 +1,219 @@
+\contentsline {chapter}{\textbf {\normalsize {\emph {LETTER OF TRANSMITTAL}}}}{i}{DTLrowi.2.1}%
+\contentsline {chapter}{\textbf {\normalsize {\emph {CANDIDATES' DECLARATION}}}}{ii}{DTLrowi.5.1}%
+\contentsline {chapter}{\textbf {\normalsize {\emph {CERTIFICATION}}}}{iii}{DTLrowi.7.1}%
+\contentsline {chapter}{\textbf {\normalsize {\emph {ACKNOWLEDGEMENT}}}}{iv}{DTLrowi.10.1}%
+\contentsline {chapter}{\textbf {\normalsize {\emph {ABSTRACT}}}}{v}{DTLrowi.11.1}%
+\contentsline {chapter}{List of Figures}{xiii}{section*.5}%
+\contentsline {chapter}{List of Tables}{xiv}{section*.6}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Background and Motivation}{2}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Software-Defined Networking Architecture}{2}{subsection.1.1.1}%
+\contentsline {subsection}{\numberline {1.1.2}Security Challenges in SDN}{3}{subsection.1.1.2}%
+\contentsline {subsection}{\numberline {1.1.3}Attack Taxonomy in SDN Environments}{4}{subsection.1.1.3}%
+\contentsline {subsection}{\numberline {1.1.4}Limitations of Existing Approaches}{5}{subsection.1.1.4}%
+\contentsline {subsection}{\numberline {1.1.5}The Case for Temporal Convolutional Networks}{6}{subsection.1.1.5}%
+\contentsline {subsection}{\numberline {1.1.6}The Role of HMAC in Flow Rule Integrity}{7}{subsection.1.1.6}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{7}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Research Objectives}{8}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Significance of the Study}{10}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Research Contributions}{11}{section.1.5}%
+\contentsline {section}{\numberline {1.6}Scope and Limitations}{12}{section.1.6}%
+\contentsline {section}{\numberline {1.7}Thesis Organization}{13}{section.1.7}%
+\contentsline {chapter}{\numberline {2}Background}{15}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Software-Defined Networking Architecture}{15}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Data Plane}{15}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Control Plane}{16}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Application Layer}{18}{subsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.1.4}OpenFlow Protocol}{18}{subsection.2.1.4}%
+\contentsline {section}{\numberline {2.2}Temporal Convolutional Networks}{19}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Causal Convolutions}{20}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Dilated Convolutions}{20}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Residual Connections}{21}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Batch Normalization}{22}{subsection.2.2.4}%
+\contentsline {subsection}{\numberline {2.2.5}Dropout and Spatial Dropout}{22}{subsection.2.2.5}%
+\contentsline {subsection}{\numberline {2.2.6}Global Average Pooling}{23}{subsection.2.2.6}%
+\contentsline {subsection}{\numberline {2.2.7}Advantages of TCNs over Recurrent Architectures}{24}{subsection.2.2.7}%
+\contentsline {section}{\numberline {2.3}Hash-Based Message Authentication Codes}{25}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Mathematical Definition}{25}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Security Properties}{26}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Computational Efficiency}{26}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}HMAC in the Context of SDN Flow Rule Verification}{27}{subsection.2.3.4}%
+\contentsline {section}{\numberline {2.4}Deep Learning for Network Intrusion Detection}{27}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Machine Learning Approaches}{27}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Deep Learning Approaches}{28}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Feature Engineering for Intrusion Detection}{29}{subsection.2.4.3}%
+\contentsline {section}{\numberline {2.5}Evaluation Metrics for Intrusion Detection}{30}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Principal Component Analysis}{31}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Class Imbalance Handling}{32}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Chapter Summary}{32}{section.2.8}%
+\contentsline {chapter}{\numberline {3}Literature Review}{34}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Cryptographic and Protocol-Based SDN Security}{34}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Blockchain-Based Approaches for SDN Security}{36}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Machine Learning-Based Intrusion Detection in SDN}{37}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Deep Learning-Based Intrusion Detection in SDN}{38}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}CNN-Based Approaches}{38}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}LSTM and RNN-Based Approaches}{39}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Transformer-Based Approaches}{40}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Reinforcement Learning-Based Approaches}{40}{subsection.3.4.4}%
+\contentsline {subsection}{\numberline {3.4.5}Federated and Distributed Approaches}{40}{subsection.3.4.5}%
+\contentsline {section}{\numberline {3.5}TCN-Based Intrusion Detection}{41}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Authentication and Access Control in SDN}{43}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Hybrid Security Approaches}{44}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}The Hybrid Gap}{44}{subsection.3.7.1}%
+\contentsline {section}{\numberline {3.8}Dataset Studies for SDN Intrusion Detection}{45}{section.3.8}%
+\contentsline {section}{\numberline {3.9}Summary of Literature and Research Gaps}{45}{section.3.9}%
+\contentsline {chapter}{\numberline {4}Dataset and Preprocessing}{48}{chapter.4}%
+\contentsline {section}{\numberline {4.1}The InSDN Dataset}{48}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Dataset Generation Environment}{48}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Source Files and Composition}{49}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Feature Schema}{49}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Attack Categories}{50}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.1.5}Raw Label Distribution}{51}{subsection.4.1.5}%
+\contentsline {section}{\numberline {4.2}Preprocessing Pipeline}{51}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Stage 1: Data Consolidation}{52}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Stage 2: Column Name and String Value Cleaning}{52}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Stage 3: Identifier Column Removal}{52}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Stage 4: Binary Label Encoding}{53}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Stage 5: Handling Infinite and Missing Values}{53}{subsection.4.2.5}%
+\contentsline {subsection}{\numberline {4.2.6}Stage 6: Zero-Variance Feature Removal}{54}{subsection.4.2.6}%
+\contentsline {subsection}{\numberline {4.2.7}Stage 7: Near-Constant Feature Removal}{54}{subsection.4.2.7}%
+\contentsline {subsection}{\numberline {4.2.8}Stage 8: Correlation-Based Feature Reduction}{54}{subsection.4.2.8}%
+\contentsline {subsection}{\numberline {4.2.9}Stage 9: Preprocessing Output}{55}{subsection.4.2.9}%
+\contentsline {section}{\numberline {4.3}Second-Pass Cleaning and Deduplication}{55}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Second-Pass Infinite and Missing Value Check}{55}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Duplicate Row Removal}{55}{subsection.4.3.2}%
+\contentsline {section}{\numberline {4.4}Feature Scaling}{56}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Principal Component Analysis}{57}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Data Splitting}{58}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Input Reshaping for TCN}{59}{subsection.4.6.1}%
+\contentsline {section}{\numberline {4.7}Class Weighting}{60}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Preprocessing Pipeline Summary}{61}{section.4.8}%
+\contentsline {chapter}{\numberline {5}TCN Model Architecture}{62}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Model Overview}{62}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Residual Block Design}{63}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Block Internal Structure}{63}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Residual Skip Connection}{64}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Block Internal Data Flow}{64}{subsection.5.2.3}%
+\contentsline {section}{\numberline {5.3}Dilation Schedule}{65}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Classification Head}{66}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Global Average Pooling}{66}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Dense Layers}{66}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Output Layer}{67}{subsection.5.4.3}%
+\contentsline {section}{\numberline {5.5}Hyperparameter Selection}{67}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Training Configuration}{68}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Optimizer}{68}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}Loss Function}{69}{subsection.5.6.2}%
+\contentsline {subsection}{\numberline {5.6.3}Batch Size}{69}{subsection.5.6.3}%
+\contentsline {subsection}{\numberline {5.6.4}Training Epochs and Early Stopping}{70}{subsection.5.6.4}%
+\contentsline {subsection}{\numberline {5.6.5}Learning Rate Scheduling}{70}{subsection.5.6.5}%
+\contentsline {subsection}{\numberline {5.6.6}Model Checkpointing}{71}{subsection.5.6.6}%
+\contentsline {subsection}{\numberline {5.6.7}Training Metrics}{71}{subsection.5.6.7}%
+\contentsline {subsection}{\numberline {5.6.8}Training Configuration Summary}{71}{subsection.5.6.8}%
+\contentsline {section}{\numberline {5.7}Model Complexity Analysis}{71}{section.5.7}%
+\contentsline {subsection}{\numberline {5.7.1}Parameter Count Breakdown}{71}{subsection.5.7.1}%
+\contentsline {subsection}{\numberline {5.7.2}Computational Complexity}{72}{subsection.5.7.2}%
+\contentsline {subsection}{\numberline {5.7.3}Memory Footprint}{73}{subsection.5.7.3}%
+\contentsline {section}{\numberline {5.8}Weight Initialization}{73}{section.5.8}%
+\contentsline {section}{\numberline {5.9}Chapter Summary}{74}{section.5.9}%
+\contentsline {chapter}{\numberline {6}Proposed Methodology: TCN-HMAC Framework}{75}{chapter.6}%
+\contentsline {section}{\numberline {6.1}System Architecture Overview}{75}{section.6.1}%
+\contentsline {section}{\numberline {6.2}TCN-Based Intrusion Detection Module}{77}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Deployment Architecture}{77}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Real-Time Inference Pipeline}{77}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Response Actions}{78}{subsection.6.2.3}%
+\contentsline {section}{\numberline {6.3}HMAC-Based Communication Integrity}{79}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Threat Model}{79}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}HMAC Key Establishment Protocol}{79}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}Message Authentication}{81}{subsection.6.3.3}%
+\contentsline {subsection}{\numberline {6.3.4}Flow Rule Verification}{82}{subsection.6.3.4}%
+\contentsline {subsection}{\numberline {6.3.5}Challenge-Response Authentication}{83}{subsection.6.3.5}%
+\contentsline {section}{\numberline {6.4}End-to-End Operational Workflow}{83}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Network Initialization Phase}{84}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}Steady-State Operation Phase}{84}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.3}Periodic Security Tasks}{85}{subsection.6.4.3}%
+\contentsline {section}{\numberline {6.5}Security Analysis}{85}{section.6.5}%
+\contentsline {subsection}{\numberline {6.5.1}Resistance to Network Intrusions}{86}{subsection.6.5.1}%
+\contentsline {subsection}{\numberline {6.5.2}Resistance to Man-in-the-Middle Attacks}{86}{subsection.6.5.2}%
+\contentsline {subsection}{\numberline {6.5.3}Resistance to Controller/Switch Spoofing}{86}{subsection.6.5.3}%
+\contentsline {subsection}{\numberline {6.5.4}Resistance to Flow Rule Tampering}{87}{subsection.6.5.4}%
+\contentsline {subsection}{\numberline {6.5.5}HMAC Overhead Analysis}{87}{subsection.6.5.5}%
+\contentsline {section}{\numberline {6.6}Comparison with Alternative Approaches}{88}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Design Decisions and Trade-offs}{88}{section.6.7}%
+\contentsline {section}{\numberline {6.8}Chapter Summary}{89}{section.6.8}%
+\contentsline {chapter}{\numberline {7}Experimental Setup}{91}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Computing Platform}{91}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Software Environment}{92}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Dataset Preparation Summary}{92}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Data Splitting Strategy}{92}{subsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.3.2}Class Weighting}{93}{subsection.7.3.2}%
+\contentsline {section}{\numberline {7.4}Input Representation}{94}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Evaluation Metrics}{94}{section.7.5}%
+\contentsline {subsection}{\numberline {7.5.1}Primary Metrics}{94}{subsection.7.5.1}%
+\contentsline {subsection}{\numberline {7.5.2}Threshold-Independent Metrics}{95}{subsection.7.5.2}%
+\contentsline {subsection}{\numberline {7.5.3}Security-Specific Metrics}{96}{subsection.7.5.3}%
+\contentsline {subsection}{\numberline {7.5.4}Confusion Matrix}{96}{subsection.7.5.4}%
+\contentsline {section}{\numberline {7.6}Baseline Models}{96}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Reproducibility}{97}{section.7.7}%
+\contentsline {section}{\numberline {7.8}Experimental Procedure}{98}{section.7.8}%
+\contentsline {section}{\numberline {7.9}Chapter Summary}{98}{section.7.9}%
+\contentsline {chapter}{\numberline {8}Results and Analysis}{100}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Training Dynamics}{100}{section.8.1}%
+\contentsline {subsection}{\numberline {8.1.1}Convergence Behavior}{100}{subsection.8.1.1}%
+\contentsline {subsection}{\numberline {8.1.2}Training and Validation Loss}{101}{subsection.8.1.2}%
+\contentsline {subsection}{\numberline {8.1.3}Training and Validation Accuracy}{101}{subsection.8.1.3}%
+\contentsline {subsection}{\numberline {8.1.4}Learning Rate Schedule}{102}{subsection.8.1.4}%
+\contentsline {section}{\numberline {8.2}Test Set Performance}{102}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Confusion Matrix Analysis}{103}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}True Positives (TP = 23,737)}{103}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}True Negatives (TN = 12,776)}{103}{subsection.8.3.2}%
+\contentsline {subsection}{\numberline {8.3.3}False Positives (FP = 47)}{103}{subsection.8.3.3}%
+\contentsline {subsection}{\numberline {8.3.4}False Negatives (FN = 7)}{104}{subsection.8.3.4}%
+\contentsline {subsection}{\numberline {8.3.5}Error Rate Distribution}{105}{subsection.8.3.5}%
+\contentsline {section}{\numberline {8.4}Per-Class Performance}{105}{section.8.4}%
+\contentsline {section}{\numberline {8.5}ROC-AUC Analysis}{106}{section.8.5}%
+\contentsline {section}{\numberline {8.6}Security-Specific Metrics}{108}{section.8.6}%
+\contentsline {section}{\numberline {8.7}Training Efficiency}{109}{section.8.7}%
+\contentsline {section}{\numberline {8.8}HMAC Performance Analysis}{110}{section.8.8}%
+\contentsline {subsection}{\numberline {8.8.1}Computational Overhead}{110}{subsection.8.8.1}%
+\contentsline {subsection}{\numberline {8.8.2}Auxiliary Agent System Overhead}{110}{subsection.8.8.2}%
+\contentsline {subsection}{\numberline {8.8.3}Bandwidth Overhead}{111}{subsection.8.8.3}%
+\contentsline {subsection}{\numberline {8.8.4}Combined TCN-HMAC Latency}{111}{subsection.8.8.4}%
+\contentsline {section}{\numberline {8.9}Statistical Significance}{112}{section.8.9}%
+\contentsline {section}{\numberline {8.10}Discussion of Limitations}{113}{section.8.10}%
+\contentsline {section}{\numberline {8.11}Chapter Summary}{113}{section.8.11}%
+\contentsline {chapter}{\numberline {9}Comparative Analysis}{115}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Performance Comparison with Existing IDS Models}{115}{section.9.1}%
+\contentsline {subsection}{\numberline {9.1.1}Analysis of Comparative Results}{115}{subsection.9.1.1}%
+\contentsline {section}{\numberline {9.2}Architectural Comparison}{117}{section.9.2}%
+\contentsline {subsection}{\numberline {9.2.1}Parameter Efficiency}{117}{subsection.9.2.1}%
+\contentsline {subsection}{\numberline {9.2.2}Inference Speed}{117}{subsection.9.2.2}%
+\contentsline {subsection}{\numberline {9.2.3}Gradient Stability}{118}{subsection.9.2.3}%
+\contentsline {subsection}{\numberline {9.2.4}Communication Authentication}{118}{subsection.9.2.4}%
+\contentsline {section}{\numberline {9.3}Comparison with SDN Security Frameworks}{118}{section.9.3}%
+\contentsline {subsection}{\numberline {9.3.1}vs. HMAC-Only Approaches}{119}{subsection.9.3.1}%
+\contentsline {subsection}{\numberline {9.3.2}vs. Blockchain-Based Approaches}{119}{subsection.9.3.2}%
+\contentsline {subsection}{\numberline {9.3.3}vs. TLS-Only Approaches}{119}{subsection.9.3.3}%
+\contentsline {section}{\numberline {9.4}Advantage Summary}{120}{section.9.4}%
+\contentsline {section}{\numberline {9.5}Papers for Further Comparison}{121}{section.9.5}%
+\contentsline {section}{\numberline {9.6}Chapter Summary}{121}{section.9.6}%
+\contentsline {chapter}{\numberline {10}Conclusion and Future Work}{123}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Summary of Research}{123}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Key Findings}{124}{section.10.2}%
+\contentsline {subsection}{\numberline {10.2.1}High Detection Performance}{124}{subsection.10.2.1}%
+\contentsline {subsection}{\numberline {10.2.2}Computational Efficiency}{124}{subsection.10.2.2}%
+\contentsline {subsection}{\numberline {10.2.3}Dual Security Coverage}{125}{subsection.10.2.3}%
+\contentsline {subsection}{\numberline {10.2.4}TCN Architecture Advantages}{125}{subsection.10.2.4}%
+\contentsline {section}{\numberline {10.3}Research Contributions}{126}{section.10.3}%
+\contentsline {section}{\numberline {10.4}Practical Implications}{126}{section.10.4}%
+\contentsline {section}{\numberline {10.5}Limitations}{127}{section.10.5}%
+\contentsline {section}{\numberline {10.6}Future Work}{128}{section.10.6}%
+\contentsline {subsection}{\numberline {10.6.1}Multi-Dataset Evaluation}{128}{subsection.10.6.1}%
+\contentsline {subsection}{\numberline {10.6.2}Multi-Class Classification}{128}{subsection.10.6.2}%
+\contentsline {subsection}{\numberline {10.6.3}Adversarial Robustness}{128}{subsection.10.6.3}%
+\contentsline {subsection}{\numberline {10.6.4}Federated Learning}{129}{subsection.10.6.4}%
+\contentsline {subsection}{\numberline {10.6.5}Online Learning}{129}{subsection.10.6.5}%
+\contentsline {subsection}{\numberline {10.6.6}HMAC Implementation and Benchmarking}{129}{subsection.10.6.6}%
+\contentsline {subsection}{\numberline {10.6.7}Model Optimization for Edge Deployment}{129}{subsection.10.6.7}%
+\contentsline {subsection}{\numberline {10.6.8}Explainable AI Integration}{129}{subsection.10.6.8}%
+\contentsline {section}{\numberline {10.7}Concluding Remarks}{130}{section.10.7}%
+\contentsline {chapter}{References}{131}{section.10.7}%

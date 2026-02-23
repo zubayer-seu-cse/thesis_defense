@@ -1,0 +1,10 @@
+\chapter{Conclusion}\label{sec:conclusion}
+
+This paper presented a lightweight hybrid security framework for intrusion detection and mitigation in Software-Defined Networking (SDN) environments. The proposed architecture integrates a \textit{Temporal Convolutional Network (TCN)} for deep learning–based anomaly detection with an \textit{Auxiliary Agent} that ensures flow rule integrity and controller authenticity through HMAC-based verification and challenge–response validation. This combination enables both proactive and reactive defense mechanisms within the SDN control plane.
+
+The TCN module effectively identifies diverse intrusion types—including DDoS, MITM, Probe, and Brute-force attacks—with high detection accuracy (99.85\%) and minimal false positives, demonstrating its capability to learn temporal dependencies in network flow patterns. Complementing this, the Auxiliary Agent performs lightweight cryptographic verification of flow rules and controller messages, ensuring that only authenticated and untampered entries persist in the data plane. 
+
+Experimental results confirmed that the proposed framework achieves strong security guarantees with negligible system overhead. The average control latency increased by only 0.7~ms, and CPU and memory utilization rose modestly, validating the approach’s suitability for resource-constrained or latency-sensitive SDN deployments. Compared with existing solutions such as EnsureS, SecureMatch, and DeepFlowGuard, the proposed framework provides broader protection coverage—combining intrusion detection, integrity verification, and authenticity assurance—without requiring protocol modifications or complex cryptographic extensions.
+
+In conclusion, this work advances the state of SDN security by offering a scalable, modular, and easily deployable defense mechanism that balances intelligent intrusion detection with lightweight cryptographic assurance. The proposed hybrid approach strengthens the resilience of the SDN control plane against a wide spectrum of attacks, paving the way toward more secure, adaptive, and trustworthy software-defined infrastructures.
+\endinput
