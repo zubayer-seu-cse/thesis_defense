@@ -508,6 +508,10 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chri8y.
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chri8t.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchr7y.vf
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr7y.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchri7m.vf
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chri7m.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchr7t.vf
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr7t.tfm
 INPUT ./Chapters/Chapter2.tex
 INPUT ./Chapters/Chapter2.tex
 INPUT Chapters/Chapter2.tex
@@ -519,10 +523,6 @@ INPUT /usr/share/texlive/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchr8c.vf
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr8c.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/mdbchb8t.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/mdbchb8t.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchri7m.vf
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chri7m.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchr7t.vf
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr7t.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchr7t.vf
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr7t.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr8y.tfm

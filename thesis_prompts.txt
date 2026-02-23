@@ -1,0 +1,23 @@
+I have given you the insdn dataset and a readme file from the publisher of the dataset explaining the dataset.
+the dataset has 3 separate csv files. I want to do an experiment to get the highest accuracy on insdn dataset using TCN model. i want to do binary class classification (attack vs benign). So i want you to write a script that will preprocess the dataset and consolidate the three csv file into one and it will remove null value rows and do other necessary preprocessing such as PCA and removing irrelevant columns etc. after that, i want you to generate a script which i will run on google colab using free t4 gpu. on that script you should create a custom TCN model and train and test it. in the script add necessary logs or result output code so that you can use those information to improve the model and get higher accuracy. built the script such that, i will upload the consolidated csv file in the google colab and the script should use it from there.
+
+
+
+
+I have attached my thesis defense paper (under development) and the experiemnt setup and results for the TCN part. now i need to you enhance my research paper vastly, as the current paper lacks significant analysis and information. to do that follow the below instruction.
+
+1. Add a rigorous comparative analysis to this research paper, where you compare this research paper with other similar existing research papers (search existing paper on web in reputed research paper databases) and quantitatively prove that this proposed research paper is better than the others.
+2. in my current paper there is very little to no writing about the dataset and preprocessing. Add rigorous analysis of dataset and pre-processing steps.
+3. in my current paper there is very little to no writing about the custom TCN model that has been used. Add complete information about the model design and specification and the optimization methods used.
+4. do a thorough analysis of the result.
+5. add references to the paper, there should be at least 60+ references. don't site papers older than 3-4 years.
+6. In every section of the research paper there are significant lack of analysis, so do rigorous analysis in every section. the total length of the paper should be at least 100+ pages.
+
+After doing the tasks compile the latex and create the pdf.
+
+Note: this is important, when you compare my paper with existing paper, if you don't find the full document of the paper just list the paper title and author names, I will provide you the papers.
+
+
+1. add the 3 algorithms to this IEEE format paper also.
+2. update the contribution of this work to highlight what this paper has done unique which has not yet been done, in both of the main and the ieee format paper.
+3. in the ieee format of the paper, after mentioning the contribution there should be a para describing the organization of the paper.

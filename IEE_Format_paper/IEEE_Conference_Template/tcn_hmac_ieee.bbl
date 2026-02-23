@@ -7,7 +7,8 @@
 \providecommand{\BIBentrySTDinterwordspacing}{\spaceskip=0pt\relax}
 \providecommand{\BIBentryALTinterwordstretchfactor}{4}
 \providecommand{\BIBentryALTinterwordspacing}{\spaceskip=\fontdimen2\font plus
-\BIBentryALTinterwordstretchfactor\fontdimen3\font minus \fontdimen4\font\relax}
+\BIBentryALTinterwordstretchfactor\fontdimen3\font minus
+  \fontdimen4\font\relax}
 \providecommand{\BIBforeignlanguage}[2]{{%
 \expandafter\ifx\csname l@#1\endcsname\relax
 \typeout{** WARNING: IEEEtran.bst: No hyphenation pattern has been}%
@@ -21,57 +22,150 @@
 \BIBdecl
 
 \bibitem{kreutz2015sdn}
-D.~Kreutz, F.~M.~V. Ramos, P.~E. Verissimo, C.~E. Rothenberg, S.~Azodolmolky, and S.~Uhlig, ``Software-defined networking: A comprehensive survey,'' \emph{Proceedings of the IEEE}, vol. 103, no.~1, pp. 14--76, 2015.
+D.~Kreutz, F.~M.~V. Ramos, P.~E. Verissimo, C.~E. Rothenberg, S.~Azodolmolky,
+  and S.~Uhlig, ``Software-defined networking: A comprehensive survey,''
+  \emph{Proceedings of the IEEE}, vol. 103, no.~1, pp. 14--76, 2015.
 
 \bibitem{Ahmed2023HMACSDN}
-Z.~Ahmed and M.~Haque, ``A modular {HMAC}-based framework for flow verification in software defined networks,'' \emph{International Journal of Network Management}, vol.~33, no.~5, p. e2209, 2023.
+Z.~Ahmed and M.~Haque, ``A modular {HMAC}-based framework for flow verification
+  in software defined networks,'' \emph{International Journal of Network
+  Management}, vol.~33, no.~5, p. e2209, 2023.
 
 \bibitem{Song2023IS2N}
-Y.~Song, X.~Lu, and Z.~Wang, ``Intent-driven secure {SDN} using blockchain,'' \emph{IEEE Transactions on Network and Service Management}, vol.~20, no.~1, pp. 126--138, 2023.
+Y.~Song, X.~Lu, and Z.~Wang, ``Intent-driven secure {SDN} using blockchain,''
+  \emph{IEEE Transactions on Network and Service Management}, vol.~20, no.~1,
+  pp. 126--138, 2023.
+
+\bibitem{Pradeep2023EnsureS}
+M.~Pradeep, K.~Sekaran, and R.~Raman, ``{EnsureS}: Lightweight high-performance
+  service path rule verification in software-defined networking,''
+  \emph{Computer Networks}, vol. 235, p. 110890, 2023.
+
+\bibitem{buruaga2025quantum}
+J.~S. Buruaga, R.~B. M{\'e}ndez, J.~P. Brito, and V.~Martin, ``Quantum-safe
+  integration of {TLS} in {SDN} networks,'' \emph{arXiv preprint
+  arXiv:2501.04368}, 2025.
+
+\bibitem{Sharma2023LightweightIDS}
+R.~Sharma and S.~Tyagi, ``A lightweight {IDS} framework for {SDN} using
+  adaptive anomaly detection,'' \emph{Computers \& Security}, vol. 127, p.
+  102659, 2023.
+
+\bibitem{Ayad2025MLSDN}
+S.~Ayad, N.~Lehat, and A.~Souri, ``Leveraging the power of machine learning
+  techniques for intrusion detection in software-defined networks,''
+  \emph{Journal of Interconnection Networks}, 2025.
+
+\bibitem{Basfar2024EMRMR}
+R.~Basfar, M.~Dahab, A.~M. Ali, F.~Eassa, and K.~Bajunaied, ``Enhanced
+  intrusion detection in software-defined networking using advanced feature
+  selection: The {EMRMR} approach,'' \emph{Engineering, Technology \& Applied
+  Science Research}, vol.~14, no.~6, pp. 18\,194--18\,200, 2024.
 
 \bibitem{Said2023CNNBiLSTM}
-R.~B. Said, Z.~Sabir, and I.~Askerzade, ``{CNN-BiLSTM}: A hybrid deep learning approach for network intrusion detection system in software-defined networking with hybrid feature selection,'' \emph{IEEE Access}, vol.~11, pp. 131\,924--131\,937, 2023.
-
-\bibitem{Kanimozhi2025DRL}
-R.~Kanimozhi and P.~S. Ramesh, ``Deep reinforcement learning-based intrusion detection scheme for software-defined networking,'' \emph{Scientific Reports}, vol.~15, p. 38142, 2025.
-
-\bibitem{Lopes2023TCN}
-I.~O. Lopes, D.~Zou, V.~Ruamviboonsuk, L.~Munasinghe, Z.~Shi, and W.~Pereira, ``Network intrusion detection based on the temporal convolutional model,'' \emph{Computers \& Security}, vol. 135, p. 103465, 2023.
-
-\bibitem{LiLi2025TCNSE}
-J.~Li and L.~Li, ``A lightweight network intrusion detection system based on temporal convolutional networks and attention mechanisms,'' \emph{Computer Fraud \& Security}, vol. 2025, p. 584, 2025.
-
-\bibitem{Benfarhat2025TCN}
-I.~Benfarhat, V.~Goh, and T.~Chuah, ``Advanced {Temporal Convolutional Network} framework for intrusion detection in electric vehicle charging stations,'' \emph{IEEE Open Journal of Vehicular Technology}, 2025.
-
-\bibitem{Mei2024BiTCN}
-Y.~Mei, W.~Han, and K.~Lin, ``Intrusion detection for intelligent connected vehicles based on bidirectional {Temporal Convolutional Network},'' \emph{IEEE Network}, vol.~38, no.~6, pp. 124--131, 2024.
-
-\bibitem{Deng2024BiTCNMHSA}
-M.~Deng, H.~Xu, C.~Sun, and Y.~Kan, ``Network intrusion detection model with multi-layer bi-directional temporal convolutional networks and multi-headed self-attention mechanisms,'' in \emph{2024 6th International Academic Exchange Conference on Science and Technology Innovation}.\hskip 1em plus 0.5em minus 0.4em\relax IEEE, 2024.
-
-\bibitem{Rahman2022BCSDN}
-M.~M. Rahman, S.~Ahmed, and N.~Jahan, ``Blockchain integration in {SDN}: Opportunities and challenges,'' \emph{Journal of Network and Computer Applications}, vol. 201, p. 103308, 2022.
-
-\bibitem{elsayed2020insdn}
-M.~S. El-Sayed, N.-A. Le-Khac, S.~Alhelaly, and A.~D. Jurcut, ``{InSDN}: A novel {SDN} intrusion dataset,'' \emph{IEEE Access}, vol.~8, pp. 165\,263--165\,284, 2020.
-
-\bibitem{Ataa2024SDNDL}
-M.~S. Ataa, E.~E. Sanad, and R.~A. El-Khoribi, ``Intrusion detection in software defined network using deep learning approaches,'' \emph{Scientific Reports}, vol.~14, p. 28896, 2024.
+R.~B. Said, Z.~Sabir, and I.~Askerzade, ``{CNN-BiLSTM}: A hybrid deep learning
+  approach for network intrusion detection system in software-defined
+  networking with hybrid feature selection,'' \emph{IEEE Access}, vol.~11, pp.
+  131\,924--131\,937, 2023.
 
 \bibitem{Shihab2025CNNLSTM}
-D.~Shihab, A.~A. Abdulhameed, and M.~T. Gaata, ``Optimized hybrid {CNN-LSTM} framework with multi-feature analysis and {SMOTE} for intrusion detection in {SDN},'' \emph{AlKadhim Journal for Computer Science}, vol.~3, no.~4, 2025.
+D.~Shihab, A.~A. Abdulhameed, and M.~T. Gaata, ``Optimized hybrid {CNN-LSTM}
+  framework with multi-feature analysis and {SMOTE} for intrusion detection in
+  {SDN},'' \emph{AlKadhim Journal for Computer Science}, vol.~3, no.~4, 2025.
 
 \bibitem{Kumar2025HybridDL}
-C.~L. Kumar, S.~Betam, and B.~Panigrahi, ``Metaparameter optimized hybrid deep learning model for next generation cybersecurity in software defined networking environment,'' \emph{Scientific Reports}, vol.~15, p. 13845, 2025.
+C.~L. Kumar, S.~Betam, and B.~Panigrahi, ``Metaparameter optimized hybrid deep
+  learning model for next generation cybersecurity in software defined
+  networking environment,'' \emph{Scientific Reports}, vol.~15, p. 13845, 2025.
+
+\bibitem{Kanimozhi2025DRL}
+R.~Kanimozhi and P.~S. Ramesh, ``Deep reinforcement learning-based intrusion
+  detection scheme for software-defined networking,'' \emph{Scientific
+  Reports}, vol.~15, p. 38142, 2025.
+
+\bibitem{Lopes2023TCN}
+I.~O. Lopes, D.~Zou, V.~Ruamviboonsuk, L.~Munasinghe, Z.~Shi, and W.~Pereira,
+  ``Network intrusion detection based on the temporal convolutional model,''
+  \emph{Computers \& Security}, vol. 135, p. 103465, 2023.
+
+\bibitem{LiLi2025TCNSE}
+J.~Li and L.~Li, ``A lightweight network intrusion detection system based on
+  temporal convolutional networks and attention mechanisms,'' \emph{Computer
+  Fraud \& Security}, vol. 2025, p. 584, 2025.
+
+\bibitem{Benfarhat2025TCN}
+I.~Benfarhat, V.~Goh, and T.~Chuah, ``Advanced {Temporal Convolutional Network}
+  framework for intrusion detection in electric vehicle charging stations,''
+  \emph{IEEE Open Journal of Vehicular Technology}, 2025.
+
+\bibitem{Mei2024BiTCN}
+Y.~Mei, W.~Han, and K.~Lin, ``Intrusion detection for intelligent connected
+  vehicles based on bidirectional {Temporal Convolutional Network},''
+  \emph{IEEE Network}, vol.~38, no.~6, pp. 124--131, 2024.
+
+\bibitem{Deng2024BiTCNMHSA}
+M.~Deng, H.~Xu, C.~Sun, and Y.~Kan, ``Network intrusion detection model with
+  multi-layer bi-directional temporal convolutional networks and multi-headed
+  self-attention mechanisms,'' in \emph{2024 6th International Academic
+  Exchange Conference on Science and Technology Innovation}.\hskip 1em plus
+  0.5em minus 0.4em\relax IEEE, 2024.
+
+\bibitem{Xu2025GTCNG}
+T.~Xu, Z.~Wen, X.~Zhao, Q.~Hu, Y.~Li, and C.~Liu, ``{GTCN-G}: A residual
+  graph-temporal fusion network for imbalanced intrusion detection,'' in
+  \emph{IEEE TrustCom 2025}.\hskip 1em plus 0.5em minus 0.4em\relax IEEE, 2025.
+
+\bibitem{Rahman2022BCSDN}
+M.~M. Rahman, S.~Ahmed, and N.~Jahan, ``Blockchain integration in {SDN}:
+  Opportunities and challenges,'' \emph{Journal of Network and Computer
+  Applications}, vol. 201, p. 103308, 2022.
+
+\bibitem{Poorazad2023BlockchainIDS}
+A.~Poorazad, S.~A. Soleymani, and N.~Al-Bassam, ``A blockchain-based deep
+  learning {IDS} for {SDN}-enabled {IIoT},'' \emph{Ad Hoc Networks}, vol. 145,
+  p. 102752, 2023.
+
+\bibitem{Liang2021NIDSReview}
+Y.~Liang, C.~Wang, and F.~Xu, ``A review of intrusion detection approaches in
+  software defined networking,'' \emph{Journal of Information Security and
+  Applications}, vol.~59, p. 102812, 2021.
+
+\bibitem{Khan2021MitmDefender}
+A.~Khan, S.~Rafiq, and F.~Qamar, ``{MITM-Defender}: A real-time defense system
+  against man-in-the-middle attacks in {SDN},'' in \emph{Proc. of IEEE
+  ICC}.\hskip 1em plus 0.5em minus 0.4em\relax IEEE, 2021, pp. 1--6.
+
+\bibitem{Malik2021SDoS}
+S.~Malik and M.~Habib, ``Detection and mitigation of {DoS} attacks in {SDN}:
+  Lightweight agent-based model,'' \emph{Security and Privacy}, vol.~4, no.~2,
+  p. e116, 2021.
+
+\bibitem{elsayed2020insdn}
+M.~S. El-Sayed, N.-A. Le-Khac, S.~Alhelaly, and A.~D. Jurcut, ``{InSDN}: A
+  novel {SDN} intrusion dataset,'' \emph{IEEE Access}, vol.~8, pp.
+  165\,263--165\,284, 2020.
+
+\bibitem{Ataa2024SDNDL}
+M.~S. Ataa, E.~E. Sanad, and R.~A. El-Khoribi, ``Intrusion detection in
+  software defined network using deep learning approaches,'' \emph{Scientific
+  Reports}, vol.~14, p. 28896, 2024.
 
 \bibitem{Yang2024CNNGRU}
-J.~Yang, ``A new attacks intrusion detection model based on deep learning in software-defined networking environments,'' in \emph{2024 4th International Conference on Machine Learning and Intelligent Systems Engineering}.\hskip 1em plus 0.5em minus 0.4em\relax IEEE, 2024, pp. 1--6.
+J.~Yang, ``A new attacks intrusion detection model based on deep learning in
+  software-defined networking environments,'' in \emph{2024 4th International
+  Conference on Machine Learning and Intelligent Systems Engineering}.\hskip
+  1em plus 0.5em minus 0.4em\relax IEEE, 2024, pp. 1--6.
 
 \bibitem{Basfar2025LSTM}
-R.~Basfar, M.~Dahab, A.~M. Ali, F.~Eassa, and K.~Bajunaied, ``An incremental {LSTM} ensemble for online intrusion detection in software-defined networks,'' \emph{International Journal of Advanced Computer Science and Applications}, vol.~16, no.~9, 2025.
+R.~Basfar, M.~Dahab, A.~M. Ali, F.~Eassa, and K.~Bajunaied, ``An incremental
+  {LSTM} ensemble for online intrusion detection in software-defined
+  networks,'' \emph{International Journal of Advanced Computer Science and
+  Applications}, vol.~16, no.~9, 2025.
 
 \bibitem{Ahmad2021CNN_SDN}
-Z.~Ahmad, A.~Shahid~Khan, C.~Wai~Shiang, J.~Abdullah, and F.~Ahmad, ``Network intrusion detection system: A systematic study of machine learning and deep learning approaches,'' \emph{Transactions on Emerging Telecommunications Technologies}, vol.~32, no.~1, p. e4150, 2021.
+Z.~Ahmad, A.~Shahid~Khan, C.~Wai~Shiang, J.~Abdullah, and F.~Ahmad, ``Network
+  intrusion detection system: A systematic study of machine learning and deep
+  learning approaches,'' \emph{Transactions on Emerging Telecommunications
+  Technologies}, vol.~32, no.~1, p. e4150, 2021.
 
 \end{thebibliography}

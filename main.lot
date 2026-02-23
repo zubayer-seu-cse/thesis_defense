@@ -1,43 +1,43 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Summary of Related Work Categorization}}{46}{table.caption.7}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Summary of Related Work Categorization}}{48}{table.caption.7}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces InSDN Dataset Source Files}}{49}{table.caption.8}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Raw Label Distribution in the InSDN Dataset}}{51}{table.caption.9}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Preprocessing Output Summary}}{55}{table.caption.11}%
-\contentsline {table}{\numberline {4.4}{\ignorespaces Impact of Deduplication on Dataset Size}}{56}{table.caption.12}%
-\contentsline {table}{\numberline {4.5}{\ignorespaces Post-Deduplication Label Distribution}}{56}{table.caption.13}%
-\contentsline {table}{\numberline {4.6}{\ignorespaces PCA Configuration and Results}}{57}{table.caption.14}%
-\contentsline {table}{\numberline {4.7}{\ignorespaces Stratified Train/Validation/Test Split}}{59}{table.caption.16}%
-\contentsline {table}{\numberline {4.8}{\ignorespaces Input Tensor Shapes After Reshaping}}{59}{table.caption.17}%
-\contentsline {table}{\numberline {4.9}{\ignorespaces Computed Class Weights}}{60}{table.caption.18}%
-\contentsline {table}{\numberline {4.10}{\ignorespaces Complete Preprocessing Pipeline Summary}}{61}{table.caption.19}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces InSDN Dataset Source Files}}{51}{table.caption.8}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Raw Label Distribution in the InSDN Dataset}}{53}{table.caption.9}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Preprocessing Output Summary}}{57}{table.caption.11}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Impact of Deduplication on Dataset Size}}{58}{table.caption.12}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces Post-Deduplication Label Distribution}}{58}{table.caption.13}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces PCA Configuration and Results}}{59}{table.caption.14}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Stratified Train/Validation/Test Split}}{61}{table.caption.16}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Input Tensor Shapes After Reshaping}}{61}{table.caption.17}%
+\contentsline {table}{\numberline {4.9}{\ignorespaces Computed Class Weights}}{62}{table.caption.18}%
+\contentsline {table}{\numberline {4.10}{\ignorespaces Complete Preprocessing Pipeline Summary}}{63}{table.caption.19}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces TCN\_InSDN Model Architecture Summary}}{63}{table.caption.20}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces Dilation Schedule and Receptive Field Growth}}{65}{table.caption.21}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces TCN Model Hyperparameters}}{67}{table.caption.22}%
-\contentsline {table}{\numberline {5.4}{\ignorespaces Complete Training Configuration}}{72}{table.caption.23}%
-\contentsline {table}{\numberline {5.5}{\ignorespaces Parameter Count Breakdown by Component}}{72}{table.caption.24}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces TCN\_InSDN Model Architecture Summary}}{65}{table.caption.20}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Dilation Schedule and Receptive Field Growth}}{67}{table.caption.21}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces TCN Model Hyperparameters}}{69}{table.caption.22}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces Complete Training Configuration}}{74}{table.caption.23}%
+\contentsline {table}{\numberline {5.5}{\ignorespaces Parameter Count Breakdown by Component}}{74}{table.caption.24}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {6.1}{\ignorespaces Comparison of SDN Security Approaches}}{88}{table.caption.29}%
+\contentsline {table}{\numberline {6.1}{\ignorespaces Comparison of SDN Security Approaches}}{90}{table.caption.29}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {7.1}{\ignorespaces Hardware Configuration}}{91}{table.caption.30}%
-\contentsline {table}{\numberline {7.2}{\ignorespaces Software Environment}}{92}{table.caption.31}%
-\contentsline {table}{\numberline {7.3}{\ignorespaces Dataset Summary After Preprocessing}}{93}{table.caption.32}%
-\contentsline {table}{\numberline {7.4}{\ignorespaces Data Split Distribution}}{93}{table.caption.33}%
-\contentsline {table}{\numberline {7.5}{\ignorespaces Baseline Models for Comparison}}{97}{table.caption.34}%
+\contentsline {table}{\numberline {7.1}{\ignorespaces Hardware Configuration}}{93}{table.caption.30}%
+\contentsline {table}{\numberline {7.2}{\ignorespaces Software Environment}}{94}{table.caption.31}%
+\contentsline {table}{\numberline {7.3}{\ignorespaces Dataset Summary After Preprocessing}}{95}{table.caption.32}%
+\contentsline {table}{\numberline {7.4}{\ignorespaces Data Split Distribution}}{95}{table.caption.33}%
+\contentsline {table}{\numberline {7.5}{\ignorespaces Baseline Models for Comparison}}{99}{table.caption.34}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {8.1}{\ignorespaces TCN\_InSDN Test Set Performance}}{103}{table.caption.37}%
-\contentsline {table}{\numberline {8.2}{\ignorespaces Confusion Matrix on Test Set (36,567 samples)}}{103}{table.caption.38}%
-\contentsline {table}{\numberline {8.3}{\ignorespaces Per-Class Performance Metrics}}{105}{table.caption.40}%
-\contentsline {table}{\numberline {8.4}{\ignorespaces Security-Specific Performance Metrics}}{108}{table.caption.44}%
-\contentsline {table}{\numberline {8.5}{\ignorespaces Training Efficiency Metrics}}{109}{table.caption.45}%
-\contentsline {table}{\numberline {8.6}{\ignorespaces HMAC-SHA256 Performance Characteristics}}{110}{table.caption.46}%
-\contentsline {table}{\numberline {8.7}{\ignorespaces Performance Evaluation of the Auxiliary Agent}}{111}{table.caption.47}%
-\contentsline {table}{\numberline {8.8}{\ignorespaces End-to-End Flow Processing Latency}}{112}{table.caption.48}%
+\contentsline {table}{\numberline {8.1}{\ignorespaces TCN\_InSDN Test Set Performance}}{105}{table.caption.37}%
+\contentsline {table}{\numberline {8.2}{\ignorespaces Confusion Matrix on Test Set (36,567 samples)}}{105}{table.caption.38}%
+\contentsline {table}{\numberline {8.3}{\ignorespaces Per-Class Performance Metrics}}{107}{table.caption.40}%
+\contentsline {table}{\numberline {8.4}{\ignorespaces Security-Specific Performance Metrics}}{110}{table.caption.44}%
+\contentsline {table}{\numberline {8.5}{\ignorespaces Training Efficiency Metrics}}{111}{table.caption.45}%
+\contentsline {table}{\numberline {8.6}{\ignorespaces HMAC-SHA256 Performance Characteristics}}{112}{table.caption.46}%
+\contentsline {table}{\numberline {8.7}{\ignorespaces Performance Evaluation of the Auxiliary Agent}}{113}{table.caption.47}%
+\contentsline {table}{\numberline {8.8}{\ignorespaces End-to-End Flow Processing Latency}}{114}{table.caption.48}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {9.1}{\ignorespaces Performance Comparison with Existing IDS Approaches}}{116}{table.caption.49}%
-\contentsline {table}{\numberline {9.2}{\ignorespaces Architectural Comparison of IDS Models}}{117}{table.caption.50}%
-\contentsline {table}{\numberline {9.3}{\ignorespaces Comparison with SDN Security Frameworks}}{118}{table.caption.51}%
+\contentsline {table}{\numberline {9.1}{\ignorespaces Performance Comparison with Existing IDS Approaches}}{118}{table.caption.49}%
+\contentsline {table}{\numberline {9.2}{\ignorespaces Architectural Comparison of IDS Models}}{119}{table.caption.50}%
+\contentsline {table}{\numberline {9.3}{\ignorespaces Comparison with SDN Security Frameworks}}{120}{table.caption.51}%
 \addvspace {10\p@ }

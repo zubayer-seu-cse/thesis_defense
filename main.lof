@@ -2,18 +2,18 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Class distribution in the raw InSDN dataset. Left: bar chart showing absolute counts (275,465 attack vs. 68,424 benign). Right: pie chart showing the 80.1\% to 19.9\% class imbalance ratio.}}{52}{figure.caption.10}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces PCA cumulative explained variance curve. The 95\% variance retention threshold (dashed red line) is reached at 24 principal components, achieving 95.43\% variance retention with a 50\% reduction in dimensionality from 48 to 24 features.}}{58}{figure.caption.15}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Class distribution in the raw InSDN dataset. Left: bar chart showing absolute counts (275,465 attack vs. 68,424 benign). Right: pie chart showing the 80.1\% to 19.9\% class imbalance ratio.}}{54}{figure.caption.10}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces PCA cumulative explained variance curve. The 95\% variance retention threshold (dashed red line) is reached at 24 principal components, achieving 95.43\% variance retention with a 50\% reduction in dimensionality from 48 to 24 features.}}{60}{figure.caption.15}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces Architecture of the proposed TCN-HMAC hybrid security framework for SDN}}{76}{figure.caption.25}%
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Architecture of the proposed TCN-HMAC hybrid security framework for SDN}}{78}{figure.caption.25}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {8.1}{\ignorespaces Training and validation loss curves over 30 epochs. Both curves converge rapidly within the first 5 epochs and plateau near zero, indicating effective learning without overfitting.}}{101}{figure.caption.35}%
-\contentsline {figure}{\numberline {8.2}{\ignorespaces Training and validation accuracy curves. Both curves rapidly approach 1.0 within the first 5 epochs, with validation accuracy closely tracking training accuracy throughout.}}{102}{figure.caption.36}%
-\contentsline {figure}{\numberline {8.3}{\ignorespaces Confusion matrix heatmap for the test set (36,567 samples). The dominant diagonal entries (12,776 TN and 23,737 TP) confirm the model's strong discriminative ability, with only 47 false positives and 7 false negatives.}}{104}{figure.caption.39}%
-\contentsline {figure}{\numberline {8.4}{\ignorespaces Training and validation precision and recall curves over epochs. All four metrics rapidly converge toward 1.0, demonstrating consistent improvement and strong generalization across both classes.}}{106}{figure.caption.41}%
-\contentsline {figure}{\numberline {8.5}{\ignorespaces ROC curve for the TCN model on the test set, with AUC = 0.9999. The curve hugs the top-left corner, indicating near-perfect separation between benign and attack distributions.}}{107}{figure.caption.42}%
-\contentsline {figure}{\numberline {8.6}{\ignorespaces Training and validation AUC over epochs. Both curves converge above 0.999 within 10 epochs, confirming the model's excellent discriminative ability throughout training.}}{108}{figure.caption.43}%
+\contentsline {figure}{\numberline {8.1}{\ignorespaces Training and validation loss curves over 30 epochs. Both curves converge rapidly within the first 5 epochs and plateau near zero, indicating effective learning without overfitting.}}{103}{figure.caption.35}%
+\contentsline {figure}{\numberline {8.2}{\ignorespaces Training and validation accuracy curves. Both curves rapidly approach 1.0 within the first 5 epochs, with validation accuracy closely tracking training accuracy throughout.}}{104}{figure.caption.36}%
+\contentsline {figure}{\numberline {8.3}{\ignorespaces Confusion matrix heatmap for the test set (36,567 samples). The dominant diagonal entries (12,776 TN and 23,737 TP) confirm the model's strong discriminative ability, with only 47 false positives and 7 false negatives.}}{106}{figure.caption.39}%
+\contentsline {figure}{\numberline {8.4}{\ignorespaces Training and validation precision and recall curves over epochs. All four metrics rapidly converge toward 1.0, demonstrating consistent improvement and strong generalization across both classes.}}{108}{figure.caption.41}%
+\contentsline {figure}{\numberline {8.5}{\ignorespaces ROC curve for the TCN model on the test set, with AUC = 0.9999. The curve hugs the top-left corner, indicating near-perfect separation between benign and attack distributions.}}{109}{figure.caption.42}%
+\contentsline {figure}{\numberline {8.6}{\ignorespaces Training and validation AUC over epochs. Both curves converge above 0.999 within 10 epochs, confirming the model's excellent discriminative ability throughout training.}}{110}{figure.caption.43}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
