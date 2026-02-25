@@ -139,7 +139,7 @@
     \end{center}
     \addcontentsline{toc}{chapter}{\textbf{\normalsize{\emph{LETTER OF TRANSMITTAL}}}}
     \begingroup
-    30 October, 2025 \medskip
+    \templatedate \medskip
 
     The Chairman, \\
     \cse \\
@@ -148,33 +148,39 @@
 
     Through: Supervisor, \DTLforeach{Supervisor}{\SupervisorName=Column1,\SupervisorDesignation=Column2}{\SupervisorName} \medskip
 
-    Subject: 
+    Subject: Submission of Research Report.
 
-    Dear Sir, \\
+    Dear Sir,\\ 
     \@input {Prologue/letteroftransmittal.tex}
 
-    \bigskip
-
-    \begin{tabular}{p{0.4\textwidth}p{0.1\textwidth}p{0.4\textwidth}}
-        Sincerely Yours, \\
-        \bigskip
+    \vspace{10.0mm}
+    \begin{tabular}{p{0.4\textwidth} p{0.1\textwidth} p{0.4\textwidth}}
+    \begin{minipage}[t]{0.4\textwidth}
+        Sincerely Yours,
+        \vspace*{18.0mm}
         \DTLforeach{Students}{\StudentName=Column1,\StudentID=Column2}{
-        \vspace*{8.0mm}
-        \begin{minipage}[t]{0.3\textwidth}
             \hrule\medskip
             \StudentName\par
-            \StudentID
-        \end{minipage}\par}
-        \vspace*{\stretch{2}} 
-        & & 
-        Supervisor: \newline
-        \bigskip
-        \vspace*{8.0mm}
-        \hrule\medskip
-        \DTLforeach{Supervisor}{\SupervisorName=Column1,\SupervisorDesignation=Column2}{\SupervisorName\par \SupervisorDesignation\  \&\ Supervisor}\par
-        \cse\par
+            ID: \StudentID
+        }
+        \par
+        Department of Computer Science and Engineering\par
         \seu
-        \\
+    \end{minipage}
+    & &
+    \begin{minipage}[t]{0.4\textwidth}
+        Supervisor:
+        \vspace*{18.0mm}
+        \hrule\medskip
+        \DTLforeach{Supervisor}{\SupervisorName=Column1,\SupervisorDesignation=Column2}{%
+            \SupervisorName\par
+            \SupervisorDesignation\ \&\ Supervisor
+        }
+        \vspace*{\fill}
+        \par
+        Department of Computer Science and Engineering\par
+        \seu
+    \end{minipage} \\
     \end{tabular}
 
     \endgroup
@@ -411,32 +417,32 @@
 \usepackage{datetime2}
 \RequirePackage{datetime}
 
-\AtEndDocument{%
-  \clearpage
-  \pagestyle{plain}
+% \AtEndDocument{%
+%   \clearpage
+%   \pagestyle{plain}
   
-  \begingroup
+%   \begingroup
   
-  \flushright
+%   \flushright
 
-  \vspace*{0.0mm}
-  \vfill\vfill\vfill\vfill\vfill
-  \sffamily
+%   \vspace*{0.0mm}
+%   \vfill\vfill\vfill\vfill\vfill
+%   \sffamily
 
-  Generated using Research \LaTeX\xspace Template,
-  Version~\rcsInfoRevision. \cse, \seu.
+%   Generated using Research \LaTeX\xspace Template,
+%   Version~\rcsInfoRevision. \cse, \seu.
 
-  \bigskip
+%   \bigskip
 
-  The Original Version was Developed by \rcsInfoOwner \, on \rcsInfoLongDate
+%   The Original Version was Developed by \rcsInfoOwner \, on \rcsInfoLongDate
 
-  \bigskip
+%   \bigskip
 
-  This report was generated on~\today\xspace at~\DTMcurrenttime.
+%   This report was generated on~\today\xspace at~\DTMcurrenttime.
 
-  \vfill
+%   \vfill
 
-  \endgroup}
+%   \endgroup}
 
 
 

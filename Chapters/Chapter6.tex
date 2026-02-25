@@ -89,7 +89,13 @@ When the TCN model classifies a flow as malicious, the response engine can execu
 
 \subsection{Threat Model}\label{subsec:threat_model}
 
-The HMAC side of the framework exists to solve a specific problem: even if TLS encrypts the OpenFlow channel, it does not stop an insider or a compromised component from issuing perfectly well-formed but unauthorised commands. The threat model we consider includes five attack classes:
+The HMAC side of the framework exists because TLS alone is fundamentally insufficient to secure SDN control-plane operations, for two reasons that deserve explicit statement.
+
+First, TLS provides transport-layer confidentiality, integrity, and peer authentication, but it does not validate the \emph{semantic} content of the messages it carries. A compromised SDN controller---the classic insider threat in a centralised architecture---can construct syntactically valid but operationally malicious \texttt{Flow\_Mod} or \texttt{Flow\_Remove} messages, and TLS will encrypt and deliver them without question. From the switch's perspective, these messages are indistinguishable from legitimate ones because TLS authenticates the \emph{channel}, not the \emph{commands}.
+
+Second, TLS protects only the controller--switch communication path; it has zero visibility into the switch's local data plane. If a switch is compromised---through a malicious end-host exploit, physical access, or a firmware-level attack---an adversary can directly modify the flow table on the device, bypassing both the controller and TLS entirely. Such out-of-band tampering is completely invisible to TLS because the modifications never traverse the protected channel.
+
+HMAC-based verification addresses both gaps. By tagging every flow rule with a per-switch HMAC computed over the rule's semantic fields, the auxiliary agent can independently verify that each rule is authentic and unaltered---regardless of whether the controller that issued it has been compromised. Periodic shadow-table audits (Section~\ref{subsec:flow_verification}) detect any unauthorised local modifications, closing the second gap that TLS cannot reach. With these motivations established, the threat model we consider includes five attack classes:
 
 \begin{itemize}
     \item \textbf{Man-in-the-Middle (MitM) Attacks:} An attacker positioned between the controller and a switch intercepts OpenFlow messages, modifies their contents (e.g., changing flow rule actions from ``forward to port 2'' to ``forward to attacker's port''), and forwards the modified messages to the destination.
