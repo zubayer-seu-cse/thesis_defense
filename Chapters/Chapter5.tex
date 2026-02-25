@@ -1,6 +1,6 @@
 \chapter{TCN Model Architecture}\label{chap:model}
 
-Designing an IDS model for an SDN controller is, in many ways, an exercise in constraint satisfaction. The model has to be accurate enough to catch real attacks, fast enough to keep up with the data plane, and small enough to live alongside the controller application without starving it of memory. This chapter lays out the architecture of the TCN model---named \texttt{TCN\_InSDN}---that we use for the detection component of the TCN-HMAC framework. We walk through the residual-block design, the dilation schedule, the classification head, hyper-parameter choices, the training configuration, and finally a complexity analysis showing that the whole model fits in roughly 612~KB.
+Designing an IDS model for an SDN controller is, in many ways, an exercise in constraint satisfaction. The model has to be accurate enough to catch real attacks, fast enough to keep up with the data plane, and small enough to live alongside the controller application without starving it of memory. This chapter lays out the architecture of the TCN model-named \texttt{TCN\_InSDN}-that we use for the detection component of the TCN-HMAC framework. We walk through the residual-block design, the dilation schedule, the classification head, hyper-parameter choices, the training configuration, and finally a complexity analysis showing that the whole model fits in roughly 612~KB.
 
 %% ============================================================
 \section{Model Overview}\label{sec:model_overview}
@@ -8,7 +8,7 @@ Designing an IDS model for an SDN controller is, in many ways, an exercise in co
 
 At a high level, \texttt{TCN\_InSDN} is straightforward: six dilated causal one-dimensional residual blocks followed by a two-layer dense classification head. What makes the design interesting is the tension it resolves among accuracy, speed, and size.
 
-The model receives input tensors of shape $(N, 24, 1)$, where $N$ is the batch size, 24 is the sequence length (corresponding to the 24 PCA-transformed features), and 1 is the number of input channels. The output is a single sigmoid-activated value representing the probability that the input flow is an attack. The complete model architecture is illustrated in Table~\ref{tab:model_arch}.
+The model receives input tensors of shape $(N, 24, 1)$, where $N$ is the batch size, 24 is the feature dimension (corresponding to the 24 PCA-transformed features), and 1 is the number of input channels. The output is a single sigmoid-activated value representing the probability that the input flow is an attack. The complete model architecture is illustrated in Table~\ref{tab:model_arch}.
 
 \begin{table}[ht]
 \centering
@@ -17,19 +17,19 @@ The model receives input tensors of shape $(N, 24, 1)$, where $N$ is the batch s
 \toprule
 \textbf{Layer} & \textbf{Type} & \textbf{Dilation} & \textbf{Output Shape} & \textbf{Parameters} \\
 \midrule
-Input & --- & --- & $(N, 24, 1)$ & 0 \\
+Input & - & - & $(N, 24, 1)$ & 0 \\
 Block 1 & Residual Block & $d=1$ & $(N, 24, 64)$ & 1,536 \\
 Block 2 & Residual Block & $d=2$ & $(N, 24, 64)$ & 25,216 \\
 Block 3 & Residual Block & $d=4$ & $(N, 24, 64)$ & 25,216 \\
 Block 4 & Residual Block & $d=8$ & $(N, 24, 64)$ & 25,216 \\
 Block 5 & Residual Block & $d=16$ & $(N, 24, 64)$ & 25,216 \\
 Block 6 & Residual Block & $d=32$ & $(N, 24, 64)$ & 25,216 \\
-GAP & GlobalAvgPooling1D & --- & $(N, 64)$ & 0 \\
-Dense 1 & Dense + BN + ReLU & --- & $(N, 128)$ & 8,576 \\
-Dropout 1 & Dropout(0.2) & --- & $(N, 128)$ & 0 \\
-Dense 2 & Dense + BN + ReLU & --- & $(N, 64)$ & 8,448 \\
-Dropout 2 & Dropout(0.2) & --- & $(N, 64)$ & 0 \\
-Output & Dense(1, sigmoid) & --- & $(N, 1)$ & 65 \\
+GAP & GlobalAvgPooling1D & - & $(N, 64)$ & 0 \\
+Dense 1 & Dense + BN + ReLU & - & $(N, 128)$ & 8,576 \\
+Dropout 1 & Dropout(0.2) & - & $(N, 128)$ & 0 \\
+Dense 2 & Dense + BN + ReLU & - & $(N, 64)$ & 8,448 \\
+Dropout 2 & Dropout(0.2) & - & $(N, 64)$ & 0 \\
+Output & Dense(1, sigmoid) & - & $(N, 1)$ & 65 \\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{Total Parameters}} & \textbf{156,737} \\
 \multicolumn{4}{@{}l}{\textbf{Trainable Parameters}} & \textbf{154,817} \\
@@ -40,13 +40,13 @@ Output & Dense(1, sigmoid) & --- & $(N, 1)$ & 65 \\
 \label{tab:model_arch}
 \end{table}
 
-That is only 156,737 parameters---about 612~KB on disk. To put this in perspective, a comparable LSTM would need two to three times as many parameters, and a Transformer-based model of similar capacity would balloon to five to ten times the size. The compactness comes from weight sharing: convolutional filters are reused across every temporal position.
+That is only 156,737 parameters-about 612~KB on disk. To put this in perspective, a comparable LSTM would need two to three times as many parameters, and a Transformer-based model of similar capacity would balloon to five to ten times the size. The compactness comes from weight sharing: convolutional filters are reused across every temporal position.
 
 %% ============================================================
 \section{Residual Block Design}\label{sec:residual_block}
 %% ============================================================
 
-The residual block is where most of the learning happens. Each block runs the input through a pair of dilated causal convolutions---with batch normalisation, ReLU, and spatial dropout sandwiched in---and then adds the result back to the original input via a residual shortcut.
+The residual block is where most of the learning happens. Each block runs the input through a pair of dilated causal convolutions-with batch normalisation, ReLU, and spatial dropout sandwiched in-and then adds the result back to the original input via a residual shortcut.
 
 \subsection{Block Internal Structure}\label{subsec:block_structure}
 
@@ -72,7 +72,7 @@ The residual skip connection adds the block's input $\mathbf{x}$ to the transfor
     \text{output} = \mathcal{F}(\mathbf{x}) + \text{shortcut}(\mathbf{x})
 \end{equation}
 
-When the input and output channel dimensions match (i.e., both are 64 channels), the shortcut is a direct identity connection: $\text{shortcut}(\mathbf{x}) = \mathbf{x}$. When the dimensions differ---as in Block 1, where the input has 1 channel and the output has 64 channels---a $1 \times 1$ convolution is applied to the shortcut path to project the input to the correct dimensionality:
+When the input and output channel dimensions match (i.e., both are 64 channels), the shortcut is a direct identity connection: $\text{shortcut}(\mathbf{x}) = \mathbf{x}$. When the dimensions differ-as in Block 1, where the input has 1 channel and the output has 64 channels-a $1 \times 1$ convolution is applied to the shortcut path to project the input to the correct dimensionality:
 
 \begin{equation}
     \text{shortcut}(\mathbf{x}) = W_{proj} * \mathbf{x}
@@ -99,7 +99,7 @@ The complete data flow through a single residual block with dilation rate $d$ is
 \section{Dilation Schedule}\label{sec:dilation_schedule}
 %% ============================================================
 
-The six blocks use dilation rates that double at each stage---1, 2, 4, 8, 16, 32---following the standard geometric progression $d_l = 2^{l-1}$:
+The six blocks use dilation rates that double at each stage-1, 2, 4, 8, 16, 32-following the standard geometric progression $d_l = 2^{l-1}$:
 
 \begin{table}[ht]
 \centering
@@ -119,14 +119,14 @@ The six blocks use dilation rates that double at each stage---1, 2, 4, 8, 16, 32
 \label{tab:dilation_schedule}
 \end{table}
 
-Because the cumulative receptive field (253) dwarfs the input length (24), the deepest layers can ``see'' the entire input sequence with room to spare. The extra coverage is not wasted---it cushions the boundary effects caused by zero-padding and makes the model more robust to shifts in the feature ordering.
+Because the cumulative receptive field (253) dwarfs the input length (24), the deepest layers can ``see'' the entire input sequence with room to spare. The extra coverage is not wasted-it cushions the boundary effects caused by zero-padding and makes the model more robust to shifts in the feature ordering.
 
 The exponential dilation schedule was chosen over alternatives (linear dilation, repeated cycles) based on the following considerations:
 
 \begin{itemize}
     \item \textbf{Exponential Efficiency:} The exponential growth of the receptive field enables coverage of the full input sequence with only $\lceil\log_2(T)\rceil$ blocks for kernel size 2, or fewer blocks for larger kernels. This minimizes the depth of the network while maximizing temporal coverage.
     
-    \item \textbf{Multi-Scale Pattern Capture:} Each dilation rate captures patterns at a different temporal scale. Block 1 ($d=1$) captures fine-grained, adjacent-component patterns; Block 3 ($d=4$) captures medium-scale patterns spanning 4--8 components; Block 6 ($d=32$) captures global patterns spanning the entire input. This multi-scale hierarchy enables the model to detect both localized anomalies (e.g., a single feature spike) and distributed anomalies (e.g., correlated changes across many features).
+    \item \textbf{Multi-Scale Pattern Capture:} Each dilation rate captures patterns at a different temporal scale. Block 1 ($d=1$) captures fine-grained, adjacent-component patterns; Block 3 ($d=4$) captures medium-scale patterns spanning 4-8 components; Block 6 ($d=32$) captures global patterns spanning the entire input. This multi-scale hierarchy enables the model to detect both localized anomalies (e.g., a single feature spike) and distributed anomalies (e.g., correlated changes across many features).
     
     \item \textbf{Empirical Validation:} The exponential dilation schedule has been demonstrated to be effective in the original TCN architecture \cite{bai2018empirical} and in subsequent TCN-based intrusion detection studies \cite{Lopes2023TCN, LiLi2025TCNSE}.
 \end{itemize}
@@ -135,11 +135,11 @@ The exponential dilation schedule was chosen over alternatives (linear dilation,
 \section{Classification Head}\label{sec:classification_head}
 %% ============================================================
 
-The classification head converts the temporal feature representation produced by the residual blocks into a binary classification output. It consists of three sequential stages:
+The classification head converts the feature representation produced by the residual blocks into a binary classification output. It consists of three sequential stages:
 
 \subsection{Global Average Pooling}\label{subsec:gap_model}
 
-GlobalAveragePooling1D aggregates the temporal feature maps of shape $(N, 24, 64)$ into a fixed-length vector of shape $(N, 64)$ by computing the average activation across the 24 time steps for each of the 64 channels. This produces a compact representation that captures the overall statistical behavior of each feature channel across the entire input sequence.
+GlobalAveragePooling1D aggregates the multi-channel feature maps of shape $(N, 24, 64)$ into a fixed-length vector of shape $(N, 64)$ by computing the average activation across the 24 feature dimensions for each of the 64 channels. This produces a compact representation that captures the overall statistical behavior of each feature channel across the entire feature space.
 
 \subsection{Dense Layers}\label{subsec:dense_layers}
 
@@ -211,7 +211,7 @@ The Adam optimizer \cite{kingma2015adam} is used for training the TCN model. Ada
 
 \noindent where $g_t$ is the gradient at time step $t$, $m_t$ and $v_t$ are the first and second moment estimates, $\beta_1 = 0.9$ and $\beta_2 = 0.999$ are the exponential decay rates, $\alpha = 10^{-3}$ is the initial learning rate, and $\epsilon = 10^{-7}$ is a numerical stability constant.
 
-Adam was chosen over alternatives (SGD with momentum, AdamW \cite{loshchilov2019decoupled}, RMSProp) for several reasons: (1) it converges faster than vanilla SGD on the InSDN dataset, reaching near-optimal performance within 15--20 epochs compared to 50+ epochs for SGD; (2) its adaptive learning rates handle the heterogeneous scale of PCA-transformed features effectively; and (3) it has been demonstrated to perform well on convolutional architectures for classification tasks.
+Adam was chosen over alternatives (SGD with momentum, AdamW \cite{loshchilov2019decoupled}, RMSProp) for several reasons: (1) it converges faster than vanilla SGD on the InSDN dataset, reaching near-optimal performance within 15-20 epochs compared to 50+ epochs for SGD; (2) its adaptive learning rates handle the heterogeneous scale of PCA-transformed features effectively; and (3) it has been demonstrated to perform well on convolutional architectures for classification tasks.
 
 \subsection{Loss Function}\label{subsec:loss_function}
 
@@ -356,7 +356,7 @@ The computational complexity of a single forward pass through the TCN model can 
 
 \textbf{Dense Layers:} The dense layers contribute $2 \times (64 \times 128 + 128 \times 64 + 64 \times 1) \approx 33$K FLOPs.
 
-\textbf{Total:} The total computational cost per inference is approximately 7.1M FLOPs, which is extremely lightweight by deep learning standards. For reference, a standard ResNet-18 image classification model requires approximately 1.8G FLOPs per inference---250$\times$ more than the TCN\_InSDN model. This low computational cost enables real-time inference at thousands of flows per second on modern hardware.
+\textbf{Total:} The total computational cost per inference is approximately 7.1M FLOPs, which is extremely lightweight by deep learning standards. For reference, a standard ResNet-18 image classification model requires approximately 1.8G FLOPs per inference-250$\times$ more than the TCN\_InSDN model. This low computational cost enables real-time inference at thousands of flows per second on modern hardware.
 
 \subsection{Memory Footprint}\label{subsec:memory}
 

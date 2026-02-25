@@ -1,467 +1,283 @@
 \begin{thebibliography}{10}
 
 \bibitem{mckeown2008openflow}
-N.~McKeown, T.~Anderson, H.~Balakrishnan, G.~Parulkar, L.~Peterson, J.~Rexford,
-  S.~Shenker, and J.~Turner, ``{OpenFlow}: Enabling innovation in campus
-  networks,'' {\em ACM SIGCOMM Computer Communication Review}, vol.~38, no.~2,
-  pp.~69--74, 2008.
+N.~McKeown, T.~Anderson, H.~Balakrishnan, G.~Parulkar, L.~Peterson, J.~Rexford, S.~Shenker, and J.~Turner, ``{OpenFlow}: Enabling innovation in campus networks,'' {\em ACM SIGCOMM Computer Communication Review}, vol.~38, no.~2, pp.~69--74, 2008.
 
 \bibitem{kreutz2015sdn}
-D.~Kreutz, F.~M.~V. Ramos, P.~E. Verissimo, C.~E. Rothenberg, S.~Azodolmolky,
-  and S.~Uhlig, ``Software-defined networking: A comprehensive survey,'' {\em
-  Proceedings of the IEEE}, vol.~103, no.~1, pp.~14--76, 2015.
+D.~Kreutz, F.~M.~V. Ramos, P.~E. Verissimo, C.~E. Rothenberg, S.~Azodolmolky, and S.~Uhlig, ``Software-defined networking: A comprehensive survey,'' {\em Proceedings of the IEEE}, vol.~103, no.~1, pp.~14--76, 2015.
 
 \bibitem{chen2024controller}
-W.~Chen, H.~Zhang, and L.~Yang, ``A comprehensive survey on {SDN} controller
-  security: Vulnerabilities, attacks and countermeasures,'' {\em Computer
-  Science Review}, vol.~51, p.~100607, 2024.
+W.~Chen, H.~Zhang, and L.~Yang, ``A comprehensive survey on {SDN} controller security: Vulnerabilities, attacks and countermeasures,'' {\em Computer Science Review}, vol.~51, p.~100607, 2024.
 
 \bibitem{dong2024survey}
-S.~Dong, E.~Selem, and K.~Abbas, ``A survey on {DDoS} attack and defense in
-  software-defined networking,'' {\em IEEE Access}, vol.~12, pp.~23767--23792,
-  2024.
+S.~Dong, E.~Selem, and K.~Abbas, ``A survey on {DDoS} attack and defense in software-defined networking,'' {\em IEEE Access}, vol.~12, pp.~23767--23792, 2024.
 
 \bibitem{openflow2015spec}
-{Open Networking Foundation}, ``{OpenFlow} switch specification version
-  1.5.1,'' {\em Open Networking Foundation Technical Report}, 2015.
+{Open Networking Foundation}, ``{OpenFlow} switch specification version 1.5.1,'' {\em Open Networking Foundation Technical Report}, 2015.
 
 \bibitem{buruaga2025quantum}
-J.~S. Buruaga, R.~B. M{\'e}ndez, J.~P. Brito, and V.~Martin, ``Quantum-safe
-  integration of {TLS} in {SDN} networks,'' {\em arXiv preprint
-  arXiv:2501.04368}, 2025.
+J.~S. Buruaga, R.~B. M{\'e}ndez, J.~P. Brito, and V.~Martin, ``Quantum-safe integration of {TLS} in {SDN} networks,'' {\em arXiv preprint arXiv:2501.04368}, 2025.
 
 \bibitem{Ahmed2023HMACSDN}
-Z.~Ahmed and M.~Haque, ``A modular {HMAC}-based framework for flow verification
-  in software defined networks,'' {\em International Journal of Network
-  Management}, vol.~33, no.~5, p.~e2209, 2023.
+Z.~Ahmed and M.~Haque, ``A modular {HMAC}-based framework for flow verification in software defined networks,'' {\em International Journal of Network Management}, vol.~33, no.~5, p.~e2209, 2023.
 
 \bibitem{Pradeep2023EnsureS}
-M.~Pradeep, K.~Sekaran, and R.~Raman, ``{EnsureS}: Lightweight high-performance
-  service path rule verification in software-defined networking,'' {\em
-  Computer Networks}, vol.~235, p.~110890, 2023.
+M.~Pradeep, K.~Sekaran, and R.~Raman, ``{EnsureS}: Lightweight high-performance service path rule verification in software-defined networking,'' {\em Computer Networks}, vol.~235, p.~110890, 2023.
 
 \bibitem{alharbi2023mitm}
-A.~Alharbi and M.~O. Alassafi, ``A systematic review of man-in-the-middle
-  attack detection and prevention in {SDN},'' {\em Electronics}, vol.~12,
-  no.~4, p.~845, 2023.
+A.~Alharbi and M.~O. Alassafi, ``A systematic review of man-in-the-middle attack detection and prevention in {SDN},'' {\em Electronics}, vol.~12, no.~4, p.~845, 2023.
 
 \bibitem{mirsky2023probe}
-Y.~Mirsky, T.~Mahler, I.~Shelef, and Y.~Elovici, ``Network reconnaissance
-  detection: A survey of methods and challenges,'' {\em ACM Computing Surveys},
-  vol.~55, no.~6, pp.~1--36, 2023.
+Y.~Mirsky, T.~Mahler, I.~Shelef, and Y.~Elovici, ``Network reconnaissance detection: A survey of methods and challenges,'' {\em ACM Computing Surveys}, vol.~55, no.~6, pp.~1--36, 2023.
 
 \bibitem{kumar2023bruteforce}
-R.~Kumar and R.~Tripathi, ``Detection of brute force attacks in network traffic
-  using machine learning,'' {\em Journal of Cybersecurity and Privacy}, vol.~3,
-  no.~2, pp.~245--260, 2023.
+R.~Kumar and R.~Tripathi, ``Detection of brute force attacks in network traffic using machine learning,'' {\em Journal of Cybersecurity and Privacy}, vol.~3, no.~2, pp.~245--260, 2023.
 
 \bibitem{Ataa2024SDNDL}
-M.~S. Ataa, E.~E. Sanad, and R.~A. El-Khoribi, ``Intrusion detection in
-  software defined network using deep learning approaches,'' {\em Scientific
-  Reports}, vol.~14, p.~28896, 2024.
+M.~S. Ataa, E.~E. Sanad, and R.~A. El-Khoribi, ``Intrusion detection in software defined network using deep learning approaches,'' {\em Scientific Reports}, vol.~14, p.~28896, 2024.
 
 \bibitem{Said2023CNNBiLSTM}
-R.~B. Said, Z.~Sabir, and I.~Askerzade, ``{CNN-BiLSTM}: A hybrid deep learning
-  approach for network intrusion detection system in software-defined
-  networking with hybrid feature selection,'' {\em IEEE Access}, vol.~11,
-  pp.~131924--131937, 2023.
+R.~B. Said, Z.~Sabir, and I.~Askerzade, ``{CNN-BiLSTM}: A hybrid deep learning approach for network intrusion detection system in software-defined networking with hybrid feature selection,'' {\em IEEE Access}, vol.~11, pp.~131924--131937, 2023.
 
 \bibitem{Kanimozhi2025DRL}
-R.~Kanimozhi and P.~S. Ramesh, ``Deep reinforcement learning-based intrusion
-  detection scheme for software-defined networking,'' {\em Scientific Reports},
-  vol.~15, p.~38142, 2025.
+R.~Kanimozhi and P.~S. Ramesh, ``Deep reinforcement learning-based intrusion detection scheme for software-defined networking,'' {\em Scientific Reports}, vol.~15, p.~38142, 2025.
 
 \bibitem{bai2018empirical}
-S.~Bai, J.~Z. Kolter, and V.~Koltun, ``An empirical evaluation of generic
-  convolutional and recurrent networks for sequence modeling,'' in {\em arXiv
-  preprint arXiv:1803.01271}, 2018.
+S.~Bai, J.~Z. Kolter, and V.~Koltun, ``An empirical evaluation of generic convolutional and recurrent networks for sequence modeling,'' in {\em arXiv preprint arXiv:1803.01271}, 2018.
 
 \bibitem{Lopes2023TCN}
-I.~O. Lopes, D.~Zou, V.~Ruamviboonsuk, L.~Munasinghe, Z.~Shi, and W.~Pereira,
-  ``Network intrusion detection based on the temporal convolutional model,''
-  {\em Computers \& Security}, vol.~135, p.~103465, 2023.
+I.~O. Lopes, D.~Zou, V.~Ruamviboonsuk, L.~Munasinghe, Z.~Shi, and W.~Pereira, ``Network intrusion detection based on the temporal convolutional model,'' {\em Computers \& Security}, vol.~135, p.~103465, 2023.
 
 \bibitem{krawczyk1997hmac}
-H.~Krawczyk, M.~Bellare, and R.~Canetti, ``{HMAC}: Keyed-hashing for message
-  authentication ({RFC} 2104).'' IETF RFC 2104, 1997.
+H.~Krawczyk, M.~Bellare, and R.~Canetti, ``{HMAC}: Keyed-hashing for message authentication ({RFC} 2104).'' IETF RFC 2104, 1997.
 
 \bibitem{elsayed2020insdn}
-M.~S. El-Sayed, N.-A. Le-Khac, S.~Alhelaly, and A.~D. Jurcut, ``{InSDN}: A
-  novel {SDN} intrusion dataset,'' {\em IEEE Access}, vol.~8,
-  pp.~165263--165284, 2020.
+M.~S. El-Sayed, N.-A. Le-Khac, S.~Alhelaly, and A.~D. Jurcut, ``{InSDN}: A novel {SDN} intrusion dataset,'' {\em IEEE Access}, vol.~8, pp.~165263--165284, 2020.
 
 \bibitem{pfaff2015design}
-B.~Pfaff, J.~Pettit, T.~Koponen, E.~J. Jackson, A.~Zhou, J.~Rajahalme,
-  J.~Gross, A.~Wang, J.~Stringer, P.~Shelar, K.~Amidon, and M.~Casado, ``The
-  design and implementation of {Open vSwitch},'' in {\em 12th USENIX Symposium
-  on Networked Systems Design and Implementation (NSDI 15)}, pp.~117--130,
-  2015.
+B.~Pfaff, J.~Pettit, T.~Koponen, E.~J. Jackson, A.~Zhou, J.~Rajahalme, J.~Gross, A.~Wang, J.~Stringer, P.~Shelar, K.~Amidon, and M.~Casado, ``The design and implementation of {Open vSwitch},'' in {\em 12th USENIX Symposium on Networked Systems Design and Implementation (NSDI 15)}, pp.~117--130, 2015.
 
 \bibitem{ryu2024framework}
 {Ryu Project Team}, ``{Ryu SDN Framework},'' 2024.
 \newblock \url{https://ryu-sdn.org/}.
 
 \bibitem{karakus2017quality}
-M.~Karakus and A.~Durresi, ``Quality of service ({QoS}) in software defined
-  networking ({SDN}): A survey,'' {\em Journal of Network and Computer
-  Applications}, vol.~80, pp.~200--218, 2017.
+M.~Karakus and A.~Durresi, ``Quality of service ({QoS}) in software defined networking ({SDN}): A survey,'' {\em Journal of Network and Computer Applications}, vol.~80, pp.~200--218, 2017.
 
 \bibitem{oord2016wavenet}
-A.~van~den Oord, S.~Dieleman, H.~Zen, K.~Simonyan, O.~Vinyals, A.~Graves,
-  N.~Kalchbrenner, A.~Senior, and K.~Kavukcuoglu, ``{WaveNet}: A generative
-  model for raw audio,'' in {\em arXiv preprint arXiv:1609.03499}, 2016.
+A.~van~den Oord, S.~Dieleman, H.~Zen, K.~Simonyan, O.~Vinyals, A.~Graves, N.~Kalchbrenner, A.~Senior, and K.~Kavukcuoglu, ``{WaveNet}: A generative model for raw audio,'' in {\em arXiv preprint arXiv:1609.03499}, 2016.
 
 \bibitem{he2016deep}
-K.~He, X.~Zhang, S.~Ren, and J.~Sun, ``Deep residual learning for image
-  recognition,'' in {\em Proceedings of the IEEE Conference on Computer Vision
-  and Pattern Recognition}, pp.~770--778, 2016.
+K.~He, X.~Zhang, S.~Ren, and J.~Sun, ``Deep residual learning for image recognition,'' in {\em Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition}, pp.~770--778, 2016.
 
 \bibitem{ioffe2015batch}
-S.~Ioffe and C.~Szegedy, ``Batch normalization: Accelerating deep network
-  training by reducing internal covariate shift,'' in {\em Proceedings of the
-  32nd International Conference on Machine Learning}, pp.~448--456, 2015.
+S.~Ioffe and C.~Szegedy, ``Batch normalization: Accelerating deep network training by reducing internal covariate shift,'' in {\em Proceedings of the 32nd International Conference on Machine Learning}, pp.~448--456, 2015.
 
 \bibitem{srivastava2014dropout}
-N.~Srivastava, G.~Hinton, A.~Krizhevsky, I.~Sutskever, and R.~Salakhutdinov,
-  ``Dropout: A simple way to prevent neural networks from overfitting,'' {\em
-  Journal of Machine Learning Research}, vol.~15, no.~1, pp.~1929--1958, 2014.
+N.~Srivastava, G.~Hinton, A.~Krizhevsky, I.~Sutskever, and R.~Salakhutdinov, ``Dropout: A simple way to prevent neural networks from overfitting,'' {\em Journal of Machine Learning Research}, vol.~15, no.~1, pp.~1929--1958, 2014.
 
 \bibitem{hochreiter1997long}
-S.~Hochreiter and J.~Schmidhuber, ``Long short-term memory,'' {\em Neural
-  Computation}, vol.~9, no.~8, pp.~1735--1780, 1997.
+S.~Hochreiter and J.~Schmidhuber, ``Long short-term memory,'' {\em Neural Computation}, vol.~9, no.~8, pp.~1735--1780, 1997.
 
 \bibitem{cho2014learning}
-K.~Cho, B.~van Merrienboer, C.~Gulcehre, D.~Bahdanau, F.~Bougares, H.~Schwenk,
-  and Y.~Bengio, ``Learning phrase representations using {RNN} encoder-decoder
-  for statistical machine translation,'' in {\em Proceedings of the 2014
-  Conference on Empirical Methods in Natural Language Processing (EMNLP)},
-  pp.~1724--1734, 2014.
+K.~Cho, B.~van Merrienboer, C.~Gulcehre, D.~Bahdanau, F.~Bougares, H.~Schwenk, and Y.~Bengio, ``Learning phrase representations using {RNN} encoder-decoder for statistical machine translation,'' in {\em Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing (EMNLP)}, pp.~1724--1734, 2014.
 
 \bibitem{LiLi2025TCNSE}
-J.~Li and L.~Li, ``A lightweight network intrusion detection system based on
-  temporal convolutional networks and attention mechanisms,'' {\em Computer
-  Fraud \& Security}, vol.~2025, p.~584, 2025.
+J.~Li and L.~Li, ``A lightweight network intrusion detection system based on temporal convolutional networks and attention mechanisms,'' {\em Computer Fraud \& Security}, vol.~2025, p.~584, 2025.
 
 \bibitem{Nazre2024TCN}
-R.~Nazre, R.~Budke, O.~Oak, S.~T. Sawant, and A.~Joshi, ``A {Temporal
-  Convolutional Network}-based approach for network intrusion detection,'' in
-  {\em 2024 IEEE 2nd International Conference on Integrated Intelligence and
-  Communication Systems (ICIICS)}, pp.~1--6, IEEE, 2024.
+R.~Nazre, R.~Budke, O.~Oak, S.~T. Sawant, and A.~Joshi, ``A {Temporal Convolutional Network}-based approach for network intrusion detection,'' in {\em 2024 IEEE 2nd International Conference on Integrated Intelligence and Communication Systems (ICIICS)}, pp.~1--6, IEEE, 2024.
 
 \bibitem{nist2015sha}
-{National Institute of Standards and Technology}, ``Secure hash standard
-  ({SHS}), {FIPS PUB} 180-4.'' Federal Information Processing Standards
-  Publication, 2015.
+{National Institute of Standards and Technology}, ``Secure hash standard ({SHS}), {FIPS PUB} 180-4.'' Federal Information Processing Standards Publication, 2015.
 
 \bibitem{menezes2018handbook}
-A.~J. Menezes, P.~C. van Oorschot, and S.~A. Vanstone, ``Handbook of applied
-  cryptography,'' {\em CRC Press}, 2018.
+A.~J. Menezes, P.~C. van Oorschot, and S.~A. Vanstone, ``Handbook of applied cryptography,'' {\em CRC Press}, 2018.
 
 \bibitem{rivest1978method}
-R.~L. Rivest, A.~Shamir, and L.~Adleman, ``A method for obtaining digital
-  signatures and public-key cryptosystems,'' {\em Communications of the ACM},
-  vol.~21, no.~2, pp.~120--126, 1978.
+R.~L. Rivest, A.~Shamir, and L.~Adleman, ``A method for obtaining digital signatures and public-key cryptosystems,'' {\em Communications of the ACM}, vol.~21, no.~2, pp.~120--126, 1978.
 
 \bibitem{moustafa2023feature}
-N.~Moustafa, J.~Hu, and J.~Slay, ``A holistic review of network anomaly
-  detection systems: A comprehensive survey,'' {\em Journal of Network and
-  Computer Applications}, vol.~128, pp.~33--55, 2023.
+N.~Moustafa, J.~Hu, and J.~Slay, ``A holistic review of network anomaly detection systems: A comprehensive survey,'' {\em Journal of Network and Computer Applications}, vol.~128, pp.~33--55, 2023.
 
 \bibitem{breiman2001random}
-L.~Breiman, ``Random forests,'' {\em Machine Learning}, vol.~45, no.~1,
-  pp.~5--32, 2001.
+L.~Breiman, ``Random forests,'' {\em Machine Learning}, vol.~45, no.~1, pp.~5--32, 2001.
 
 \bibitem{chen2016xgboost}
-T.~Chen and C.~Guestrin, ``{XGBoost}: A scalable tree boosting system,'' in
-  {\em Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge
-  Discovery and Data Mining}, pp.~785--794, ACM, 2016.
+T.~Chen and C.~Guestrin, ``{XGBoost}: A scalable tree boosting system,'' in {\em Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining}, pp.~785--794, ACM, 2016.
 
 \bibitem{pan2023feature}
-Y.~Pan, L.~Zhang, and Z.~Li, ``Feature selection methods for network intrusion
-  detection: A comparative study,'' {\em Computers \& Security}, vol.~131,
-  p.~103324, 2023.
+Y.~Pan, L.~Zhang, and Z.~Li, ``Feature selection methods for network intrusion detection: A comparative study,'' {\em Computers \& Security}, vol.~131, p.~103324, 2023.
 
 \bibitem{ismail2019deep}
-H.~Ismail~Fawaz, G.~Forestier, J.~Weber, L.~Idoumghar, and P.-A. Muller, ``Deep
-  learning for time series classification: A review,'' {\em Data Mining and
-  Knowledge Discovery}, vol.~33, no.~4, pp.~917--963, 2019.
+H.~Ismail~Fawaz, G.~Forestier, J.~Weber, L.~Idoumghar, and P.-A. Muller, ``Deep learning for time series classification: A review,'' {\em Data Mining and Knowledge Discovery}, vol.~33, no.~4, pp.~917--963, 2019.
 
 \bibitem{yang2022autoencoder}
-L.~Yang, A.~Moubayed, and A.~Shami, ``Autoencoder-based anomaly detection for
-  network intrusion detection,'' {\em IEEE Internet of Things Journal}, vol.~9,
-  no.~18, pp.~16818--16828, 2022.
+L.~Yang, A.~Moubayed, and A.~Shami, ``Autoencoder-based anomaly detection for network intrusion detection,'' {\em IEEE Internet of Things Journal}, vol.~9, no.~18, pp.~16818--16828, 2022.
 
 \bibitem{vaswani2017attention}
-A.~Vaswani, N.~Shazeer, N.~Parmar, J.~Uszkoreit, L.~Jones, A.~N. Gomez,
-  {\L}.~Kaiser, and I.~Polosukhin, ``Attention is all you need,'' in {\em
-  Advances in Neural Information Processing Systems}, vol.~30, pp.~5998--6008,
-  2017.
+A.~Vaswani, N.~Shazeer, N.~Parmar, J.~Uszkoreit, L.~Jones, A.~N. Gomez, {\L}.~Kaiser, and I.~Polosukhin, ``Attention is all you need,'' in {\em Advances in Neural Information Processing Systems}, vol.~30, pp.~5998--6008, 2017.
 
 \bibitem{wu2022rtids}
-Z.~Wu, H.~Zhang, P.~Wang, and Z.~Sun, ``{RT-IDS}: Real-time intrusion detection
-  system using transformer,'' {\em IEEE Access}, vol.~10, pp.~44154--44162,
-  2022.
+Z.~Wu, H.~Zhang, P.~Wang, and Z.~Sun, ``{RT-IDS}: Real-time intrusion detection system using transformer,'' {\em IEEE Access}, vol.~10, pp.~44154--44162, 2022.
 
 \bibitem{Benfarhat2025TCN}
-I.~Benfarhat, V.~Goh, and T.~Chuah, ``Advanced {Temporal Convolutional Network}
-  framework for intrusion detection in electric vehicle charging stations,''
-  {\em IEEE Open Journal of Vehicular Technology}, 2025.
+I.~Benfarhat, V.~Goh, and T.~Chuah, ``Advanced {Temporal Convolutional Network} framework for intrusion detection in electric vehicle charging stations,'' {\em IEEE Open Journal of Vehicular Technology}, 2025.
 
 \bibitem{Sun2025TCN}
-J.~Sun, ``Network intrusion detection using {Temporal Convolutional Networks}
-  for time-series traffic modeling,'' in {\em 2025 8th International Conference
-  on Computer Science and Software Engineering}, IEEE, 2025.
+J.~Sun, ``Network intrusion detection using {Temporal Convolutional Networks} for time-series traffic modeling,'' in {\em 2025 8th International Conference on Computer Science and Software Engineering}, IEEE, 2025.
 
 \bibitem{benesty2009pearson}
-J.~Benesty, J.~Chen, Y.~Huang, and I.~Cohen, ``Pearson correlation
-  coefficient,'' {\em Noise Reduction in Speech Processing}, pp.~1--4, 2009.
+J.~Benesty, J.~Chen, Y.~Huang, and I.~Cohen, ``Pearson correlation coefficient,'' {\em Noise Reduction in Speech Processing}, pp.~1--4, 2009.
 
 \bibitem{sokolova2009systematic}
-M.~Sokolova and G.~Lapalme, ``A systematic analysis of performance measures for
-  classification tasks,'' {\em Information Processing \& Management}, vol.~45,
-  no.~4, pp.~427--437, 2009.
+M.~Sokolova and G.~Lapalme, ``A systematic analysis of performance measures for classification tasks,'' {\em Information Processing \& Management}, vol.~45, no.~4, pp.~427--437, 2009.
 
 \bibitem{fawcett2006introduction}
-T.~Fawcett, ``An introduction to {ROC} analysis,'' {\em Pattern Recognition
-  Letters}, vol.~27, no.~8, pp.~861--874, 2006.
+T.~Fawcett, ``An introduction to {ROC} analysis,'' {\em Pattern Recognition Letters}, vol.~27, no.~8, pp.~861--874, 2006.
 
 \bibitem{johnson2019survey}
-J.~M. Johnson and T.~M. Khoshgoftaar, ``Survey on deep learning with class
-  imbalance,'' {\em Journal of Big Data}, vol.~6, no.~1, pp.~1--54, 2019.
+J.~M. Johnson and T.~M. Khoshgoftaar, ``Survey on deep learning with class imbalance,'' {\em Journal of Big Data}, vol.~6, no.~1, pp.~1--54, 2019.
 
 \bibitem{chawla2002smote}
-N.~V. Chawla, K.~W. Bowyer, L.~O. Hall, and W.~P. Kegelmeyer, ``{SMOTE}:
-  Synthetic minority over-sampling technique,'' {\em Journal of Artificial
-  Intelligence Research}, vol.~16, pp.~321--357, 2002.
+N.~V. Chawla, K.~W. Bowyer, L.~O. Hall, and W.~P. Kegelmeyer, ``{SMOTE}: Synthetic minority over-sampling technique,'' {\em Journal of Artificial Intelligence Research}, vol.~16, pp.~321--357, 2002.
 
 \bibitem{Zhou2022SecureMatch}
-H.~Zhou, Z.~Liu, and J.~Yang, ``{SecureMatch}: Efficient cryptographic rule
-  matching for {SDN},'' {\em IEEE Transactions on Dependable and Secure
-  Computing}, vol.~19, no.~4, pp.~2345--2358, 2022.
+H.~Zhou, Z.~Liu, and J.~Yang, ``{SecureMatch}: Efficient cryptographic rule matching for {SDN},'' {\em IEEE Transactions on Dependable and Secure Computing}, vol.~19, no.~4, pp.~2345--2358, 2022.
 
 \bibitem{Reddy2025FlowTable}
-B.~A. Reddy, K.~Sahoo, and M.~H. Bhuyan, ``Toward mitigation of flow table
-  modification attacks in {P4}-based {SDN} data plane,'' {\em Security and
-  Privacy}, vol.~8, no.~2, p.~e70008, 2025.
+B.~A. Reddy, K.~Sahoo, and M.~H. Bhuyan, ``Toward mitigation of flow table modification attacks in {P4}-based {SDN} data plane,'' {\em Security and Privacy}, vol.~8, no.~2, p.~e70008, 2025.
 
 \bibitem{Reddy2024P4SDN}
-B.~A. Reddy, K.~Sahoo, and M.~H. Bhuyan, ``Securing {P4-SDN} data plane against
-  flow table modification attack,'' in {\em IEEE/IFIP Network Operations and
-  Management Symposium (NOMS)}, pp.~1--6, IEEE, 2024.
+B.~A. Reddy, K.~Sahoo, and M.~H. Bhuyan, ``Securing {P4-SDN} data plane against flow table modification attack,'' in {\em IEEE/IFIP Network Operations and Management Symposium (NOMS)}, pp.~1--6, IEEE, 2024.
 
 \bibitem{Han2024FlowRule}
-B.~Han, Y.~Liu, Y.~Zhou, and Y.~Gao, ``An efficient flow rule conflict
-  comprehensive detection scheme for {SDN} networks,'' in {\em International
-  Symposium on Image and Signal Processing and Analysis}, pp.~1--6, IEEE, 2024.
+B.~Han, Y.~Liu, Y.~Zhou, and Y.~Gao, ``An efficient flow rule conflict comprehensive detection scheme for {SDN} networks,'' in {\em International Symposium on Image and Signal Processing and Analysis}, pp.~1--6, IEEE, 2024.
 
 \bibitem{Song2023IS2N}
-Y.~Song, X.~Lu, and Z.~Wang, ``Intent-driven secure {SDN} using blockchain,''
-  {\em IEEE Transactions on Network and Service Management}, vol.~20, no.~1,
-  pp.~126--138, 2023.
+Y.~Song, X.~Lu, and Z.~Wang, ``Intent-driven secure {SDN} using blockchain,'' {\em IEEE Transactions on Network and Service Management}, vol.~20, no.~1, pp.~126--138, 2023.
 
 \bibitem{Rahman2022BCSDN}
-M.~M. Rahman, S.~Ahmed, and N.~Jahan, ``Blockchain integration in {SDN}:
-  Opportunities and challenges,'' {\em Journal of Network and Computer
-  Applications}, vol.~201, p.~103308, 2022.
+M.~M. Rahman, S.~Ahmed, and N.~Jahan, ``Blockchain integration in {SDN}: Opportunities and challenges,'' {\em Journal of Network and Computer Applications}, vol.~201, p.~103308, 2022.
 
 \bibitem{Poorazad2023BlockchainIDS}
-A.~Poorazad, S.~A. Soleymani, and N.~Al-Bassam, ``A blockchain-based deep
-  learning {IDS} for {SDN}-enabled {IIoT},'' {\em Ad Hoc Networks}, vol.~145,
-  p.~102752, 2023.
+A.~Poorazad, S.~A. Soleymani, and N.~Al-Bassam, ``A blockchain-based deep learning {IDS} for {SDN}-enabled {IIoT},'' {\em Ad Hoc Networks}, vol.~145, p.~102752, 2023.
 
 \bibitem{Tselios2025MuZeroBlockchain}
-C.~Tselios, P.~Kotzanikolaou, and D.~Gritzalis, ``Securing {SDN} controller
-  placement using {MuZero} and blockchain,'' {\em Future Generation Computer
-  Systems}, vol.~164, p.~114157, 2025.
+C.~Tselios, P.~Kotzanikolaou, and D.~Gritzalis, ``Securing {SDN} controller placement using {MuZero} and blockchain,'' {\em Future Generation Computer Systems}, vol.~164, p.~114157, 2025.
 
 \bibitem{Alkhamisi2024BCS}
-A.~Alkhamisi, M.~Alzubaidi, and Z.~Baig, ``Blockchain-based control plane
-  security in multi-controller {SDNs},'' {\em IEEE Access}, vol.~12,
-  pp.~12345--12356, 2024.
+A.~Alkhamisi, M.~Alzubaidi, and Z.~Baig, ``Blockchain-based control plane security in multi-controller {SDNs},'' {\em IEEE Access}, vol.~12, pp.~12345--12356, 2024.
 
 \bibitem{Sharma2023LightweightIDS}
-R.~Sharma and S.~Tyagi, ``A lightweight {IDS} framework for {SDN} using
-  adaptive anomaly detection,'' {\em Computers \& Security}, vol.~127,
-  p.~102659, 2023.
+R.~Sharma and S.~Tyagi, ``A lightweight {IDS} framework for {SDN} using adaptive anomaly detection,'' {\em Computers \& Security}, vol.~127, p.~102659, 2023.
 
 \bibitem{Ayad2025MLSDN}
-S.~Ayad, N.~Lehat, and A.~Souri, ``Leveraging the power of machine learning
-  techniques for intrusion detection in software-defined networks,'' {\em
-  Journal of Interconnection Networks}, 2025.
+S.~Ayad, N.~Lehat, and A.~Souri, ``Leveraging the power of machine learning techniques for intrusion detection in software-defined networks,'' {\em Journal of Interconnection Networks}, 2025.
 
 \bibitem{Basfar2024EMRMR}
-R.~Basfar, M.~Dahab, A.~M. Ali, F.~Eassa, and K.~Bajunaied, ``Enhanced
-  intrusion detection in software-defined networking using advanced feature
-  selection: The {EMRMR} approach,'' {\em Engineering, Technology \& Applied
-  Science Research}, vol.~14, no.~6, pp.~18194--18200, 2024.
+R.~Basfar, M.~Dahab, A.~M. Ali, F.~Eassa, and K.~Bajunaied, ``Enhanced intrusion detection in software-defined networking using advanced feature selection: The {EMRMR} approach,'' {\em Engineering, Technology \& Applied Science Research}, vol.~14, no.~6, pp.~18194--18200, 2024.
 
 \bibitem{singh2024flowml}
-K.~Singh and B.~Kumar, ``Evaluation of {SDN} flow table manipulation attack
-  using machine learning techniques,'' {\em Architecture Image Studies}, 2024.
+K.~Singh and B.~Kumar, ``Evaluation of {SDN} flow table manipulation attack using machine learning techniques,'' {\em Architecture Image Studies}, 2024.
 
 \bibitem{sundan2024proactive}
-B.~Sundan, N.~Maheswaran, S.~Karthika, G.~Logeswari, T.~Anitha, and D.~Prabhu,
-  ``Synergical model for proactive intrusion detection system in software
-  defined networking,'' 2024.
+B.~Sundan, N.~Maheswaran, S.~Karthika, G.~Logeswari, T.~Anitha, and D.~Prabhu, ``Synergical model for proactive intrusion detection system in software defined networking,'' 2024.
 
 \bibitem{Sundan2024MultiLayered}
-B.~Sundan, G.~Gokulraj, N.~Maheswaran, G.~Logeswari, T.~Anitha, and D.~Prabhu,
-  ``Multi-layered security framework for intrusion detection system in software
-  defined networking environment using machine learning,'' 2024.
+B.~Sundan, G.~Gokulraj, N.~Maheswaran, G.~Logeswari, T.~Anitha, and D.~Prabhu, ``Multi-layered security framework for intrusion detection system in software defined networking environment using machine learning,'' 2024.
 
 \bibitem{Shihab2025CNNLSTM}
-D.~Shihab, A.~A. Abdulhameed, and M.~T. Gaata, ``Optimized hybrid {CNN-LSTM}
-  framework with multi-feature analysis and {SMOTE} for intrusion detection in
-  {SDN},'' {\em AlKadhim Journal for Computer Science}, vol.~3, no.~4, 2025.
+D.~Shihab, A.~A. Abdulhameed, and M.~T. Gaata, ``Optimized hybrid {CNN-LSTM} framework with multi-feature analysis and {SMOTE} for intrusion detection in {SDN},'' {\em AlKadhim Journal for Computer Science}, vol.~3, no.~4, 2025.
 
 \bibitem{Yang2024CNNGRU}
-J.~Yang, ``A new attacks intrusion detection model based on deep learning in
-  software-defined networking environments,'' in {\em 2024 4th International
-  Conference on Machine Learning and Intelligent Systems Engineering},
-  pp.~1--6, IEEE, 2024.
+J.~Yang, ``A new attacks intrusion detection model based on deep learning in software-defined networking environments,'' in {\em 2024 4th International Conference on Machine Learning and Intelligent Systems Engineering}, pp.~1--6, IEEE, 2024.
 
 \bibitem{Basfar2025LSTM}
-R.~Basfar, M.~Dahab, A.~M. Ali, F.~Eassa, and K.~Bajunaied, ``An incremental
-  {LSTM} ensemble for online intrusion detection in software-defined
-  networks,'' {\em International Journal of Advanced Computer Science and
-  Applications}, vol.~16, no.~9, 2025.
+R.~Basfar, M.~Dahab, A.~M. Ali, F.~Eassa, and K.~Bajunaied, ``An incremental {LSTM} ensemble for online intrusion detection in software-defined networks,'' {\em International Journal of Advanced Computer Science and Applications}, vol.~16, no.~9, 2025.
 
 \bibitem{Kumar2025HybridDL}
-C.~L. Kumar, S.~Betam, and B.~Panigrahi, ``Metaparameter optimized hybrid deep
-  learning model for next generation cybersecurity in software defined
-  networking environment,'' {\em Scientific Reports}, vol.~15, p.~13845, 2025.
+C.~L. Kumar, S.~Betam, and B.~Panigrahi, ``Metaparameter optimized hybrid deep learning model for next generation cybersecurity in software defined networking environment,'' {\em Scientific Reports}, vol.~15, p.~13845, 2025.
 
 \bibitem{Wang2025FederatedDL}
-C.~Wang and R.~Huang, ``Adaptive intrusion detection in software-defined
-  networks: A federated deep learning framework,'' in {\em 2025 7th
-  International Conference on Machine Learning and Computer Application}, IEEE,
-  2025.
+C.~Wang and R.~Huang, ``Adaptive intrusion detection in software-defined networks: A federated deep learning framework,'' in {\em 2025 7th International Conference on Machine Learning and Computer Application}, IEEE, 2025.
 
 \bibitem{Sousa2024FedAAA}
-T.~Sousa and P.~Gon{\c{c}}alves, ``{FedAAA-SDN}: A federated authentication and
-  authorization model for secure {SDN} environments,'' {\em Computer Networks},
-  vol.~237, p.~110980, 2024.
+T.~Sousa and P.~Gon{\c{c}}alves, ``{FedAAA-SDN}: A federated authentication and authorization model for secure {SDN} environments,'' {\em Computer Networks}, vol.~237, p.~110980, 2024.
 
 \bibitem{feizi2025dcgan}
-M.~Feizi-Derakhshi and W.~G.~M. AL-Talebei, ``{DCGAN} data balancing to improve
-  accuracy of hybrid {CNN-LSTM} intrusion detection framework in {SDN}
-  environment,'' {\em Advanced Information Systems}, vol.~9, no.~4, 2025.
+M.~Feizi-Derakhshi and W.~G.~M. AL-Talebei, ``{DCGAN} data balancing to improve accuracy of hybrid {CNN-LSTM} intrusion detection framework in {SDN} environment,'' {\em Advanced Information Systems}, vol.~9, no.~4, 2025.
 
 \bibitem{Mei2024BiTCN}
-Y.~Mei, W.~Han, and K.~Lin, ``Intrusion detection for intelligent connected
-  vehicles based on bidirectional {Temporal Convolutional Network},'' {\em IEEE
-  Network}, vol.~38, no.~6, pp.~124--131, 2024.
+Y.~Mei, W.~Han, and K.~Lin, ``Intrusion detection for intelligent connected vehicles based on bidirectional {Temporal Convolutional Network},'' {\em IEEE Network}, vol.~38, no.~6, pp.~124--131, 2024.
 
 \bibitem{Deng2024BiTCNMHSA}
-M.~Deng, H.~Xu, C.~Sun, and Y.~Kan, ``Network intrusion detection model with
-  multi-layer bi-directional temporal convolutional networks and multi-headed
-  self-attention mechanisms,'' in {\em 2024 6th International Academic Exchange
-  Conference on Science and Technology Innovation}, IEEE, 2024.
+M.~Deng, H.~Xu, C.~Sun, and Y.~Kan, ``Network intrusion detection model with multi-layer bi-directional temporal convolutional networks and multi-headed self-attention mechanisms,'' in {\em 2024 6th International Academic Exchange Conference on Science and Technology Innovation}, IEEE, 2024.
 
 \bibitem{Xu2025GTCNG}
-T.~Xu, Z.~Wen, X.~Zhao, Q.~Hu, Y.~Li, and C.~Liu, ``{GTCN-G}: A residual
-  graph-temporal fusion network for imbalanced intrusion detection,'' in {\em
-  IEEE TrustCom 2025}, IEEE, 2025.
+T.~Xu, Z.~Wen, X.~Zhao, Q.~Hu, Y.~Li, and C.~Liu, ``{GTCN-G}: A residual graph-temporal fusion network for imbalanced intrusion detection,'' in {\em IEEE TrustCom 2025}, IEEE, 2025.
 
 \bibitem{Peng2024GATGTCN}
-C.~Peng and Y.~Zhang, ``Industrial {Internet of Things} intrusion detection
-  model integrating graph attention network and gated temporal convolutional
-  network,'' 2024.
+C.~Peng and Y.~Zhang, ``Industrial {Internet of Things} intrusion detection model integrating graph attention network and gated temporal convolutional network,'' 2024.
 
 \bibitem{Robert2025TCANet}
-R.~Robert, C.~Sreelekshmi, and P.~Keerthimon, ``{TCANet}: Hybrid temporal
-  convolutional and anomaly attention network with {Bi-GRU} for network
-  intrusion detection,'' in {\em 2025 5th International Conference on Pervasive
-  Computing and Social Networking}, IEEE, 2025.
+R.~Robert, C.~Sreelekshmi, and P.~Keerthimon, ``{TCANet}: Hybrid temporal convolutional and anomaly attention network with {Bi-GRU} for network intrusion detection,'' in {\em 2025 5th International Conference on Pervasive Computing and Social Networking}, IEEE, 2025.
+
+\bibitem{Wang2025TCN_SDN}
+Z.~Wang, Z.~Guan, X.~Liu, C.~Li, X.~Sun, and J.~Li, ``{SDN} anomalous traffic detection based on temporal convolutional network,'' {\em Applied Sciences}, vol.~15, no.~8, p.~4317, 2025.
 
 \bibitem{Wang2022DeepFlowGuard}
-H.~Wang, Y.~Lin, and J.~Ma, ``{DeepFlowGuard}: Controller authentication in
-  {SDN} via deep learning,'' {\em Computer Networks}, vol.~212, p.~108059,
-  2022.
+H.~Wang, Y.~Lin, and J.~Ma, ``{DeepFlowGuard}: Controller authentication in {SDN} via deep learning,'' {\em Computer Networks}, vol.~212, p.~108059, 2022.
 
 \bibitem{Khan2021MitmDefender}
-A.~Khan, S.~Rafiq, and F.~Qamar, ``{MITM-Defender}: A real-time defense system
-  against man-in-the-middle attacks in {SDN},'' in {\em Proc. of IEEE ICC},
-  pp.~1--6, IEEE, 2021.
+A.~Khan, S.~Rafiq, and F.~Qamar, ``{MITM-Defender}: A real-time defense system against man-in-the-middle attacks in {SDN},'' in {\em Proc. of IEEE ICC}, pp.~1--6, IEEE, 2021.
 
 \bibitem{Malik2021SDoS}
-S.~Malik and M.~Habib, ``Detection and mitigation of {DoS} attacks in {SDN}:
-  Lightweight agent-based model,'' {\em Security and Privacy}, vol.~4, no.~2,
-  p.~e116, 2021.
+S.~Malik and M.~Habib, ``Detection and mitigation of {DoS} attacks in {SDN}: Lightweight agent-based model,'' {\em Security and Privacy}, vol.~4, no.~2, p.~e116, 2021.
 
 \bibitem{Dungarani2024SDNSecurity}
-R.~Dungarani and S.~N. Gujjar, ``{SDN} security: Taming the wild west of
-  network automation,'' in {\em 2024 IEEE International Conference on
-  Blockchain and Distributed Systems Security}, pp.~1--6, IEEE, 2024.
+R.~Dungarani and S.~N. Gujjar, ``{SDN} security: Taming the wild west of network automation,'' in {\em 2024 IEEE International Conference on Blockchain and Distributed Systems Security}, pp.~1--6, IEEE, 2024.
 
 \bibitem{mudgal2025adaptive}
-A.~Mudgal, M.~Singh, A.~Verma, K.~Sahoo, P.~Townend, and M.~H. Bhuyan,
-  ``Towards adaptive rule replacement for mitigating inference attacks in
-  serverless {SDN} framework,'' 2025.
+A.~Mudgal, M.~Singh, A.~Verma, K.~Sahoo, P.~Townend, and M.~H. Bhuyan, ``Towards adaptive rule replacement for mitigating inference attacks in serverless {SDN} framework,'' 2025.
 
 \bibitem{Liang2021NIDSReview}
-Y.~Liang, C.~Wang, and F.~Xu, ``A review of intrusion detection approaches in
-  software defined networking,'' {\em Journal of Information Security and
-  Applications}, vol.~59, p.~102812, 2021.
+Y.~Liang, C.~Wang, and F.~Xu, ``A review of intrusion detection approaches in software defined networking,'' {\em Journal of Information Security and Applications}, vol.~59, p.~102812, 2021.
 
 \bibitem{Benkhelifa2020AI4SDN}
-E.~Benkhelifa, T.~Welsh, and W.~Hamouda, ``{AI} for secure {SDN}: A survey,''
-  {\em Journal of Network and Computer Applications}, vol.~170, p.~102781,
-  2020.
+E.~Benkhelifa, T.~Welsh, and W.~Hamouda, ``{AI} for secure {SDN}: A survey,'' {\em Journal of Network and Computer Applications}, vol.~170, p.~102781, 2020.
 
 \bibitem{Johanyak2025EdgeSDN}
-Z.~C. Johany{\'a}k and L.~G{\"o}cs, ``Edge computing security in {SDN}-enabled
-  industrial {IoT} networks,'' {\em Gradus}, vol.~12, no.~2, 2025.
+Z.~C. Johany{\'a}k and L.~G{\"o}cs, ``Edge computing security in {SDN}-enabled industrial {IoT} networks,'' {\em Gradus}, vol.~12, no.~2, 2025.
 
 \bibitem{Khalid2024InSDNSurvey}
-H.~Khalid and N.~Aldabagh, ``A survey on the latest intrusion detection
-  datasets for software defined networking environments,'' {\em Engineering,
-  Technology \& Applied Science Research}, vol.~14, no.~2, pp.~13190--13196,
-  2024.
+H.~Khalid and N.~Aldabagh, ``A survey on the latest intrusion detection datasets for software defined networking environments,'' {\em Engineering, Technology \& Applied Science Research}, vol.~14, no.~2, pp.~13190--13196, 2024.
 
 \bibitem{kingma2015adam}
-D.~P. Kingma and J.~L. Ba, ``Adam: A method for stochastic optimization,'' in
-  {\em Proceedings of the 3rd International Conference on Learning
-  Representations (ICLR)}, 2015.
+D.~P. Kingma and J.~L. Ba, ``Adam: A method for stochastic optimization,'' in {\em Proceedings of the 3rd International Conference on Learning Representations (ICLR)}, 2015.
 
 \bibitem{loshchilov2019decoupled}
 I.~Loshchilov and F.~Hutter, ``Decoupled weight decay regularization,'' 2019.
 
 \bibitem{zhang2018generalized}
-Z.~Zhang and M.~Sabuncu, ``Generalized cross entropy loss for training deep
-  neural networks with noisy labels,'' {\em Advances in Neural Information
-  Processing Systems}, vol.~31, 2018.
+Z.~Zhang and M.~Sabuncu, ``Generalized cross entropy loss for training deep neural networks with noisy labels,'' {\em Advances in Neural Information Processing Systems}, vol.~31, 2018.
 
 \bibitem{smith2019super}
-L.~N. Smith and N.~Topin, ``Super-convergence: Very fast training of neural
-  networks using large learning rates,'' {\em Artificial Intelligence and
-  Machine Learning for Multi-Domain Operations Applications}, vol.~11006,
-  pp.~369--386, 2019.
+L.~N. Smith and N.~Topin, ``Super-convergence: Very fast training of neural networks using large learning rates,'' {\em Artificial Intelligence and Machine Learning for Multi-Domain Operations Applications}, vol.~11006, pp.~369--386, 2019.
 
 \bibitem{glorot2010understanding}
-X.~Glorot and Y.~Bengio, ``Understanding the difficulty of training deep
-  feedforward neural networks,'' in {\em Proceedings of the 13th International
-  Conference on Artificial Intelligence and Statistics}, pp.~249--256, 2010.
+X.~Glorot and Y.~Bengio, ``Understanding the difficulty of training deep feedforward neural networks,'' in {\em Proceedings of the 13th International Conference on Artificial Intelligence and Statistics}, pp.~249--256, 2010.
 
 \bibitem{Tang2020SDNIDS}
-T.~A. Tang, L.~Mhamdi, D.~McLernon, S.~A.~R. Zaidi, and M.~Ghogho, ``Deep
-  learning approach for network intrusion detection in software defined
-  networking,'' {\em Wireless Networks}, vol.~26, pp.~3171--3182, 2020.
+T.~A. Tang, L.~Mhamdi, D.~McLernon, S.~A.~R. Zaidi, and M.~Ghogho, ``Deep learning approach for network intrusion detection in software defined networking,'' {\em Wireless Networks}, vol.~26, pp.~3171--3182, 2020.
 
 \bibitem{Ahmad2021CNN_SDN}
-Z.~Ahmad, A.~Shahid~Khan, C.~Wai~Shiang, J.~Abdullah, and F.~Ahmad, ``Network
-  intrusion detection system: A systematic study of machine learning and deep
-  learning approaches,'' {\em Transactions on Emerging Telecommunications
-  Technologies}, vol.~32, no.~1, p.~e4150, 2021.
+Z.~Ahmad, A.~Shahid~Khan, C.~Wai~Shiang, J.~Abdullah, and F.~Ahmad, ``Network intrusion detection system: A systematic study of machine learning and deep learning approaches,'' {\em Transactions on Emerging Telecommunications Technologies}, vol.~32, no.~1, p.~e4150, 2021.
 
 \bibitem{Latah2020RandomForest}
-M.~Latah and L.~Toker, ``When deep learning meets security: A survey and a case
-  study on network traffic classification,'' {\em Computer Networks}, vol.~171,
-  p.~107116, 2020.
+M.~Latah and L.~Toker, ``When deep learning meets security: A survey and a case study on network traffic classification,'' {\em Computer Networks}, vol.~171, p.~107116, 2020.
 
 \bibitem{GarcaPiedrabuena2024NIDS}
-D.~Garc{\'\i}a-Piedrabuena, M.~Flores, and J.~M{\'e}ndez, ``A comprehensive
-  survey of network intrusion detection systems: Techniques, datasets and
-  challenges,'' {\em IEEE Access}, vol.~12, pp.~42975--43012, 2024.
+D.~Garc{\'\i}a-Piedrabuena, M.~Flores, and J.~M{\'e}ndez, ``A comprehensive survey of network intrusion detection systems: Techniques, datasets and challenges,'' {\em IEEE Access}, vol.~12, pp.~42975--43012, 2024.
 
 \end{thebibliography}

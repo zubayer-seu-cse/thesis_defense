@@ -1,12 +1,12 @@
 \chapter{Dataset and Preprocessing}\label{chap:dataset}
 
-A model is only as good as the data it learns from, so getting the data right matters as much as getting the architecture right. This chapter walks through the InSDN dataset---its composition, features, class distributions, and attack scenarios---and then describes the fifteen-stage preprocessing pipeline that turns the raw captures into a clean, compact, TCN-ready representation. Along the way, we explain why each preprocessing decision was made and how it affects downstream performance.
+A model is only as good as the data it learns from, so getting the data right matters as much as getting the architecture right. This chapter walks through the InSDN dataset-its composition, features, class distributions, and attack scenarios-and then describes the fifteen-stage preprocessing pipeline that turns the raw captures into a clean, compact, TCN-ready representation. Along the way, we explain why each preprocessing decision was made and how it affects downstream performance.
 
 %% ============================================================
 \section{The InSDN Dataset}\label{sec:insdn_overview}
 %% ============================================================
 
-Most publicly available IDS datasets---NSL-KDD, UNSW-NB15, CICIDS-2017---were captured in traditional network architectures, and applying them to SDN research introduces a domain mismatch. The InSDN dataset \cite{elsayed2020insdn} was purpose-built to avoid that problem: it was generated inside a dedicated SDN testbed, so the traffic flows, feature distributions, and attack manifestations genuinely reflect the way an SDN operates \cite{Khalid2024InSDNSurvey}.
+Most publicly available IDS datasets-NSL-KDD, UNSW-NB15, CICIDS-2017-were captured in traditional network architectures, and applying them to SDN research introduces a domain mismatch. The InSDN dataset \cite{elsayed2020insdn} was purpose-built to avoid that problem: it was generated inside a dedicated SDN testbed, so the traffic flows, feature distributions, and attack manifestations genuinely reflect the way an SDN operates \cite{Khalid2024InSDNSurvey}.
 
 \subsection{Dataset Generation Environment}\label{subsec:insdn_env}
 
@@ -47,11 +47,11 @@ The InSDN dataset contains 84 features per flow record, capturing a comprehensiv
 
 \textbf{Byte Count Features:} \texttt{Total Length of Fwd Packets}, \texttt{Total Length of Bwd Packets}, and related features quantify the volume of data transferred in each direction. These features help distinguish between data-heavy attacks (e.g., exfiltration) and lightweight attacks (e.g., probes).
 
-\textbf{Packet Length Statistics:} Features including \texttt{Fwd Packet Length Max/Min/Mean/Std} and \texttt{Bwd Packet Length Max/Min/Mean/Std} provide distributional statistics about packet sizes. Attack traffic often exhibits distinctive packet size distributions---for example, DDoS floods may use uniformly sized packets, while normal traffic exhibits greater variability.
+\textbf{Packet Length Statistics:} Features including \texttt{Fwd Packet Length Max/Min/Mean/Std} and \texttt{Bwd Packet Length Max/Min/Mean/Std} provide distributional statistics about packet sizes. Attack traffic often exhibits distinctive packet size distributions-for example, DDoS floods may use uniformly sized packets, while normal traffic exhibits greater variability.
 
 \textbf{Inter-Arrival Time Features:} \texttt{Flow IAT Mean/Std/Max/Min} and their forward/backward variants capture the timing patterns between consecutive packets. These features are particularly valuable for detecting attacks with distinctive temporal signatures, such as high-rate floods (very low IAT) or slow-and-low attacks (very high IAT).
 
-\textbf{Flag Features:} Features based on TCP flags (\texttt{FIN Flag Count}, \texttt{SYN Flag Count}, \texttt{RST Flag Count}, \texttt{PSH Flag Count}, \texttt{ACK Flag Count}, \texttt{URG Flag Count}, \texttt{CWE Flag Count}, \texttt{ECE Flag Count}) capture the protocol behavior of each flow. Abnormal flag patterns are strong indicators of specific attack types---for example, SYN floods generate disproportionately many SYN flags without corresponding ACKs, and port scans produce flows with high RST flag counts.
+\textbf{Flag Features:} Features based on TCP flags (\texttt{FIN Flag Count}, \texttt{SYN Flag Count}, \texttt{RST Flag Count}, \texttt{PSH Flag Count}, \texttt{ACK Flag Count}, \texttt{URG Flag Count}, \texttt{CWE Flag Count}, \texttt{ECE Flag Count}) capture the protocol behavior of each flow. Abnormal flag patterns are strong indicators of specific attack types-for example, SYN floods generate disproportionately many SYN flags without corresponding ACKs, and port scans produce flows with high RST flag counts.
 
 \textbf{Flow-Level Metrics:} Features such as \texttt{Flow Bytes/s}, \texttt{Flow Packets/s}, \texttt{Down/Up Ratio}, and \texttt{Average Packet Size} provide normalized and derived metrics that capture the overall characteristics and intensity of each flow.
 
@@ -104,7 +104,7 @@ The attack class constitutes approximately 80\% of the raw dataset, with benign 
 \section{Preprocessing Pipeline}\label{sec:preprocessing}
 %% ============================================================
 
-Turning the raw InSDN captures into something a TCN can learn from takes fifteen sequential stages. The first nine---consolidation, cleaning, feature reduction---run in the \texttt{preprocess.py} script and produce a consolidated CSV. The remaining six---second-pass cleaning, deduplication, scaling, PCA, splitting, and class weighting---execute inside the training notebook (\texttt{tcn\_insdn\_colab.ipynb}). Each stage addresses a specific data-quality or representation concern, as detailed below.
+Turning the raw InSDN captures into something a TCN can learn from takes fifteen sequential stages. The first nine-consolidation, cleaning, feature reduction-run in the \texttt{preprocess.py} script and produce a consolidated CSV. The remaining six-second-pass cleaning, deduplication, scaling, PCA, splitting, and class weighting-execute inside the training notebook (\texttt{tcn\_insdn\_colab.ipynb}). Each stage addresses a specific data-quality or representation concern, as detailed below.
 
 \subsection{Stage 1: Data Consolidation}\label{subsec:pp_consolidation}
 
@@ -143,7 +143,7 @@ Features that exhibit zero variance (i.e., have the same value for all samples) 
 
 \subsection{Stage 7: Near-Constant Feature Removal}\label{subsec:pp_near_constant}
 
-Beyond zero-variance features, features that are nearly constant---defined as having more than 99.9\% of their values equal to a single value---provide minimal discriminative value. Such features can cause numerical instability during normalization and may introduce noise during model training. This stage identifies and removes features exceeding the 99.9\% near-constant threshold. In the InSDN dataset, no additional features were removed at this stage, indicating that all remaining features after zero-variance removal exhibit sufficient variability to be potentially informative.
+Beyond zero-variance features, features that are nearly constant-defined as having more than 99.9\% of their values equal to a single value-provide minimal discriminative value. Such features can cause numerical instability during normalization and may introduce noise during model training. This stage identifies and removes features exceeding the 99.9\% near-constant threshold. In the InSDN dataset, no additional features were removed at this stage, indicating that all remaining features after zero-variance removal exhibit sufficient variability to be potentially informative.
 
 \subsection{Stage 8: Correlation-Based Feature Reduction}\label{subsec:pp_correlation}
 
@@ -194,7 +194,7 @@ After loading the consolidated CSV into the training environment, a safety-net c
 
 Duplicate flow records are identified and removed based on exact equality across all 49 columns. Duplicate rows are problematic for several reasons: (1) they artificially inflate the dataset size, giving disproportionate weight to certain flow patterns; (2) they can leak information between training and test sets if the same flow appears in both splits; and (3) they reduce the effective diversity of the training data, potentially leading to overfitting on repeated patterns.
 
-The deduplication stage identified and removed 160,058 duplicate rows, reducing the dataset from 343,889 to 182,831 unique flow records---a 46.5\% reduction. This large number of duplicates reflects the traffic generation methodology: the raw OVS and metasploitable-2 captures contain many identical flow records resulting from repeated traffic patterns during the data collection process.
+The deduplication stage identified and removed 160,058 duplicate rows, reducing the dataset from 343,889 to 182,831 unique flow records-a 46.5\% reduction. This large number of duplicates reflects the traffic generation methodology: the raw OVS and metasploitable-2 captures contain many identical flow records resulting from repeated traffic patterns during the data collection process.
 
 \begin{table}[ht]
 \centering
@@ -204,8 +204,8 @@ The deduplication stage identified and removed 160,058 duplicate rows, reducing 
 \textbf{Metric} & \textbf{Before Dedup} & \textbf{After Dedup} \\
 \midrule
 Total Rows & 343,889 & 182,831 \\
-Duplicate Rows Removed & --- & 160,058 \\
-Reduction Percentage & --- & 46.5\% \\
+Duplicate Rows Removed & - & 160,058 \\
+Reduction Percentage & - & 46.5\% \\
 \bottomrule
 \end{tabular}
 \label{tab:dedup_impact}
@@ -235,7 +235,7 @@ The deduplication process disproportionately removes attack flows (from 80.1\% t
 \section{Feature Scaling}\label{sec:scaling}
 %% ============================================================
 
-Raw network-flow features span wildly different ranges---byte counts can run into the millions while flag counts stay in single digits. Without scaling, the large-valued features would dominate the gradient during back-propagation, and the model would effectively ignore the rest. Feature scaling levels the playing field.
+Raw network-flow features span wildly different ranges-byte counts can run into the millions while flag counts stay in single digits. Without scaling, the large-valued features would dominate the gradient during back-propagation, and the model would effectively ignore the rest. Feature scaling levels the playing field.
 
 \textbf{StandardScaler} normalization is applied to transform each feature to have zero mean and unit variance:
 \begin{equation}
@@ -249,7 +249,7 @@ StandardScaler was chosen over MinMaxScaler (which scales to $[0, 1]$) for sever
 \section{Principal Component Analysis}\label{sec:pca}
 %% ============================================================
 
-Even after dropping correlated features, some redundancy remains---linear correlations below the 0.98 threshold and nonlinear dependencies that Pearson simply cannot detect. PCA mops up that residual redundancy. We set a 95\% variance retention threshold, meaning we keep the fewest principal components needed to explain at least 95\% of the total variance.
+Even after dropping correlated features, some redundancy remains-linear correlations below the 0.98 threshold and nonlinear dependencies that Pearson simply cannot detect. PCA mops up that residual redundancy. We set a 95\% variance retention threshold, meaning we keep the fewest principal components needed to explain at least 95\% of the total variance.
 
 \begin{table}[ht]
 \centering
@@ -326,9 +326,9 @@ The 70/10/20 split ratio was chosen based on the following considerations:
 
 \subsection{Input Reshaping for TCN}\label{subsec:reshaping}
 
-After PCA transformation and splitting, each data sample is a 24-dimensional vector corresponding to the 24 principal components. To serve as input to the TCN model, which expects three-dimensional input tensors of shape \texttt{(batch\_size, sequence\_length, channels)}, each sample is reshaped from $(24,)$ to $(24, 1)$. This reshaping treats the 24 PCA components as a temporal sequence of length 24 with a single channel.
+After PCA transformation and splitting, each data sample is a 24-dimensional vector corresponding to the 24 principal components. To serve as input to the TCN model, which expects three-dimensional input tensors of shape \texttt{(batch\_size, feature\_dimension, channels)}, each sample is reshaped from $(24,)$ to $(24, 1)$. This reshaping formats the 24 PCA components as a multi-dimensional feature representation with a single channel, enabling the 1D convolutional architecture to extract patterns across the feature space.
 
-This interpretation is meaningful because: (1) the PCA components are ordered by decreasing variance, establishing a natural ordering; (2) the dilated causal convolutions of the TCN can learn local and global patterns across this ordered representation; and (3) the residual blocks with exponentially increasing dilation factors enable the model to capture dependencies between components at multiple scales of the variance hierarchy.
+This representation is effective because: (1) the PCA components are ordered by decreasing variance, establishing a natural ordering where early components capture the most significant patterns; (2) the dilated convolutions of the TCN can learn both local feature interactions (between adjacent components) and global relationships (across the full feature space); and (3) the residual blocks with exponentially increasing dilation factors enable the model to capture multi-scale patterns in the variance hierarchy.
 
 The final input shapes for each split are:
 
@@ -351,7 +351,7 @@ Test & (36,567, 24, 1) \\
 \section{Class Weighting}\label{sec:class_weighting}
 %% ============================================================
 
-After deduplication the dataset sits at roughly 35\% benign versus 65\% attack---not extreme, but enough to bias a na\"ive model toward always predicting ``attack.'' Rather than synthesising new samples or throwing away existing ones, we handle the imbalance with class weights computed from inverse frequencies:
+After deduplication the dataset sits at roughly 35\% benign versus 65\% attack-not extreme, but enough to bias a na\"ive model toward always predicting ``attack.'' Rather than synthesising new samples or throwing away existing ones, we handle the imbalance with class weights computed from inverse frequencies:
 
 \begin{equation}
     w_c = \frac{N}{C \cdot n_c}
@@ -401,16 +401,16 @@ Table~\ref{tab:pp_pipeline_summary} provides a comprehensive summary of the comp
 \textbf{Stage} & \textbf{Action} & \textbf{Result} \\
 \midrule
 1 & Load and concatenate 3 CSVs & 343,889 $\times$ 84 \\
-2 & Strip whitespace from names/values & --- \\
+2 & Strip whitespace from names/values & - \\
 3 & Drop 6 identifier columns & 343,889 $\times$ 78 \\
 4 & Binary label encoding & Benign: 68,424; Attack: 275,465 \\
-5 & Replace Inf, drop NaN rows & --- \\
+5 & Replace Inf, drop NaN rows & - \\
 6 & Remove 12 zero-variance columns & 343,889 $\times$ 66 \\
 7 & Remove near-constant columns & 343,889 $\times$ 66 \\
 8 & Remove 17 correlated features & 343,889 $\times$ 49 \\
 9 & Save consolidated CSV & 71 MB \\
 10 & Deduplicate rows & 182,831 $\times$ 49 \\
-11 & StandardScaler normalization & --- \\
+11 & StandardScaler normalization & - \\
 12 & PCA (95\% variance) & 182,831 $\times$ 24 \\
 13 & Stratified train/val/test split & 70/10/20 \\
 14 & Reshape to (N, 24, 1) & TCN-ready input \\
@@ -420,6 +420,6 @@ Table~\ref{tab:pp_pipeline_summary} provides a comprehensive summary of the comp
 \label{tab:pp_pipeline_summary}
 \end{table}
 
-Starting from 343,889 raw flow records spread across three CSV files, the pipeline delivers 182,831 deduplicated, standardised, PCA-compressed samples in a 70/10/20 train/validation/test split---ready for the TCN model described in the next chapter. Every decision along the way, from dropping identifier columns to choosing StandardScaler over MinMaxScaler, was driven by the twin goals of maximising generalisation and keeping the computational footprint small.
+Starting from 343,889 raw flow records spread across three CSV files, the pipeline delivers 182,831 deduplicated, standardised, PCA-compressed samples in a 70/10/20 train/validation/test split-ready for the TCN model described in the next chapter. Every decision along the way, from dropping identifier columns to choosing StandardScaler over MinMaxScaler, was driven by the twin goals of maximising generalisation and keeping the computational footprint small.
 
 \endinput

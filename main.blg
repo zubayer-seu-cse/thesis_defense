@@ -8,45 +8,45 @@ Warning--empty journal in Sundan2024MultiLayered
 Warning--empty journal in Peng2024GATGTCN
 Warning--empty journal in mudgal2025adaptive
 Warning--empty journal in loshchilov2019decoupled
-You've used 92 entries,
+You've used 93 entries,
             1876 wiz_defined-function locations,
-            997 strings with 21833 characters,
-and the built_in function-call counts, 26494 in all, are:
-= -- 2619
-> -- 1092
+            1003 strings with 22036 characters,
+and the built_in function-call counts, 26799 in all, are:
+= -- 2646
+> -- 1112
 < -- 0
-+ -- 397
-- -- 305
-* -- 1807
-:= -- 3641
-add.period$ -- 93
-call.type$ -- 92
-change.case$ -- 92
++ -- 404
+- -- 311
+* -- 1831
+:= -- 3687
+add.period$ -- 94
+call.type$ -- 93
+change.case$ -- 93
 chr.to.int$ -- 0
-cite$ -- 97
-duplicate$ -- 1484
-empty$ -- 2427
-format.name$ -- 305
-if$ -- 6530
+cite$ -- 98
+duplicate$ -- 1501
+empty$ -- 2449
+format.name$ -- 311
+if$ -- 6604
 int.to.chr$ -- 0
-int.to.str$ -- 92
-missing$ -- 89
-newline$ -- 280
-num.names$ -- 92
-pop$ -- 330
+int.to.str$ -- 93
+missing$ -- 90
+newline$ -- 283
+num.names$ -- 93
+pop$ -- 332
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 1073
+skip$ -- 1086
 stack$ -- 0
-substring$ -- 1647
-swap$ -- 672
+substring$ -- 1655
+swap$ -- 681
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 5
-while$ -- 243
-width$ -- 94
-write$ -- 895
+while$ -- 245
+width$ -- 95
+write$ -- 906
 (There were 5 warnings)

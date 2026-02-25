@@ -8,7 +8,7 @@ With the architecture and training setup in place, the obvious question is: how 
 
 \subsection{Convergence Behavior}\label{subsec:convergence}
 
-Training finished in roughly 30 epochs---well short of the 100-epoch budget. The best validation AUC appeared around epoch 15--20, and early stopping kicked in after 15 further epochs without improvement. Why does the model converge so quickly?
+Training finished in roughly 30 epochs-well short of the 100-epoch budget. The best validation AUC appeared around epoch 15-20, and early stopping kicked in after 15 further epochs without improvement. Why does the model converge so quickly?
 
 \begin{itemize}
     \item \textbf{Residual Connections:} The skip connections in each residual block provide direct gradient paths from the loss to early layers, enabling efficient training without vanishing gradients.
@@ -24,7 +24,7 @@ Training finished in roughly 30 epochs---well short of the 100-epoch budget. The
 
 The training loss decreases rapidly during the first 5 epochs, dropping from an initial value of approximately 0.35 to below 0.05. The validation loss follows a similar trajectory, closely tracking the training loss with a small gap, indicating that the model generalizes well without significant overfitting.
 
-After epoch 10, both training and validation losses plateau at approximately 0.01--0.02, indicating that the model has converged to a near-optimal solution. The close alignment between training and validation losses confirms that the regularization mechanisms (spatial dropout, dense dropout, class weighting) effectively prevent overfitting despite the model's capacity.
+After epoch 10, both training and validation losses plateau at approximately 0.01-0.02, indicating that the model has converged to a near-optimal solution. The close alignment between training and validation losses confirms that the regularization mechanisms (spatial dropout, dense dropout, class weighting) effectively prevent overfitting despite the model's capacity.
 
 \begin{figure}[htbp]
     \centering
@@ -112,7 +112,7 @@ The confusion matrix for the test set is:
 
 \subsection{True Positives (TP = 23,737)}\label{subsec:tp_analysis}
 
-Of the 23,744 attack samples in the test set, 23,737 (99.97\%) were correctly identified as attacks. This exceptionally high true positive rate means that the TCN model misses only 7 out of 23,744 attack flows---a false negative rate of 0.03\%. From a security perspective, this means that virtually all attack traffic is detected and can be blocked by the response engine.
+Of the 23,744 attack samples in the test set, 23,737 (99.97\%) were correctly identified as attacks. This exceptionally high true positive rate means that the TCN model misses only 7 out of 23,744 attack flows-a false negative rate of 0.03\%. From a security perspective, this means that virtually all attack traffic is detected and can be blocked by the response engine.
 
 \subsection{True Negatives (TN = 12,776)}\label{subsec:tn_analysis}
 
@@ -120,17 +120,17 @@ Of the 12,823 benign samples in the test set, 12,776 (99.63\%) were correctly cl
 
 \subsection{False Positives (FP = 47)}\label{subsec:fp_analysis}
 
-Only 47 benign flows were mislabelled as attacks---a false alarm rate of 0.37\%. By IDS standards, that is very low; traditional signature-based systems routinely produce 1--5\% or more.
+Only 47 benign flows were mislabelled as attacks-a false alarm rate of 0.37\%. By IDS standards, that is very low; traditional signature-based systems routinely produce 1-5\% or more.
 
-Why do these 47 flows trip the detector? Most likely, they share statistical fingerprints with genuine attacks---unusual packet sizes, atypical ports, or bursty timing that the model has learned to associate with DDoS-like behaviour. They sit right on the decision boundary where the benign and attack distributions overlap.
+Why do these 47 flows trip the detector? Most likely, they share statistical fingerprints with genuine attacks-unusual packet sizes, atypical ports, or bursty timing that the model has learned to associate with DDoS-like behaviour. They sit right on the decision boundary where the benign and attack distributions overlap.
 
-In operational terms, a false alarm rate of 0.37\% means that for every 270 benign flows processed, approximately 1 will be incorrectly flagged as an attack. In a network processing 10,000 flows per second, this corresponds to approximately 37 false alarms per second---a manageable rate for automated whitelisting mechanisms or manual review.
+In operational terms, a false alarm rate of 0.37\% means that for every 270 benign flows processed, approximately 1 will be incorrectly flagged as an attack. In a network processing 10,000 flows per second, this corresponds to approximately 37 false alarms per second-a manageable rate for automated whitelisting mechanisms or manual review.
 
 \subsection{False Negatives (FN = 7)}\label{subsec:fn_analysis}
 
-Seven attacks slipped through---a miss rate of 0.03\%. These are the errors that matter most, because an undetected attack can cause real harm.
+Seven attacks slipped through-a miss rate of 0.03\%. These are the errors that matter most, because an undetected attack can cause real harm.
 
-The seven missed flows almost certainly mimic benign traffic: slow-rate probes with timing indistinguishable from normal connections, or carefully crafted packets whose feature profiles land squarely in the benign region of the model's learned representation. Even so, losing 7 out of 23,744 attacks is a strong result. In a scenario with 100,000 attack flows, the model would miss about 30---a gap that complementary mechanisms (firewalls, anomaly alerting, human SOC analysts) can readily cover.
+The seven missed flows almost certainly mimic benign traffic: slow-rate probes with timing indistinguishable from normal connections, or carefully crafted packets whose feature profiles land squarely in the benign region of the model's learned representation. Even so, losing 7 out of 23,744 attacks is a strong result. In a scenario with 100,000 attack flows, the model would miss about 30-a gap that complementary mechanisms (firewalls, anomaly alerting, human SOC analysts) can readily cover.
 
 \subsection{Error Rate Distribution}\label{subsec:error_distribution}
 
@@ -258,7 +258,7 @@ Matthews Correlation Coefficient (MCC) & 0.9966 \\
 
 \textbf{Detection Rate (DR = 99.97\%):} The detection rate of 99.97\% means that only 3 out of every 10,000 attack flows evade detection. This is an exceptional detection rate that exceeds the 99\% benchmark commonly cited as the minimum acceptable rate for production IDS systems \cite{GarcaPiedrabuena2024NIDS}.
 
-\textbf{False Alarm Rate (FAR = 0.37\%):} The false alarm rate of 0.37\% means that approximately 4 out of every 1,000 benign flows are incorrectly flagged as attacks. This rate is significantly lower than the 1--5\% false alarm rates typical of many IDS systems in the literature.
+\textbf{False Alarm Rate (FAR = 0.37\%):} The false alarm rate of 0.37\% means that approximately 4 out of every 1,000 benign flows are incorrectly flagged as attacks. This rate is significantly lower than the 1-5\% false alarm rates typical of many IDS systems in the literature.
 
 \textbf{Matthews Correlation Coefficient (MCC = 0.9966):} The MCC provides a balanced measure of classification quality that accounts for all four elements of the confusion matrix:
 
@@ -329,7 +329,7 @@ HMAC-SHA256 computation was benchmarked on the experimental platform:
 \midrule
 HMAC-SHA256 Computation Time & $\sim$2 $\mu$s per message \\
 Throughput (single core) & $\sim$500,000 messages/s \\
-OpenFlow Message Rate (typical) & $\sim$1,000--10,000 messages/s \\
+OpenFlow Message Rate (typical) & $\sim$1,000-10,000 messages/s \\
 HMAC Overhead Ratio & $<$ 0.2\% \\
 Tag Size & 32 bytes \\
 Key Size & 32 bytes \\
@@ -342,7 +342,7 @@ The HMAC computation time of approximately 2~microseconds per message adds negli
 
 \subsection{Auxiliary Agent System Overhead}\label{subsec:agent_overhead}
 
-To evaluate the practical impact of the Auxiliary Agent on system resources, a series of experiments were performed under simulated control-plane attack conditions within a Mininet--Ryu testbed. The agent's ability to detect and remove tampered flow rules was tested using synthetically injected invalid \texttt{flow\_mod} messages. The verification latency, CPU usage, and memory overhead were measured for normal and attack scenarios.
+To evaluate the practical impact of the Auxiliary Agent on system resources, a series of experiments were performed under simulated control-plane attack conditions within a Mininet-Ryu testbed. The agent's ability to detect and remove tampered flow rules was tested using synthetically injected invalid \texttt{flow\_mod} messages. The verification latency, CPU usage, and memory overhead were measured for normal and attack scenarios.
 
 \begin{table}[ht]
 \centering
@@ -352,7 +352,7 @@ To evaluate the practical impact of the Auxiliary Agent on system resources, a s
 \textbf{Metric} & \textbf{Without Agent} & \textbf{With Agent} \\
 \midrule
 Average Control Latency (ms) & 2.1 & 2.8 \\
-Flow Verification Time (ms) & -- & 0.4 \\
+Flow Verification Time (ms) & - & 0.4 \\
 CPU Usage (\%) & 12.3 & 16.7 \\
 RAM Usage (MB) & 84.5 & 98.2 \\
 Detected Invalid Flows & 0 & 3 \\
@@ -399,7 +399,7 @@ HMAC Signing (Flow\_Mod) & $\sim$2 $\mu$s \\
 \label{tab:e2e_latency}
 \end{table}
 
-The total end-to-end latency of approximately 170~microseconds (0.17~ms) is well within the acceptable range for SDN control plane operations, which typically operate on timescales of 1--10~milliseconds. This low latency confirms that the TCN-HMAC framework can operate in real time without introducing perceptible delays in network forwarding decisions.
+The total end-to-end latency of approximately 170~microseconds (0.17~ms) is well within the acceptable range for SDN control plane operations, which typically operate on timescales of 1-10~milliseconds. This low latency confirms that the TCN-HMAC framework can operate in real time without introducing perceptible delays in network forwarding decisions.
 
 %% ============================================================
 \section{Statistical Significance}\label{sec:stat_significance}
@@ -457,6 +457,6 @@ Strong results deserve honest caveats. Several limitations should be kept in min
 \section{Chapter Summary}\label{sec:results_summary}
 %% ============================================================
 
-To recap: the TCN\_InSDN model hits 99.85\% accuracy, 99.97\% detection rate, 0.37\% false alarm rate, and an AUC of 0.9999 on 36,567 unseen test samples. Only 54 of those samples are misclassified---47 false alarms and 7 missed attacks. Training takes about five minutes on a T4 GPU, and the model weighs in at 612~KB. The HMAC layer adds roughly 2~$\mu$s per message and 32~bytes per tag, keeping combined end-to-end latency around 170~$\mu$s per flow---well within real-time SDN tolerances. Confidence intervals confirm the results are statistically robust ($\pm 0.04\%$ for accuracy at 95\%). The next chapter places these numbers side by side with fifteen existing models to see how TCN\_InSDN stacks up.
+To recap: the TCN\_InSDN model hits 99.85\% accuracy, 99.97\% detection rate, 0.37\% false alarm rate, and an AUC of 0.9999 on 36,567 unseen test samples. Only 54 of those samples are misclassified-47 false alarms and 7 missed attacks. Training takes about five minutes on a T4 GPU, and the model weighs in at 612~KB. The HMAC layer adds roughly 2~$\mu$s per message and 32~bytes per tag, keeping combined end-to-end latency around 170~$\mu$s per flow-well within real-time SDN tolerances. Confidence intervals confirm the results are statistically robust ($\pm 0.04\%$ for accuracy at 95\%). The next chapter places these numbers side by side with fifteen existing models to see how TCN\_InSDN stacks up.
 
 \endinput

@@ -115,6 +115,11 @@ T.~Xu, Z.~Wen, X.~Zhao, Q.~Hu, Y.~Li, and C.~Liu, ``{GTCN-G}: A residual
   graph-temporal fusion network for imbalanced intrusion detection,'' in
   \emph{IEEE TrustCom 2025}.\hskip 1em plus 0.5em minus 0.4em\relax IEEE, 2025.
 
+\bibitem{Wang2025TCN_SDN}
+Z.~Wang, Z.~Guan, X.~Liu, C.~Li, X.~Sun, and J.~Li, ``{SDN} anomalous traffic
+  detection based on temporal convolutional network,'' \emph{Applied Sciences},
+  vol.~15, no.~8, p. 4317, 2025.
+
 \bibitem{Rahman2022BCSDN}
 M.~M. Rahman, S.~Ahmed, and N.~Jahan, ``Blockchain integration in {SDN}:
   Opportunities and challenges,'' \emph{Journal of Network and Computer

@@ -1,6 +1,6 @@
 \chapter{Proposed Methodology: TCN-HMAC Framework}\label{chap:methodology}
 
-The previous two chapters described what goes \emph{into} the system---the InSDN dataset and the TCN model. This chapter describes how those pieces, together with an HMAC-based communication-integrity layer, are woven into a single, deployable security framework. We cover the system architecture, the TCN-IDS module, the HMAC key establishment and message-authentication protocol, the flow-rule verification mechanism, the challenge--response authentication scheme, and the end-to-end operational workflow that ties everything together.
+The previous two chapters described what goes \emph{into} the system-the InSDN dataset and the TCN model. This chapter describes how those pieces, together with an HMAC-based communication-integrity layer, are woven into a single, deployable security framework. We cover the system architecture, the TCN-IDS module, the HMAC key establishment and message-authentication protocol, the flow-rule verification mechanism, the challenge-response authentication scheme, and the end-to-end operational workflow that ties everything together.
 
 %% ============================================================
 \section{System Architecture Overview}\label{sec:system_arch}
@@ -91,11 +91,11 @@ When the TCN model classifies a flow as malicious, the response engine can execu
 
 The HMAC side of the framework exists because TLS alone is fundamentally insufficient to secure SDN control-plane operations, for two reasons that deserve explicit statement.
 
-First, TLS provides transport-layer confidentiality, integrity, and peer authentication, but it does not validate the \emph{semantic} content of the messages it carries. A compromised SDN controller---the classic insider threat in a centralised architecture---can construct syntactically valid but operationally malicious \texttt{Flow\_Mod} or \texttt{Flow\_Remove} messages, and TLS will encrypt and deliver them without question. From the switch's perspective, these messages are indistinguishable from legitimate ones because TLS authenticates the \emph{channel}, not the \emph{commands}.
+First, TLS provides transport-layer confidentiality, integrity, and peer authentication, but it does not validate the \emph{semantic} content of the messages it carries. A compromised SDN controller-the classic insider threat in a centralised architecture-can construct syntactically valid but operationally malicious \texttt{Flow\_Mod} or \texttt{Flow\_Remove} messages, and TLS will encrypt and deliver them without question. From the switch's perspective, these messages are indistinguishable from legitimate ones because TLS authenticates the \emph{channel}, not the \emph{commands}.
 
-Second, TLS protects only the controller--switch communication path; it has zero visibility into the switch's local data plane. If a switch is compromised---through a malicious end-host exploit, physical access, or a firmware-level attack---an adversary can directly modify the flow table on the device, bypassing both the controller and TLS entirely. Such out-of-band tampering is completely invisible to TLS because the modifications never traverse the protected channel.
+Second, TLS protects only the controller-switch communication path; it has zero visibility into the switch's local data plane. If a switch is compromised-through a malicious end-host exploit, physical access, or a firmware-level attack-an adversary can directly modify the flow table on the device, bypassing both the controller and TLS entirely. Such out-of-band tampering is completely invisible to TLS because the modifications never traverse the protected channel.
 
-HMAC-based verification addresses both gaps. By tagging every flow rule with a per-switch HMAC computed over the rule's semantic fields, the auxiliary agent can independently verify that each rule is authentic and unaltered---regardless of whether the controller that issued it has been compromised. Periodic shadow-table audits (Section~\ref{subsec:flow_verification}) detect any unauthorised local modifications, closing the second gap that TLS cannot reach. With these motivations established, the threat model we consider includes five attack classes:
+HMAC-based verification addresses both gaps. By tagging every flow rule with a per-switch HMAC computed over the rule's semantic fields, the auxiliary agent can independently verify that each rule is authentic and unaltered-regardless of whether the controller that issued it has been compromised. Periodic shadow-table audits (Section~\ref{subsec:flow_verification}) detect any unauthorised local modifications, closing the second gap that TLS cannot reach. With these motivations established, the threat model we consider includes five attack classes:
 
 \begin{itemize}
     \item \textbf{Man-in-the-Middle (MitM) Attacks:} An attacker positioned between the controller and a switch intercepts OpenFlow messages, modifies their contents (e.g., changing flow rule actions from ``forward to port 2'' to ``forward to attacker's port''), and forwards the modified messages to the destination.
@@ -133,7 +133,7 @@ The secure key exchange procedure is formalized in Algorithm~\ref{alg:key_exchan
 
 \begin{algorithm}[htbp]
 \caption{Secure Key Exchange for a New Switch}\label{alg:key_exchange}
-\KwIn{Agent--Controller shared key $K_{ac}$, Controller public key $PK_c$, Controller private key $PR_c$, Switch ID $SW_{id}$}
+\KwIn{Agent-Controller shared key $K_{ac}$, Controller public key $PK_c$, Controller private key $PR_c$, Switch ID $SW_{id}$}
 \KwOut{Shared secret key between controller and agent for a new switch}
 \BlankLine
 \tcp{Agent Side}
@@ -257,10 +257,10 @@ To detect controller spoofing and switch impersonation attacks, the framework im
 
 Challenge-response authentication is performed during the initial handshake and can be repeated periodically (every $T_{auth}$ seconds) or triggered on demand when suspicious activity is detected.
 
-The controller verification via challenge--response is formalized in Algorithm~\ref{alg:challenge_response}.
+The controller verification via challenge-response is formalized in Algorithm~\ref{alg:challenge_response}.
 
 \begin{algorithm}[htbp]
-\caption{Controller Verification via Challenge--Response}\label{alg:challenge_response}
+\caption{Controller Verification via Challenge-Response}\label{alg:challenge_response}
 \KwIn{Interval $T$, controller key $K_{sw}$, backup controller $C_{bk}$}
 \KwOut{Detect and recover from compromised controller}
 \For{every $T$ seconds}{
@@ -393,9 +393,9 @@ The flow rule verification mechanism detects unauthorized modifications to switc
 No security framework is worth deploying if it adds unacceptable overhead. HMAC-SHA256 is deliberately chosen because it is fast and frugal \cite{Ahmed2023HMACSDN}:
 
 \begin{itemize}
-    \item \textbf{Computation Time:} HMAC-SHA256 computation requires approximately 1--5~microseconds per message on modern processors, adding negligible latency to the OpenFlow message processing pipeline.
+    \item \textbf{Computation Time:} HMAC-SHA256 computation requires approximately 1-5~microseconds per message on modern processors, adding negligible latency to the OpenFlow message processing pipeline.
     
-    \item \textbf{Bandwidth Overhead:} Each HMAC tag adds 32 bytes (256 bits) to the message. For a typical \texttt{Flow\_Mod} message of 64--128 bytes, this represents a 25--50\% size increase. However, since OpenFlow control messages are exchanged at rates of hundreds to thousands per second (not millions), this bandwidth overhead is insignificant relative to the data plane throughput.
+    \item \textbf{Bandwidth Overhead:} Each HMAC tag adds 32 bytes (256 bits) to the message. For a typical \texttt{Flow\_Mod} message of 64-128 bytes, this represents a 25-50\% size increase. However, since OpenFlow control messages are exchanged at rates of hundreds to thousands per second (not millions), this bandwidth overhead is insignificant relative to the data plane throughput.
     
     \item \textbf{Key Storage:} Each switch requires storage for two 256-bit session keys (64 bytes total), which is trivial even for the most resource-constrained switches.
     
@@ -406,7 +406,7 @@ No security framework is worth deploying if it adds unacceptable overhead. HMAC-
 \section{Comparison with Alternative Approaches}\label{sec:method_comparison}
 %% ============================================================
 
-What makes TCN-HMAC distinctive is not any single component---many IDS papers exist, and HMAC is textbook cryptography---but the combination. Table~\ref{tab:method_comparison} shows how the framework stacks up against the main alternative strategies:
+What makes TCN-HMAC distinctive is not any single component-many IDS papers exist, and HMAC is textbook cryptography-but the combination. Table~\ref{tab:method_comparison} shows how the framework stacks up against the main alternative strategies:
 
 \begin{table}[ht]
 \centering
@@ -431,12 +431,12 @@ The TCN-HMAC framework is unique in providing both intrusion detection and commu
 \section{Design Decisions and Trade-offs}\label{sec:design_decisions}
 %% ============================================================
 
-Every framework involves trade-offs. The ones we made---and the reasoning behind them---are worth spelling out explicitly:
+Every framework involves trade-offs. The ones we made-and the reasoning behind them-are worth spelling out explicitly:
 
 \begin{enumerate}
     \item \textbf{Binary vs. Multi-Class Classification:} The TCN-IDS uses binary classification (benign vs. attack) rather than multi-class classification (identifying specific attack types). This decision was made for several reasons: (a) binary classification achieves higher accuracy than multi-class on the InSDN dataset; (b) the primary operational requirement is to detect and block attacks, not to identify their specific types; (c) binary classification produces a simpler and faster model; and (d) attack type identification can be performed offline on flagged traffic if needed.
     
-    \item \textbf{HMAC-SHA256 vs. Digital Signatures:} HMAC was chosen over digital signatures (e.g., RSA, ECDSA) for communication authentication because: (a) HMAC computation is 100--1000$\times$ faster than signature generation/verification; (b) the SDN environment provides a natural mechanism for shared key distribution (the TLS-encrypted controller--switch connection); and (c) HMAC provides sufficient security when both parties are mutually authenticated (which is ensured by the challenge-response protocol).
+    \item \textbf{HMAC-SHA256 vs. Digital Signatures:} HMAC was chosen over digital signatures (e.g., RSA, ECDSA) for communication authentication because: (a) HMAC computation is 100-1000$\times$ faster than signature generation/verification; (b) the SDN environment provides a natural mechanism for shared key distribution (the TLS-encrypted controller-switch connection); and (c) HMAC provides sufficient security when both parties are mutually authenticated (which is ensured by the challenge-response protocol).
     
     \item \textbf{TCN vs. Other Deep Learning Architectures:} TCN was chosen over LSTM, GRU, and Transformer architectures based on the analysis presented in Section~\ref{subsec:bg_tcn_advantages}: TCN provides comparable or superior accuracy with lower computational cost, parallelizable inference, deterministic gradient flow, and a smaller memory footprint.
     
@@ -449,6 +449,6 @@ Every framework involves trade-offs. The ones we made---and the reasoning behind
 \section{Chapter Summary}\label{sec:method_summary}
 %% ============================================================
 
-This chapter has laid out the full design of the TCN-HMAC framework: a TCN-based IDS for real-time detection paired with an HMAC-based auxiliary agent for flow-rule verification and challenge--response controller authentication. Key design choices---binary classification, HMAC-SHA256 over digital signatures, PCA-compressed features, layered security---were driven by the need for low-overhead, real-time operation in an SDN control loop. The security analysis shows that the framework defends against network intrusions, man-in-the-middle attacks, controller/switch spoofing, and flow-rule tampering with minimal computational and bandwidth cost. The next two chapters put these claims to the test: Chapter~\ref{chap:results} reports the experimental results for the TCN-IDS, and Chapter~\ref{chap:comparative} benchmarks it against fifteen existing models.
+This chapter has laid out the full design of the TCN-HMAC framework: a TCN-based IDS for real-time detection paired with an HMAC-based auxiliary agent for flow-rule verification and challenge-response controller authentication. Key design choices-binary classification, HMAC-SHA256 over digital signatures, PCA-compressed features, layered security-were driven by the need for low-overhead, real-time operation in an SDN control loop. The security analysis shows that the framework defends against network intrusions, man-in-the-middle attacks, controller/switch spoofing, and flow-rule tampering with minimal computational and bandwidth cost. The next two chapters put these claims to the test: Chapter~\ref{chap:results} reports the experimental results for the TCN-IDS, and Chapter~\ref{chap:comparative} benchmarks it against fifteen existing models.
 
 \endinput

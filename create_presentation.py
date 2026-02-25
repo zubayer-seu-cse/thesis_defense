@@ -1,802 +1,526 @@
 #!/usr/bin/env python3
-"""
-Generate a 10-minute thesis defense presentation for TCN-HMAC.
-Outputs: thesis_defense_presentation.pptx
-"""
+"""Generate thesis defense presentation for TCN-HMAC framework."""
 
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
-from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
-from pptx.enum.shapes import MSO_SHAPE
-import os
+from pptx.dml.color import RGBColor
 
-# ── Colour palette ──────────────────────────────────────────
-DARK_BG      = RGBColor(0x1B, 0x1B, 0x2F)   # dark navy background
-ACCENT_BLUE  = RGBColor(0x00, 0x7A, 0xCC)   # accent blue
-ACCENT_GREEN = RGBColor(0x00, 0xB3, 0x6B)   # accent green for success metrics
-ACCENT_RED   = RGBColor(0xE0, 0x4F, 0x5F)   # accent red for problems
-WHITE        = RGBColor(0xFF, 0xFF, 0xFF)
-LIGHT_GRAY   = RGBColor(0xCC, 0xCC, 0xCC)
-GOLD         = RGBColor(0xFF, 0xD7, 0x00)
-SOFT_BG      = RGBColor(0xF5, 0xF7, 0xFA)   # light slide bg
-HEADER_BG    = RGBColor(0x00, 0x3F, 0x72)   # dark blue header bar
-TEXT_DARK    = RGBColor(0x22, 0x22, 0x22)
-TEXT_MED     = RGBColor(0x44, 0x44, 0x44)
-
-SLIDE_WIDTH  = Inches(13.333)
-SLIDE_HEIGHT = Inches(7.5)
-
-FIGURES = os.path.join(os.path.dirname(__file__), "Figures")
-RESULTS = os.path.join(FIGURES, "results")
-
-prs = Presentation()
-prs.slide_width  = SLIDE_WIDTH
-prs.slide_height = SLIDE_HEIGHT
-
-
-# ── Helper functions ────────────────────────────────────────
-def add_bg(slide, color=SOFT_BG):
-    """Fill entire slide background with a solid colour."""
-    bg = slide.background
-    fill = bg.fill
-    fill.solid()
-    fill.fore_color.rgb = color
-
-
-def add_header_bar(slide, title_text, subtitle_text=None):
-    """Add a coloured header bar across the top."""
-    bar = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE, Inches(0), Inches(0),
-        SLIDE_WIDTH, Inches(1.15)
-    )
-    bar.fill.solid()
-    bar.fill.fore_color.rgb = HEADER_BG
-    bar.line.fill.background()
-
-    tf = bar.text_frame
-    tf.word_wrap = True
-    p = tf.paragraphs[0]
-    p.text = title_text
-    p.font.size = Pt(32)
-    p.font.bold = True
-    p.font.color.rgb = WHITE
-    p.alignment = PP_ALIGN.LEFT
-
-    # left padding via space indent
-    p.space_before = Pt(6)
-
-    if subtitle_text:
-        p2 = tf.add_paragraph()
-        p2.text = subtitle_text
-        p2.font.size = Pt(16)
-        p2.font.color.rgb = LIGHT_GRAY
-        p2.alignment = PP_ALIGN.LEFT
-
-    # Slide number placeholder (bottom right)
-    num_box = slide.shapes.add_textbox(
-        SLIDE_WIDTH - Inches(1.2), SLIDE_HEIGHT - Inches(0.45),
-        Inches(1), Inches(0.35)
-    )
-    num_tf = num_box.text_frame
-    num_tf.paragraphs[0].text = ""  # will be filled later
-    return bar
-
-
-def add_bullet_textbox(slide, left, top, width, height, items,
-                       font_size=18, color=TEXT_DARK, bold_prefix=True,
-                       line_spacing=1.4, bullet_char="\u25B8"):
-    """Add a textbox with bulleted items. Items can be str or (bold_part, rest)."""
-    txBox = slide.shapes.add_textbox(left, top, width, height)
+# ── helpers ──────────────────────────────────────────────────────────
+def add_title_slide(prs, title, subtitle=""):
+    slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
+    # Title
+    txBox = slide.shapes.add_textbox(Inches(0.5), Inches(1.5), Inches(9), Inches(2))
     tf = txBox.text_frame
     tf.word_wrap = True
+    p = tf.paragraphs[0]
+    p.text = title
+    p.font.size = Pt(28)
+    p.font.bold = True
+    p.alignment = PP_ALIGN.CENTER
+    if subtitle:
+        p2 = tf.add_paragraph()
+        p2.text = subtitle
+        p2.font.size = Pt(16)
+        p2.alignment = PP_ALIGN.CENTER
+        p2.space_before = Pt(12)
+    return slide
 
-    for i, item in enumerate(items):
-        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-        p.space_after = Pt(4)
-        p.line_spacing = Pt(int(font_size * line_spacing))
-
-        if isinstance(item, tuple):
-            # (bold_text, normal_text)
-            run_b = p.add_run()
-            run_b.text = f"{bullet_char} {item[0]}"
-            run_b.font.size = Pt(font_size)
-            run_b.font.bold = True
-            run_b.font.color.rgb = color
-
-            run_n = p.add_run()
-            run_n.text = f" {item[1]}"
-            run_n.font.size = Pt(font_size)
-            run_n.font.color.rgb = color
-        else:
-            run = p.add_run()
-            run.text = f"{bullet_char} {item}"
-            run.font.size = Pt(font_size)
-            run.font.color.rgb = color
-    return txBox
-
-
-def add_metric_box(slide, left, top, width, height,
-                   value_text, label_text, value_color=ACCENT_GREEN):
-    """Add a rounded-rectangle metric card."""
-    shape = slide.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height
-    )
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = WHITE
-    shape.line.color.rgb = RGBColor(0xDD, 0xDD, 0xDD)
-    shape.line.width = Pt(1)
-    shape.shadow.inherit = False
-
-    tf = shape.text_frame
+def add_content_slide(prs, title, bullet_points, font_size=16):
+    slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
+    # Title bar
+    txBox = slide.shapes.add_textbox(Inches(0.3), Inches(0.2), Inches(9.4), Inches(0.7))
+    tf = txBox.text_frame
     tf.word_wrap = True
+    p = tf.paragraphs[0]
+    p.text = title
+    p.font.size = Pt(24)
+    p.font.bold = True
+    p.font.color.rgb = RGBColor(0, 51, 102)
+    # Content
+    txBox2 = slide.shapes.add_textbox(Inches(0.4), Inches(1.0), Inches(9.2), Inches(6.0))
+    tf2 = txBox2.text_frame
+    tf2.word_wrap = True
+    for i, bp in enumerate(bullet_points):
+        if i == 0:
+            p = tf2.paragraphs[0]
+        else:
+            p = tf2.add_paragraph()
+        # Support indentation with tuple (level, text)
+        if isinstance(bp, tuple):
+            level, text = bp
+            p.level = level
+            p.text = text
+        else:
+            p.text = bp
+            p.level = 0
+        p.font.size = Pt(font_size)
+        p.space_after = Pt(4)
+    return slide
 
-    p1 = tf.paragraphs[0]
-    p1.alignment = PP_ALIGN.CENTER
-    r1 = p1.add_run()
-    r1.text = value_text
-    r1.font.size = Pt(30)
-    r1.font.bold = True
-    r1.font.color.rgb = value_color
+def add_table_slide(prs, title, headers, rows, col_widths=None, font_size=11):
+    slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
+    # Title
+    txBox = slide.shapes.add_textbox(Inches(0.3), Inches(0.1), Inches(9.4), Inches(0.6))
+    tf = txBox.text_frame
+    tf.word_wrap = True
+    p = tf.paragraphs[0]
+    p.text = title
+    p.font.size = Pt(22)
+    p.font.bold = True
+    p.font.color.rgb = RGBColor(0, 51, 102)
 
-    p2 = tf.add_paragraph()
-    p2.alignment = PP_ALIGN.CENTER
-    r2 = p2.add_run()
-    r2.text = label_text
-    r2.font.size = Pt(13)
-    r2.font.color.rgb = TEXT_MED
-    return shape
+    num_rows = len(rows) + 1
+    num_cols = len(headers)
+    left = Inches(0.3)
+    top = Inches(0.75)
+    width = Inches(9.4)
+    height = Inches(0.3) * num_rows
+
+    table_shape = slide.shapes.add_table(num_rows, num_cols, left, top, width, height)
+    table = table_shape.table
+
+    # Set column widths if provided
+    if col_widths:
+        for i, w in enumerate(col_widths):
+            table.columns[i].width = Inches(w)
+
+    # Header row
+    for j, h in enumerate(headers):
+        cell = table.cell(0, j)
+        cell.text = h
+        for para in cell.text_frame.paragraphs:
+            para.font.size = Pt(font_size)
+            para.font.bold = True
+            para.font.color.rgb = RGBColor(255, 255, 255)
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = RGBColor(0, 51, 102)
+
+    # Data rows
+    for i, row_data in enumerate(rows):
+        for j, val in enumerate(row_data):
+            cell = table.cell(i + 1, j)
+            cell.text = str(val)
+            for para in cell.text_frame.paragraphs:
+                para.font.size = Pt(font_size)
+            # Alternate row colors
+            if i % 2 == 0:
+                cell.fill.solid()
+                cell.fill.fore_color.rgb = RGBColor(230, 240, 250)
+            else:
+                cell.fill.solid()
+                cell.fill.fore_color.rgb = RGBColor(255, 255, 255)
+
+    return slide
 
 
-def add_image_safe(slide, img_path, left, top, width=None, height=None):
-    """Add image if it exists, else add placeholder text."""
-    if os.path.isfile(img_path):
-        kwargs = {"left": left, "top": top}
-        if width:
-            kwargs["width"] = width
-        if height:
-            kwargs["height"] = height
-        slide.shapes.add_picture(img_path, **kwargs)
-    else:
-        txBox = slide.shapes.add_textbox(left, top, Inches(3), Inches(0.5))
-        txBox.text_frame.paragraphs[0].text = f"[Image not found: {os.path.basename(img_path)}]"
+# =====================================================================
+# BUILD PRESENTATION
+# =====================================================================
+prs = Presentation()
+prs.slide_width = Inches(10)
+prs.slide_height = Inches(7.5)
 
-
-def set_slide_numbers():
-    """Write slide numbers into the last textbox of each slide."""
-    for idx, slide in enumerate(prs.slides):
-        for shape in reversed(slide.shapes):
-            if shape.has_text_frame and shape.text == "":
-                shape.text_frame.paragraphs[0].text = str(idx + 1)
-                shape.text_frame.paragraphs[0].font.size = Pt(11)
-                shape.text_frame.paragraphs[0].font.color.rgb = LIGHT_GRAY
-                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.RIGHT
-                break
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 1 — Title Slide
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
-add_bg(slide, DARK_BG)
-
-# Title
-txBox = slide.shapes.add_textbox(Inches(1), Inches(1.5), Inches(11.3), Inches(2.2))
+# ── SLIDE 1: TITLE ──────────────────────────────────────────────────
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+txBox = slide.shapes.add_textbox(Inches(0.5), Inches(1.0), Inches(9), Inches(2.5))
 tf = txBox.text_frame
 tf.word_wrap = True
 p = tf.paragraphs[0]
+p.text = "TCN-HMAC: A Lightweight Deep Learning and Cryptographic\nHybrid Security Framework for Software-Defined Networks"
+p.font.size = Pt(26)
+p.font.bold = True
 p.alignment = PP_ALIGN.CENTER
-r = p.add_run()
-r.text = "TCN-HMAC"
-r.font.size = Pt(54)
-r.font.bold = True
-r.font.color.rgb = WHITE
+p.font.color.rgb = RGBColor(0, 51, 102)
 
-p2 = tf.add_paragraph()
-p2.alignment = PP_ALIGN.CENTER
-r2 = p2.add_run()
-r2.text = "A Lightweight Deep Learning and Cryptographic\nHybrid Security Framework for SDN"
-r2.font.size = Pt(26)
-r2.font.color.rgb = LIGHT_GRAY
-
-# Subtitle line
-line = slide.shapes.add_shape(
-    MSO_SHAPE.RECTANGLE, Inches(5), Inches(3.9), Inches(3.3), Pt(3)
-)
-line.fill.solid()
-line.fill.fore_color.rgb = ACCENT_BLUE
-line.line.fill.background()
-
-# Author info
-txBox2 = slide.shapes.add_textbox(Inches(1), Inches(4.2), Inches(11.3), Inches(2))
+info = [
+    ("Md. Mahamudul Hasan Zubayer", Pt(18), True),
+    ("ID: 2021110000133", Pt(14), False),
+    ("", Pt(10), False),
+    ("Supervisor: Md. Maruf Hassan", Pt(16), False),
+    ("", Pt(10), False),
+    ("Department of Computer Science & Engineering", Pt(14), False),
+    ("Southeast University, Dhaka, Bangladesh", Pt(14), False),
+    ("2025", Pt(14), False),
+]
+txBox2 = slide.shapes.add_textbox(Inches(0.5), Inches(3.8), Inches(9), Inches(3.5))
 tf2 = txBox2.text_frame
 tf2.word_wrap = True
-p3 = tf2.add_paragraph()
-p3.alignment = PP_ALIGN.CENTER
-r3 = p3.add_run()
-r3.text = "Md. Mahamudul Hasan Zubayer"
-r3.font.size = Pt(22)
-r3.font.color.rgb = WHITE
+for i, (text, size, bold) in enumerate(info):
+    if i == 0:
+        p = tf2.paragraphs[0]
+    else:
+        p = tf2.add_paragraph()
+    p.text = text
+    p.font.size = size
+    p.font.bold = bold
+    p.alignment = PP_ALIGN.CENTER
 
-p4 = tf2.add_paragraph()
-p4.alignment = PP_ALIGN.CENTER
-r4 = p4.add_run()
-r4.text = "ID: 2022000000006"
-r4.font.size = Pt(16)
-r4.font.color.rgb = LIGHT_GRAY
+# ── SLIDE 2: PROBLEM STATEMENT ──────────────────────────────────────
+add_content_slide(prs, "Problem Statement", [
+    "SDN centralizes control into a single programmable controller \u2014 creating critical vulnerabilities at the controller, control channel, and switches.",
+    "",
+    "Key Problems in Existing SDN Security Solutions:",
+    "",
+    (1, "Detection without Verification \u2014 ML/DL-based IDS can detect malicious traffic but provide no integrity guarantees for flow rules. A compromised controller can still install malicious rules undetected. [Ataa et al. 2024; Said et al. 2023]"),
+    (1, "Verification without Detection \u2014 Cryptographic schemes (e.g., HMAC, TLS) verify rule integrity but cannot detect intrusions or anomalous traffic patterns that precede attacks. [Ahmed et al. 2023; Pradeep et al. 2023]"),
+    (1, "Excessive Computational Overhead \u2014 Blockchain and PKI-based frameworks introduce seconds-level latency per transaction, incompatible with real-time SDN. [Song et al. 2023]"),
+    (1, "Limited Attack Coverage \u2014 Many solutions address only one attack type (e.g., DDoS-only or MITM-only). [Khan et al. 2021; Malik et al. 2021]"),
+    (1, "Deployment Complexity \u2014 Solutions requiring OpenFlow protocol modifications or custom switch firmware are impractical for production. [Buruaga et al. 2025]"),
+    "",
+    "Research Question: How can we build a lightweight, deployable security framework for SDN that combines proactive multi-class intrusion detection with real-time cryptographic verification \u2014 without exceeding production latency budgets?",
+], font_size=14)
 
-p5 = tf2.add_paragraph()
-p5.alignment = PP_ALIGN.CENTER
-p5.space_before = Pt(16)
-r5 = p5.add_run()
-r5.text = "Supervisor: Dr. Md. Maruf Hassan, Associate Professor"
-r5.font.size = Pt(16)
-r5.font.color.rgb = LIGHT_GRAY
-
-p6 = tf2.add_paragraph()
-p6.alignment = PP_ALIGN.CENTER
-p6.space_before = Pt(4)
-r6 = p6.add_run()
-r6.text = "Department Head: Shahriar Manzoor, Associate Professor"
-r6.font.size = Pt(16)
-r6.font.color.rgb = LIGHT_GRAY
-
-p7 = tf2.add_paragraph()
-p7.alignment = PP_ALIGN.CENTER
-p7.space_before = Pt(16)
-r7 = p7.add_run()
-r7.text = "Department of Computer Science and Engineering\nSoutheast University"
-r7.font.size = Pt(16)
-r7.font.color.rgb = LIGHT_GRAY
-
-# University logo
-logo_path = os.path.join(FIGURES, "SEULogo.png")
-if os.path.isfile(logo_path):
-    slide.shapes.add_picture(logo_path, Inches(6.0), Inches(6.2), height=Inches(0.9))
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 2 — Outline
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Presentation Outline")
-
-outline_items = [
-    "Background & Motivation",
-    "Problem Statement",
-    "Research Objectives",
-    "Proposed Methodology — TCN-HMAC Framework",
-    "Dataset & Preprocessing",
-    "TCN Model Architecture",
-    "Experimental Results & Analysis",
-    "Comparative Analysis",
-    "Conclusion & Future Work",
-]
-add_bullet_textbox(slide, Inches(1.5), Inches(1.6), Inches(10), Inches(5.5),
-                   outline_items, font_size=22, line_spacing=1.55,
-                   bullet_char="\u25CF")
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 3 — Background & Motivation
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Background & Motivation")
-
-items = [
-    ("SDN Architecture:", "Separates control plane from data plane; a single controller orchestrates all switches via OpenFlow."),
-    ("Centralization Risk:", "The controller becomes a single point of failure\u2014its compromise cascades across the entire network."),
-    ("Control Channel Vulnerability:", "OpenFlow messages (flow rules, stats) can be intercepted, modified, or injected if not properly secured."),
-    ("Flow Rule Integrity Gap:", "Switches blindly execute any received flow rule\u2014no built-in mechanism to verify authenticity."),
-    ("Growing Attack Sophistication:", "Modern adversaries chain DDoS, MITM, probe, and brute-force attacks simultaneously."),
-    ("TLS Limitations:", "TLS protects transport only; it cannot verify flow rule semantics or stop a compromised controller."),
-]
-add_bullet_textbox(slide, Inches(0.8), Inches(1.5), Inches(11.5), Inches(5.5),
-                   items, font_size=18, line_spacing=1.5)
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 4 — Problem Statement
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Problem Statement")
-
-problems = [
-    ("Detection without Verification:", "ML/DL-based IDS can flag malicious traffic but cannot prevent tampered flow rules from being installed."),
-    ("Verification without Detection:", "Cryptographic mechanisms (HMAC, TLS) verify rule integrity but do not proactively detect intrusion attempts."),
-    ("Excessive Computational Overhead:", "Blockchain/PKI-based solutions introduce latency incompatible with real-time SDN operations."),
-    ("Limited Attack Coverage:", "Most solutions target a single attack vector (e.g., DDoS only), lacking multi-threat generality."),
-    ("Deployment Complexity:", "Solutions requiring OpenFlow protocol changes or custom switch firmware hinder real-world adoption."),
-]
-add_bullet_textbox(slide, Inches(0.8), Inches(1.5), Inches(11.5), Inches(4.0),
-                   problems, font_size=18, color=TEXT_DARK, line_spacing=1.5)
-
-# Research question box
-rq_box = slide.shapes.add_shape(
-    MSO_SHAPE.ROUNDED_RECTANGLE,
-    Inches(1.2), Inches(5.6), Inches(10.9), Inches(1.4)
-)
-rq_box.fill.solid()
-rq_box.fill.fore_color.rgb = RGBColor(0xE8, 0xF0, 0xFE)
-rq_box.line.color.rgb = ACCENT_BLUE
-rq_box.line.width = Pt(2)
-
-tf = rq_box.text_frame
-tf.word_wrap = True
-p = tf.paragraphs[0]
-p.alignment = PP_ALIGN.CENTER
-r = p.add_run()
-r.text = "Research Question: "
-r.font.size = Pt(15)
-r.font.bold = True
-r.font.color.rgb = HEADER_BG
-rn = p.add_run()
-rn.text = "How can we build a lightweight, deployable security framework for SDN that combines proactive multi-class intrusion detection with real-time cryptographic verification\u2014without exceeding the latency budget that production networks demand?"
-rn.font.size = Pt(15)
-rn.font.color.rgb = TEXT_DARK
-rn.font.italic = True
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 5 — Research Objectives
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Research Objectives")
-
-objectives = [
-    ("RO1:", "Design a TCN-based IDS achieving >99% accuracy for binary classification of DDoS, MITM, Probe, and Brute-force attacks."),
-    ("RO2:", "Develop a preprocessing pipeline (Pearson correlation, PCA, class weighting) for the InSDN dataset."),
-    ("RO3:", "Train & deploy the TCN model via TensorFlow/Keras with compact size suitable for resource-constrained environments."),
-    ("RO4:", "Design a lightweight auxiliary agent for HMAC-based flow rule verification and challenge\u2013response controller authentication."),
-    ("RO5:", "Integrate the TCN-IDS and HMAC agent into a cohesive framework within the SDN control loop."),
-    ("RO6:", "Evaluate the framework on accuracy, precision, recall, F1-score, and computational overhead."),
-    ("RO7:", "Conduct comparative analysis against 15 existing models (LSTM, CNN-BiLSTM, Transformer, etc.)."),
-]
-add_bullet_textbox(slide, Inches(0.8), Inches(1.5), Inches(11.5), Inches(5.5),
-                   objectives, font_size=17, line_spacing=1.45)
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 6 — Proposed Methodology / System Architecture
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Proposed Methodology: TCN-HMAC Framework")
-
-# Left column - key points
-items = [
-    ("Layer 1 \u2014 TCN-IDS:", "Deployed as a controller app; inspects flow statistics in real time; classifies traffic as benign or malicious."),
-    ("Layer 2 \u2014 HMAC Agent:", "Co-located subprocess; HMAC-SHA256 verification of every flow rule; challenge\u2013response for controller authenticity."),
-    ("Defense in Depth:", "If an attack bypasses the TCN, the HMAC prevents rogue flow rules. If keys are compromised, the TCN detects malicious patterns."),
-]
-add_bullet_textbox(slide, Inches(0.5), Inches(1.4), Inches(5.8), Inches(3.5),
-                   items, font_size=16, line_spacing=1.45)
-
-# System architecture image
-arch_img = os.path.join(FIGURES, "system_architecture.drawio.png")
-add_image_safe(slide, arch_img, Inches(6.5), Inches(1.4), width=Inches(6.3))
-
-# Bottom note
-note = slide.shapes.add_textbox(Inches(0.5), Inches(5.8), Inches(12), Inches(1.2))
-tf = note.text_frame
-tf.word_wrap = True
-p = tf.paragraphs[0]
-r = p.add_run()
-r.text = "Key: No OpenFlow protocol modifications required. Runs entirely in software as a standard controller application + auxiliary agent."
-r.font.size = Pt(14)
-r.font.italic = True
-r.font.color.rgb = TEXT_MED
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 7 — Dataset & Preprocessing
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Dataset & Preprocessing Pipeline")
-
-items = [
-    ("InSDN Dataset:", "Purpose-built for SDN IDS research; covers Normal, DDoS, MITM, Probe, Brute-force traffic."),
-    ("Raw:", "343,889 samples \u00d7 84 features \u2192 Cleaned: 182,831 samples \u00d7 48 features."),
-    ("Feature Selection:", "Pearson correlation (|r| > 0.95 removal) \u2192 removed redundant highly-correlated features."),
-    ("Normalization:", "StandardScaler (zero mean, unit variance) for stable gradient-based training."),
-    ("Dimensionality Reduction:", "PCA: 48 \u2192 24 features, retaining 95.43% of total variance."),
-    ("Class Weighting:", "Inverse-frequency weighting to counter class imbalance (65% attack, 35% benign)."),
-    ("Train/Test Split:", "80/20 stratified split \u2192 146,264 training / 36,567 test samples."),
-]
-add_bullet_textbox(slide, Inches(0.5), Inches(1.4), Inches(7.0), Inches(5.5),
-                   items, font_size=16, line_spacing=1.45)
-
-# PCA variance plot
-pca_img = os.path.join(RESULTS, "pca_explained_variance.png")
-add_image_safe(slide, pca_img, Inches(7.8), Inches(1.6), width=Inches(5.2))
-
-# Class distribution plot
-cd_img = os.path.join(RESULTS, "eda_class_distribution.png")
-add_image_safe(slide, cd_img, Inches(7.8), Inches(4.5), width=Inches(5.2))
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 8 — TCN Model Architecture
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "TCN Model Architecture")
-
-arch_items = [
-    ("Input:", "24-dimensional PCA-transformed feature vector reshaped to (24, 1)."),
-    ("6 Residual Blocks:", "Dilated causal Conv1D layers with dilation rates [1, 2, 4, 8, 16, 32], 64 filters, kernel size 3."),
-    ("Regularization:", "Batch Normalization + Spatial Dropout (20%) in each block."),
-    ("Pooling:", "Global Average Pooling to aggregate temporal features into a fixed-length vector."),
-    ("Classification Head:", "Dense(64, ReLU) \u2192 Dropout(30%) \u2192 Dense(1, Sigmoid) for binary output."),
-    ("Total Parameters:", "156,737 (612 KB model size)\u2014compact enough for edge deployment."),
-    ("Training:", "Adam optimizer, lr=10\u207b\u00b3 with ReduceLROnPlateau; binary cross-entropy; ~30 epochs (~5 min on T4 GPU)."),
-]
-add_bullet_textbox(slide, Inches(0.5), Inches(1.4), Inches(12), Inches(5.5),
-                   arch_items, font_size=17, line_spacing=1.45)
-
-# Why TCN box
-why_box = slide.shapes.add_shape(
-    MSO_SHAPE.ROUNDED_RECTANGLE,
-    Inches(0.8), Inches(5.8), Inches(11.5), Inches(1.2)
-)
-why_box.fill.solid()
-why_box.fill.fore_color.rgb = RGBColor(0xE8, 0xF8, 0xF0)
-why_box.line.color.rgb = ACCENT_GREEN
-why_box.line.width = Pt(1.5)
-tf = why_box.text_frame
-tf.word_wrap = True
-p = tf.paragraphs[0]
-r = p.add_run()
-r.text = "Why TCN? "
-r.font.size = Pt(15)
-r.font.bold = True
-r.font.color.rgb = ACCENT_GREEN
-r2 = p.add_run()
-r2.text = "Fully parallelizable inference (unlike sequential LSTM/GRU) \u2022 Stable gradients via residual connections \u2022 Controllable receptive field via dilation \u2022 5\u201330\u00d7 smaller than comparable DL models"
-r2.font.size = Pt(14)
-r2.font.color.rgb = TEXT_DARK
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 9 — Results: Key Metrics (the hero slide)
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Experimental Results", "Test Set: 36,567 samples (20% held-out, never seen during training)")
-
-# Metric cards - top row
-metrics = [
-    ("99.85%", "Accuracy"),
-    ("99.80%", "Precision"),
-    ("99.97%", "Recall / DR"),
-    ("99.89%", "F1-Score"),
-    ("0.9999", "AUC-ROC"),
-    ("0.37%", "False Alarm Rate"),
-]
-card_w = Inches(1.85)
-card_h = Inches(1.2)
-start_x = Inches(0.5)
-gap = Inches(0.18)
-y_pos = Inches(1.5)
-
-for i, (val, label) in enumerate(metrics):
-    clr = ACCENT_GREEN if i < 5 else ACCENT_RED
-    add_metric_box(slide, start_x + i * (card_w + gap), y_pos,
-                   card_w, card_h, val, label, value_color=clr)
-
-# Confusion matrix image
-cm_img = os.path.join(RESULTS, "plot_confusion_matrix.png")
-add_image_safe(slide, cm_img, Inches(0.5), Inches(3.1), height=Inches(3.8))
-
-# Right side - key takeaways
-takeaways = [
-    ("23,737 / 23,744", "attacks correctly detected (only 7 missed)."),
-    ("47 / 12,823", "benign flows false-alarmed (0.37% rate)."),
-    ("Error Bias:", "87% of errors are FP (conservative); only 13% are FN."),
-    ("Operational:", "~1 false alarm per 270 benign flows\u2014manageable with whitelisting."),
-]
-add_bullet_textbox(slide, Inches(5.5), Inches(3.3), Inches(7.5), Inches(4.0),
-                   takeaways, font_size=17, line_spacing=1.6)
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 10 — Results: Training Curves & ROC
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Training Convergence & ROC Analysis")
-
-# Accuracy plot
-acc_img = os.path.join(RESULTS, "plot_accuracy.png")
-add_image_safe(slide, acc_img, Inches(0.3), Inches(1.4), width=Inches(4.1))
-
-# Loss plot
-loss_img = os.path.join(RESULTS, "plot_loss.png")
-add_image_safe(slide, loss_img, Inches(4.6), Inches(1.4), width=Inches(4.1))
-
-# ROC curve
-roc_img = os.path.join(RESULTS, "plot_roc_curve.png")
-add_image_safe(slide, roc_img, Inches(8.9), Inches(1.4), width=Inches(4.1))
-
-# Annotations
-notes = [
-    "Converges in ~30 epochs (5 min on T4 GPU)",
-    "Train/Val curves align closely \u2192 no overfitting",
-    "AUC-ROC = 0.9999 \u2192 near-perfect discrimination",
-]
-add_bullet_textbox(slide, Inches(0.5), Inches(5.5), Inches(12), Inches(1.8),
-                   notes, font_size=16, line_spacing=1.5, bullet_char="\u2713",
-                   color=ACCENT_GREEN)
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 11 — HMAC Overhead Results
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "HMAC Verification Overhead")
-
-hmac_metrics = [
-    ("~2 \u00b5s", "Per-Message\nHMAC Compute"),
-    ("0.7 ms", "Total Control\nLatency Added"),
-    ("4.4%", "CPU Usage\nOverhead"),
-    ("13.7 MB", "RAM\nOverhead"),
-    ("32 B", "Per-Message\nSize Overhead"),
-]
-card_w = Inches(2.1)
-card_h = Inches(1.4)
-start_x = Inches(0.7)
-gap = Inches(0.22)
-y_pos = Inches(1.6)
-
-for i, (val, label) in enumerate(hmac_metrics):
-    add_metric_box(slide, start_x + i * (card_w + gap), y_pos,
-                   card_w, card_h, val, label, value_color=ACCENT_BLUE)
-
-hmac_features = [
-    ("Message Integrity:", "HMAC-SHA256 tag appended to every Flow_Mod message; switch-side verification via shadow table."),
-    ("Replay Prevention:", "Sequence numbers + timestamps reject replayed or out-of-order messages."),
-    ("Controller Authentication:", "Periodic challenge\u2013response protocol confirms the controller\u2019s identity."),
-    ("Key Management:", "Pre-shared symmetric keys with planned rotation; no PKI infrastructure required."),
-    ("Negligible Impact:", "Combined TCN inference + HMAC verification < 1 ms per flow\u2014well within real-time budgets."),
-]
-add_bullet_textbox(slide, Inches(0.8), Inches(3.5), Inches(11.5), Inches(3.5),
-                   hmac_features, font_size=17, line_spacing=1.5)
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 12 — Comparative Analysis
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Comparative Analysis", "Against 15 existing IDS models & SDN security frameworks")
-
-# Comparison table
-from pptx.util import Emu as E
-
-table_data = [
-    ["Model", "Dataset", "Acc.(%)", "Prec.(%)", "Recall(%)", "F1(%)", "Params", "Inf. Time"],
-    ["TCN-HMAC (Ours)", "InSDN", "99.85", "99.80", "99.97", "99.89", "157K", "0.17ms"],
-    ["CNN-BiLSTM", "InSDN", "99.90", "99.91", "99.90", "99.90", "~2M", "~2ms"],
-    ["DNN Ensemble", "InSDN", "99.70", "99.65", "99.70", "99.67", "~5M", "~3ms"],
-    ["CNN-LSTM", "CIC-IDS", "99.67", "99.68", "99.67", "99.67", "~1.5M", "~1.5ms"],
-    ["DRL (DDQN)", "InSDN", "98.85", "98.90", "98.85", "98.87", "~3M", "~5ms"],
-    ["BiTCN-MHSA", "CIC-IDS", "99.72", "99.68", "99.72", "99.70", "~500K", "~0.5ms"],
-    ["LSTM", "NSL-KDD", "99.23", "99.00", "99.23", "99.11", "~500K", "~1ms"],
-    ["DT/RF Baseline", "InSDN", "98.50", "98.40", "98.50", "98.45", "\u2014", "\u2014"],
+# ── SLIDE 3-4: LITERATURE REVIEW TABLE (split across 2 slides) ─────
+lit_rows_1 = [
+    ("Pradeep et al. [2023]", "EnsureS \u2014 batch hash flow rule verification", "2023", "Flow rule integrity only; no detection"),
+    ("Ahmed et al. [2023]", "Modular HMAC for flow_mod verification", "2023", "Integrity only; no anomaly detection"),
+    ("Buruaga et al. [2025]", "Quantum-safe TLS for SDN", "2025", "High overhead; not lightweight"),
+    ("Zhou et al. [2022]", "SecureMatch \u2014 encrypted rule matching", "2022", "Requires switch hardware changes"),
+    ("Song et al. [2023]", "Blockchain (IS2N) for intent-driven SDN", "2023", "Consensus latency (seconds per tx)"),
+    ("Rahman et al. [2022]", "Blockchain survey for SDN security", "2022", "Storage/scalability overhead"),
+    ("Poorazad et al. [2023]", "Blockchain + DL for IoT-SDN", "2023", "Very high computational overhead"),
+    ("Sharma & Tyagi [2023]", "Lightweight ML-IDS for MITM/DoS", "2023", "No flow rule verification; 98.12% acc"),
+    ("Ayad et al. [2025]", "ML classifiers (RF, XGBoost) for SDN-IDS", "2025", "No temporal modeling; no verification"),
+    ("Said et al. [2023]", "CNN-BiLSTM on InSDN", "2023", "Bidirectional \u2014 not real-time; no verification"),
+    ("Shihab et al. [2025]", "CNN-LSTM + SMOTE", "2025", "Hybrid overhead; synthetic data artifacts"),
 ]
 
-rows = len(table_data)
-cols = len(table_data[0])
-tbl_shape = slide.shapes.add_table(rows, cols,
-                                    Inches(0.3), Inches(1.4),
-                                    Inches(12.7), Inches(4.2))
-tbl = tbl_shape.table
-
-# Style the table
-for r in range(rows):
-    for c in range(cols):
-        cell = tbl.cell(r, c)
-        cell.text = table_data[r][c]
-        cell.vertical_anchor = MSO_ANCHOR.MIDDLE
-
-        for paragraph in cell.text_frame.paragraphs:
-            paragraph.alignment = PP_ALIGN.CENTER
-            for run in paragraph.runs:
-                run.font.size = Pt(13)
-                if r == 0:
-                    run.font.bold = True
-                    run.font.color.rgb = WHITE
-                elif r == 1:
-                    run.font.bold = True
-                    run.font.color.rgb = HEADER_BG
-                else:
-                    run.font.color.rgb = TEXT_DARK
-
-        # Header row bg
-        if r == 0:
-            cell.fill.solid()
-            cell.fill.fore_color.rgb = HEADER_BG
-        elif r == 1:
-            cell.fill.solid()
-            cell.fill.fore_color.rgb = RGBColor(0xE0, 0xF0, 0xFF)
-        elif r % 2 == 0:
-            cell.fill.solid()
-            cell.fill.fore_color.rgb = RGBColor(0xF8, 0xF8, 0xF8)
-        else:
-            cell.fill.solid()
-            cell.fill.fore_color.rgb = WHITE
-
-# Key advantages at bottom
-adv_items = [
-    ("Highest Detection Rate:", "99.97% (70% reduction in miss rate vs next-best)."),
-    ("Smallest Model:", "612 KB / 157K params\u20145\u201330\u00d7 smaller than comparable DL models."),
-    ("Fastest Inference:", "0.17 ms\u2014enables 5,000+ flow classifications/sec."),
-    ("Only Dual-Layer Framework:", "Combines DL-based IDS + cryptographic flow rule authentication."),
-]
-add_bullet_textbox(slide, Inches(0.5), Inches(5.8), Inches(12), Inches(1.5),
-                   adv_items, font_size=14, line_spacing=1.35, color=ACCENT_GREEN)
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 13 — Research Objectives Fulfilled
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Objectives Fulfilled", "Mapping results back to research objectives")
-
-fulfilled = [
-    ("RO1 \u2714", "TCN achieves 99.85% accuracy, 99.97% recall across DDoS, MITM, Probe, Brute-force (target: >99%)."),
-    ("RO2 \u2714", "15-stage pipeline: cleaning \u2192 Pearson correlation \u2192 StandardScaler \u2192 PCA (48\u219224 features, 95.43% variance)."),
-    ("RO3 \u2714", "TensorFlow/Keras model: 612 KB, 156,737 parameters, 0.17 ms inference\u2014portable across platforms."),
-    ("RO4 \u2714", "Auxiliary agent: HMAC-SHA256 verification (~2 \u00b5s/msg) + challenge\u2013response authentication (0.7 ms overhead)."),
-    ("RO5 \u2714", "Integrated TCN-IDS + HMAC agent as Ryu controller app + co-located subprocess."),
-    ("RO6 \u2714", "Full evaluation: Accuracy 99.85%, Precision 99.80%, Recall 99.97%, F1 99.89%, FAR 0.37%."),
-    ("RO7 \u2714", "Benchmarked against 15 models\u2014highest detection rate, smallest model, fastest inference."),
-]
-add_bullet_textbox(slide, Inches(0.5), Inches(1.4), Inches(12.3), Inches(5.8),
-                   fulfilled, font_size=16, line_spacing=1.42, bullet_char="")
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 14 — Contributions
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Key Contributions")
-
-contribs = [
-    ("Novel TCN-HMAC Framework:", "First to combine temporal DL with lightweight cryptographic verification in a unified, deployable SDN security solution."),
-    ("First TCN on InSDN:", "Highest detection rate (99.97%) and lowest FAR (0.37%) among 15 compared approaches."),
-    ("Compact Deployment:", "612 KB model (157K params)\u2014runs inside the SDN controller without additional hardware."),
-    ("Lightweight HMAC Agent:", "~2 \u00b5s per message, 0.7 ms control latency, 4.4% CPU, 13.7 MB RAM\u2014negligible overhead."),
-    ("Comprehensive Benchmark:", "Most extensive comparative analysis in SDN IDS literature (15 models, multiple metrics)."),
-]
-add_bullet_textbox(slide, Inches(0.8), Inches(1.5), Inches(11.5), Inches(5.5),
-                   contribs, font_size=18, line_spacing=1.55)
-
-
-# ════════════════════════════════════════════════════════════
-# SLIDE 15 — Conclusion & Future Work
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide)
-add_header_bar(slide, "Conclusion & Future Work")
-
-# Conclusion points
-conc = [
-    "TCN-HMAC delivers near-perfect IDS (99.85% acc, 99.97% DR, 0.37% FAR) in a 612 KB, sub-millisecond package.",
-    "Bridges the detection\u2013verification divide: TCN handles data-plane threats; HMAC secures the control plane.",
-    "Deployable as a standard controller app\u2014no OpenFlow changes, no custom hardware.",
-    "Outperforms or matches 15 state-of-the-art models while being 5\u201330\u00d7 smaller and fastest at inference.",
-]
-conc_box = add_bullet_textbox(slide, Inches(0.5), Inches(1.4), Inches(6.0), Inches(3.5),
-                               conc, font_size=16, line_spacing=1.5, bullet_char="\u2713",
-                               color=ACCENT_GREEN)
-
-# Future work
-future = [
-    "Multi-dataset evaluation (NSL-KDD, CIC-IDS-2017, UNSW-NB15)",
-    "Multi-class classification (identify specific attack types)",
-    "Adversarial robustness evaluation (FGSM, PGD)",
-    "Federated learning for cross-domain privacy-preserving training",
-    "Online / incremental learning for concept drift adaptation",
-    "Production HMAC implementation & hardware benchmarking",
-    "Model compression (INT8 quantization, pruning) for edge deployment",
+lit_rows_2 = [
+    ("Ataa et al. [2024]", "DNN Ensemble on InSDN", "2024", "Detection only; no deployment analysis"),
+    ("Basfar [2025]", "Incremental LSTM Ensemble", "2025", "Sequential processing; high overhead"),
+    ("Kanimozhi et al. [2025]", "DRL (DDQN) on InSDN", "2025", "Training instability; 98.85% acc"),
+    ("Wang et al. [2025]", "TCN on InSDN (packet-length input)", "2025", "97.00% acc; 2.1ms inference; no verification"),
+    ("Lopes et al. [2023]", "TCN on CIC-IDS-2017", "2023", "Not SDN-specific; no integrity mechanism"),
+    ("Li & Li [2025]", "TCN-SE (squeeze-and-excitation)", "2025", "No SDN dataset; no verification"),
+    ("Deng et al. [2024]", "BiTCN-MHSA", "2024", "Bidirectional \u2014 offline only; complex"),
+    ("Khan et al. [2021]", "MITM-Defender for SDN", "2021", "Narrow focus \u2014 MITM only"),
+    ("Malik & Habib [2021]", "Lightweight DoS agents at switches", "2021", "DoS-only; no general IDS"),
+    ("Liang et al. [2021]", "Review of SDN-IDS vs. rule injection", "2021", "Identifies gap: detection \u2260 verification"),
+    ("Elsayed et al. [2020]", "InSDN dataset + DT/RF baselines", "2020", "98.50% acc; foundational benchmark"),
 ]
 
-# Future work heading
-fw_title = slide.shapes.add_textbox(Inches(6.8), Inches(1.4), Inches(6), Inches(0.5))
-tf = fw_title.text_frame
-p = tf.paragraphs[0]
-r = p.add_run()
-r.text = "Future Work Directions"
-r.font.size = Pt(20)
-r.font.bold = True
-r.font.color.rgb = HEADER_BG
+add_table_slide(prs, "Literature Review (1/2)",
+    ["Reference", "Approach", "Year", "Addressed Problem / Limitation"],
+    lit_rows_1,
+    col_widths=[1.8, 2.8, 0.6, 4.2],
+    font_size=10)
 
-add_bullet_textbox(slide, Inches(6.8), Inches(2.0), Inches(6), Inches(4.5),
-                   future, font_size=15, line_spacing=1.45, bullet_char="\u25CB",
-                   color=TEXT_MED)
+add_table_slide(prs, "Literature Review (2/2)",
+    ["Reference", "Approach", "Year", "Addressed Problem / Limitation"],
+    lit_rows_2,
+    col_widths=[1.8, 2.8, 0.6, 4.2],
+    font_size=10)
 
-# Bottom bar
-bottom = slide.shapes.add_shape(
-    MSO_SHAPE.RECTANGLE, Inches(0), Inches(6.7), SLIDE_WIDTH, Inches(0.8)
-)
-bottom.fill.solid()
-bottom.fill.fore_color.rgb = HEADER_BG
-bottom.line.fill.background()
+# ── SLIDE 5: RESEARCH GAPS ─────────────────────────────────────────
+add_content_slide(prs, "Research Gaps", [
+    "Gap 1: Detection without Verification",
+    (1, "DL-based IDS focuses on anomaly detection without integrity verification. Control plane remains vulnerable to flow rule tampering that bypasses the detection layer."),
+    "",
+    "Gap 2: Verification without Detection",
+    (1, "Cryptographic schemes (HMAC, TLS) verify integrity but lack proactive threat detection \u2014 cannot spot DDoS, probes, or brute-force attacks."),
+    "",
+    "Gap 3: Heavyweight Hybrid Solutions",
+    (1, "Existing hybrids (DL + blockchain) introduce prohibitive latency (seconds per transaction) and computational overhead for real-time SDN."),
+    "",
+    "Gap 4: Limited TCN Evaluation on SDN Datasets",
+    (1, "TCN-based IDS shows promise but has not been evaluated on SDN-specific datasets (InSDN) or integrated with SDN security mechanisms."),
+    "",
+    "Gap 5: No Comprehensive Lightweight Hybrid Framework",
+    (1, "No existing work combines temporal DL-based IDS + HMAC flow rule verification + challenge-response controller authentication in a unified, lightweight, deployable solution."),
+], font_size=14)
 
-tf = bottom.text_frame
-tf.word_wrap = True
-p = tf.paragraphs[0]
-p.alignment = PP_ALIGN.CENTER
-r = p.add_run()
-r.text = "\"TCN-HMAC narrows the gap between what the SDN control plane needs and what existing solutions provide.\""
-r.font.size = Pt(16)
-r.font.italic = True
-r.font.color.rgb = WHITE
+# ── SLIDE 6: RESEARCH OBJECTIVES ────────────────────────────────────
+add_content_slide(prs, "Research Objectives", [
+    "RO1: Design a TCN-based IDS model for binary classification of SDN traffic (DDoS, MITM, Probe, Brute-force) achieving > 99% accuracy. [\u2192 Gaps 1, 4]",
+    "",
+    "RO2: Develop a 15-stage preprocessing pipeline for InSDN \u2014 Pearson correlation feature selection, PCA (48\u219224 features), StandardScaler, class weighting. [\u2192 Gap 4]",
+    "",
+    "RO3: Train and deploy a compact TCN model (TensorFlow/Keras) suitable for resource-constrained SDN controllers. [\u2192 Gap 5]",
+    "",
+    "RO4: Design a lightweight HMAC-based auxiliary agent for: (a) flow rule integrity verification via shadow table, (b) periodic challenge-response controller authentication. [\u2192 Gaps 2, 5]",
+    "",
+    "RO5: Integrate TCN-IDS + HMAC agent into a cohesive framework operating within the SDN control loop. [\u2192 Gap 5]",
+    "",
+    "RO6: Evaluate framework in simulated SDN environment (Ryu + Mininet + OVS) and measure detection performance + computational overhead. [\u2192 Gaps 3, 5]",
+    "",
+    "RO7: Conduct comprehensive comparative analysis against 15+ existing models spanning ML, DL, TCN variants, and cryptographic frameworks. [\u2192 Gaps 1\u20135]",
+], font_size=13)
 
+# ── SLIDE 7: RESEARCH CONTRIBUTIONS ────────────────────────────────
+add_content_slide(prs, "Research Contributions (Top 2)", [
+    "Contribution 1: A Novel Hybrid Security Framework (TCN-HMAC)",
+    "",
+    (1, "First framework to combine Temporal Convolutional Network-based intrusion detection with HMAC-based flow rule integrity verification and challenge-response controller authentication in a unified, deployable SDN security solution."),
+    (1, "Bridges the detection-verification divide \u2014 TCN handles external threats (DDoS, probes, brute-force); HMAC agent handles internal threats (flow rule tampering, controller spoofing, replay attacks)."),
+    (1, "Runs entirely as a software controller application + auxiliary agent \u2014 no OpenFlow protocol changes or custom switch firmware required."),
+    "",
+    "",
+    "Contribution 2: First TCN Application on InSDN with State-of-the-Art Results",
+    "",
+    (1, "First study to apply a TCN specifically to the InSDN dataset with SDN-tailored preprocessing."),
+    (1, "Achieves: 99.85% accuracy, 99.80% precision, 99.97% recall (detection rate), 99.89% F1-score, 0.9999 AUC-ROC."),
+    (1, "Highest detection rate (99.97%) and lowest false alarm rate (0.37%) among all 16 compared approaches."),
+    (1, "Outperforms structurally more complex architectures (CNN-BiLSTM, BiTCN-MHSA, TCN+Attention) using a clean, compact design."),
+], font_size=13)
 
-# ════════════════════════════════════════════════════════════
-# SLIDE 16 — Thank You / Q&A
-# ════════════════════════════════════════════════════════════
-slide = prs.slides.add_slide(prs.slide_layouts[6])
-add_bg(slide, DARK_BG)
+# ── SLIDE 8: SYSTEM ARCHITECTURE ────────────────────────────────────
+add_content_slide(prs, "System Architecture", [
+    "Dual-Boundary Defense: TCN-IDS (data plane monitoring) + HMAC Auxiliary Agent (control plane protection)",
+    "",
+    "TCN-IDS Module (Detection Boundary):",
+    (1, "6 dilated residual blocks (dilation: 1, 2, 4, 8, 16, 32) with 64 filters, kernel size 3"),
+    (1, "Classification head: GlobalAvgPooling \u2192 Dense(128) \u2192 Dense(64) \u2192 Dense(1, sigmoid)"),
+    (1, "Total: 156,737 parameters | Model size: 612 KB | Inference: 0.17 ms"),
+    (1, "Input: 24 PCA-transformed features \u2192 Output: benign (0) / attack (1)"),
+    "",
+    "HMAC Auxiliary Agent (Integrity Boundary):",
+    (1, "Key Establishment: Secure key exchange between controller and agent during initialization"),
+    (1, "Message Authentication: HMAC-SHA256 tag computed over flow rule fields + sequence number + timestamp \u2192 appended to every flow_mod message \u2192 verified at switch side"),
+    (1, "Shadow Table Verification: Agent maintains independent copy of expected flow rules; periodic audit detects unauthorized local modifications"),
+    (1, "Challenge-Response Authentication: Periodic nonce-based verification confirms controller identity and detects compromise"),
+    "",
+    "Overhead: HMAC ~2 \u03bcs/msg | +0.7 ms control latency | +4.4% CPU | +13.7 MB RAM",
+], font_size=13)
 
-txBox = slide.shapes.add_textbox(Inches(1), Inches(2.0), Inches(11.3), Inches(3))
+# ── SLIDE 9: DATASET ────────────────────────────────────────────────
+add_content_slide(prs, "Dataset: InSDN", [
+    "InSDN (Elsayed et al., 2020) \u2014 purpose-built for SDN intrusion detection research",
+    "",
+    "Overview:",
+    (1, "343,889 raw samples from SDN testbed (Mininet + Ryu + OVS)"),
+    (1, "84 flow-level features (CICFlowMeter) covering packet counts, byte volumes, IAT statistics, flag distributions, flow duration"),
+    (1, "4 attack categories: DDoS, MITM, Probe, Brute-force + Normal traffic"),
+    "",
+    "Why InSDN?",
+    (1, "SDN-specific: Generated in a real SDN testbed \u2014 reflects actual SDN traffic patterns, unlike generic datasets (NSL-KDD, CIC-IDS-2017)"),
+    (1, "Comprehensive attack coverage: Covers the four most prevalent SDN threat classes"),
+    (1, "Widely adopted SDN IDS benchmark \u2014 enables direct comparison with prior work (Said et al., Ataa et al., Kanimozhi et al., Wang et al.)"),
+    (1, "Well-documented feature schema with flow-level statistics suitable for temporal modeling"),
+    "",
+    "Class Distribution (after preprocessing):",
+    (1, "Normal: 68,424 (37.4%) | Attack: 114,407 (62.6%) \u2014 addressed via inverse-frequency class weighting"),
+], font_size=14)
+
+# ── SLIDE 10: EXPERIMENTAL SETUP ────────────────────────────────────
+add_content_slide(prs, "Experimental Setup", [
+    "Preprocessing Pipeline (15 stages):",
+    (1, "Data cleaning \u2192 duplicate removal (343,889 \u2192 182,831) \u2192 Pearson correlation thresholding (|r| > 0.95) \u2192 84 \u2192 48 features"),
+    (1, "StandardScaler normalization \u2192 Label encoding \u2192 PCA dimensionality reduction (48 \u2192 24, retaining 95.43% variance)"),
+    (1, "Inverse-frequency class weighting: Normal = 1.4258, Attack = 0.7700"),
+    "",
+    "Data Split: 70% train (127,981) / 10% validation (18,283) / 20% test (36,567)",
+    "",
+    "Training Configuration:",
+    (1, "Framework: TensorFlow 2.19.0 / Keras"),
+    (1, "Hardware: Google Colab \u2014 NVIDIA Tesla T4 GPU (16 GB), 12.7 GB RAM"),
+    (1, "Optimizer: Adam (lr = 0.001, \u03b2\u2081 = 0.9, \u03b2\u2082 = 0.999)"),
+    (1, "Loss: Binary Cross-Entropy with class weights"),
+    (1, "Batch size: 2,048 | Epochs: 30 (EarlyStopping patience = 10)"),
+    (1, "Training time: ~5 minutes total (~10 sec/epoch)"),
+    "",
+    "SDN Simulation: Mininet + Ryu controller + Open vSwitch (OVS)",
+], font_size=13)
+
+# ── SLIDE 11: RESULTS \u2014 PERFORMANCE METRICS ─────────────────────────
+perf_rows = [
+    ("Accuracy", "99.85%"),
+    ("Precision", "99.80%"),
+    ("Recall (Detection Rate)", "99.97%"),
+    ("F1-Score", "99.89%"),
+    ("AUC-ROC", "0.9999"),
+    ("False Alarm Rate (FAR)", "0.37%"),
+    ("Matthews Correlation Coeff.", "0.9966"),
+    ("Specificity", "99.63%"),
+]
+slide = add_table_slide(prs, "Results: TCN-IDS Performance",
+    ["Metric", "Value"],
+    perf_rows,
+    col_widths=[5.0, 4.4],
+    font_size=14)
+
+# Add confusion matrix + HMAC info below the table
+txBox = slide.shapes.add_textbox(Inches(0.4), Inches(5.0), Inches(9.2), Inches(2.3))
 tf = txBox.text_frame
 tf.word_wrap = True
+items = [
+    "Confusion Matrix (36,567 test samples): TN = 12,776 | FP = 47 | FN = 7 | TP = 23,737",
+    "   \u2192 Only 54 misclassifications (47 false alarms + 7 missed attacks)",
+    "",
+    "HMAC Auxiliary Agent Performance:",
+    "   HMAC-SHA256: ~2 \u03bcs/msg | Throughput: ~500K msgs/sec | Tag size: 32 bytes",
+    "   With Agent: +0.7 ms latency | +4.4% CPU | +13.7 MB RAM | Detected all 3 injected invalid flows",
+    "   End-to-end flow processing: ~170 \u03bcs (0.17 ms) \u2014 well within SDN real-time tolerances",
+]
+for i, text in enumerate(items):
+    if i == 0:
+        p = tf.paragraphs[0]
+    else:
+        p = tf.add_paragraph()
+    p.text = text
+    p.font.size = Pt(12)
 
-p1 = tf.paragraphs[0]
-p1.alignment = PP_ALIGN.CENTER
-r1 = p1.add_run()
-r1.text = "Thank You"
-r1.font.size = Pt(54)
-r1.font.bold = True
-r1.font.color.rgb = WHITE
+# ── SLIDE 12: RESULTS \u2014 COMPARISON TABLE ────────────────────────────
+comp_rows = [
+    ("Proposed", "2025", "TCN-HMAC", "InSDN", "99.85", "99.80", "99.97", "99.89"),
+    ("Said et al.", "2023", "CNN-BiLSTM", "InSDN", "99.90", "99.91", "99.90", "99.90"),
+    ("Shihab et al.", "2025", "CNN-LSTM", "CIC-IDS", "99.67", "99.68", "99.67", "99.67"),
+    ("Yang et al.", "2024", "CNN-GRU", "NSL-KDD", "99.35", "99.20", "99.35", "99.27"),
+    ("Ataa et al.", "2024", "DNN Ensemble", "InSDN", "99.70", "99.65", "99.70", "99.67"),
+    ("Basfar", "2025", "LSTM", "NSL-KDD", "99.23", "99.00", "99.23", "99.11"),
+    ("Kumar et al.", "2025", "Hybrid DL", "CIC-IDS", "99.45", "99.42", "99.45", "99.43"),
+    ("Kanimozhi et al.", "2025", "DRL (DDQN)", "InSDN", "98.85", "98.90", "98.85", "98.87"),
+    ("Lopes et al.", "2023", "TCN", "CIC-IDS", "99.75", "99.70", "99.75", "99.72"),
+    ("Li et al.", "2025", "TCN-SE", "NSL-KDD", "99.62", "99.58", "99.62", "99.60"),
+    ("Wang et al.", "2025", "TCN", "InSDN", "97.00", "96.40", "96.91", "96.72"),
+    ("Deng et al.", "2024", "BiTCN-MHSA", "CIC-IDS", "99.72", "99.68", "99.72", "99.70"),
+    ("Ahmad et al.", "2021", "CNN", "InSDN", "99.20", "99.10", "99.20", "99.15"),
+    ("Elsayed et al.", "2020", "DT/RF", "InSDN", "98.50", "98.40", "98.50", "98.45"),
+]
+
+add_table_slide(prs, "Results: Comparison with Existing Approaches",
+    ["Reference", "Year", "Model", "Dataset", "Acc%", "Prec%", "Rec%", "F1%"],
+    comp_rows,
+    col_widths=[1.5, 0.6, 1.5, 1.0, 0.9, 0.9, 0.9, 0.9],
+    font_size=9)
+
+# ── SLIDE 13: RESULTS \u2014 ARCHITECTURAL COMPARISON ───────────────────
+arch_rows = [
+    ("TCN-HMAC (Proposed)", "157K", "612 KB", "0.17 ms", "Yes", "Stable", "Yes (HMAC)"),
+    ("CNN-BiLSTM", "~2M", "~8 MB", "~2 ms", "Partial", "Moderate", "No"),
+    ("CNN-LSTM", "~1.5M", "~6 MB", "~1.5 ms", "Partial", "Moderate", "No"),
+    ("DNN Ensemble", "~5M", "~20 MB", "~3 ms", "Yes", "Stable", "No"),
+    ("LSTM", "~500K", "~2 MB", "~1 ms", "No", "Unstable", "No"),
+    ("DRL (DDQN)", "~3M", "~12 MB", "~5 ms", "Yes", "Stable", "No"),
+    ("TCN-SE", "~300K", "~1.2 MB", "~0.3 ms", "Yes", "Stable", "No"),
+    ("BiTCN-MHSA", "~500K", "~2 MB", "~0.5 ms", "Partial", "Stable", "No"),
+]
+
+add_table_slide(prs, "Architectural Comparison",
+    ["Model", "Params", "Size", "Inference", "Parallel", "Gradient", "Comm. Auth."],
+    arch_rows,
+    col_widths=[1.9, 0.8, 1.0, 1.1, 1.0, 1.1, 1.7],
+    font_size=10)
+
+# ── SLIDE 14: RESULTS \u2014 SDN SECURITY FRAMEWORK COMPARISON ──────────
+sec_rows = [
+    ("TCN-HMAC (Proposed)", "TCN (DL)", "HMAC-SHA256", "Shadow Table", "Seq + TS", "Low", "Yes"),
+    ("Ahmed et al. [2023]", "None", "HMAC-SHA256", "No", "Partial", "Low", "Yes"),
+    ("Pradeep et al. [2023]", "EnsureS", "TLS", "No", "No", "Moderate", "Partial"),
+    ("Song et al. [2023]", "Blockchain", "Consensus", "Yes", "Yes", "High", "No"),
+    ("Poorazad et al. [2023]", "ML + BC", "Blockchain", "Yes", "Yes", "Very High", "No"),
+    ("Zhou et al. [2022]", "Encryption", "OPE", "Partial", "No", "Moderate", "Partial"),
+]
+
+add_table_slide(prs, "Comparison with SDN Security Frameworks",
+    ["Framework", "IDS", "Ctrl Auth.", "Flow Verify", "Anti-Replay", "Overhead", "Real-Time"],
+    sec_rows,
+    col_widths=[2.0, 1.2, 1.4, 1.3, 1.1, 1.1, 1.0],
+    font_size=10)
+
+# ── SLIDE 15: MAPPING RESULTS TO RESEARCH OBJECTIVES ───────────────
+add_content_slide(prs, "Results Mapped to Research Objectives", [
+    "RO1: TCN-based IDS with > 99% accuracy",
+    (1, "\u2713 Achieved 99.85% accuracy, 99.97% recall, 99.89% F1 \u2014 exceeds 99% target across all metrics"),
+    "",
+    "RO2: Preprocessing pipeline for InSDN",
+    (1, "\u2713 15-stage pipeline: 84\u219248\u219224 features (PCA retains 95.43% variance); class weighting applied"),
+    "",
+    "RO3: Compact deployable TCN model",
+    (1, "\u2713 156,737 params | 612 KB | 0.17 ms inference \u2014 5\u201330\u00d7 smaller than comparable DL models"),
+    "",
+    "RO4: HMAC auxiliary agent",
+    (1, "\u2713 HMAC-SHA256 (2 \u03bcs/msg) + shadow table verification (0.4 ms) + challenge-response auth"),
+    (1, "\u2713 +0.7 ms latency, +4.4% CPU \u2014 negligible overhead; detected all injected invalid flows"),
+    "",
+    "RO5: Integrated TCN-HMAC framework",
+    (1, "\u2713 Dual-boundary defense operating in the SDN control loop \u2014 software-only, no protocol changes"),
+    "",
+    "RO6: Evaluation in simulated SDN",
+    (1, "\u2713 Ryu + Mininet + OVS testbed; comprehensive metrics; statistical confidence intervals (\u00b10.04%)"),
+    "",
+    "RO7: Comprehensive comparative analysis",
+    (1, "\u2713 Benchmarked against 16 approaches (ML, DL, TCN variants, crypto frameworks) \u2014 most extensive in SDN IDS literature"),
+], font_size=12)
+
+# ── SLIDE 16: KEY ADVANTAGES ────────────────────────────────────────
+add_content_slide(prs, "Key Advantages of TCN-HMAC", [
+    "1. Highest Detection Rate: 99.97% \u2014 reduces missed attacks by 70% compared to next-best model",
+    "",
+    "2. Parameter Efficiency: Only 157K parameters (612 KB) \u2014 5\u201330\u00d7 smaller than comparable DL IDS",
+    "",
+    "3. Fastest Inference: 0.17 ms end-to-end \u2014 enables 5,000+ flow classifications/second on single GPU",
+    "",
+    "4. Dual Security Layer: Only framework combining DL-based IDS with cryptographic control-plane authentication",
+    "",
+    "5. Low Overhead: TCN inference + HMAC computation < 0.2 ms per flow (vs. seconds for blockchain)",
+    "",
+    "6. Training Efficiency: ~5 minutes to train \u2014 enables rapid model updates for evolving threats",
+    "",
+    "7. Drop-In Deployment: Software-only \u2014 runs as controller app + auxiliary agent; no protocol/hardware changes",
+], font_size=14)
+
+# ── SLIDE 17: CONCLUSION ────────────────────────────────────────────
+add_content_slide(prs, "Conclusion", [
+    "TCN-HMAC is a lightweight, dual-boundary security framework for Software-Defined Networks that:",
+    "",
+    (1, "Bridges the detection-verification divide \u2014 first unified framework combining temporal DL-based IDS with HMAC-based flow rule verification and challenge-response controller authentication"),
+    "",
+    (1, "Achieves state-of-the-art detection: 99.85% accuracy, 99.97% recall, 0.37% FAR, 0.9999 AUC on InSDN"),
+    "",
+    (1, "Operates in real time: 0.17 ms inference + 2 \u03bcs HMAC \u2014 well within SDN latency tolerances"),
+    "",
+    (1, "Requires no protocol modifications: runs entirely as a software controller application"),
+    "",
+    "Future Directions:",
+    (1, "Online/incremental learning for concept drift adaptation"),
+    (1, "Multi-controller SDN deployment support"),
+    (1, "Cross-dataset generalization (NSL-KDD, CIC-IDS-2017, UNSW-NB15)"),
+    (1, "Adversarial robustness evaluation"),
+    (1, "Multi-class attack type classification (beyond binary)"),
+], font_size=14)
+
+# ── SLIDE 18: THANK YOU / Q&A ──────────────────────────────────────
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+txBox = slide.shapes.add_textbox(Inches(0.5), Inches(2.0), Inches(9), Inches(3))
+tf = txBox.text_frame
+tf.word_wrap = True
+p = tf.paragraphs[0]
+p.text = "Thank You"
+p.font.size = Pt(40)
+p.font.bold = True
+p.alignment = PP_ALIGN.CENTER
+p.font.color.rgb = RGBColor(0, 51, 102)
 
 p2 = tf.add_paragraph()
+p2.text = "Questions & Discussion"
+p2.font.size = Pt(28)
 p2.alignment = PP_ALIGN.CENTER
-p2.space_before = Pt(20)
-r2 = p2.add_run()
-r2.text = "Questions & Discussion"
-r2.font.size = Pt(28)
-r2.font.color.rgb = LIGHT_GRAY
+p2.space_before = Pt(24)
 
-# Decorative line
-line = slide.shapes.add_shape(
-    MSO_SHAPE.RECTANGLE, Inches(5), Inches(5.0), Inches(3.3), Pt(3)
-)
-line.fill.solid()
-line.fill.fore_color.rgb = ACCENT_BLUE
-line.line.fill.background()
+p3 = tf.add_paragraph()
+p3.text = ""
+p3.font.size = Pt(12)
 
-# Contact info
-txBox3 = slide.shapes.add_textbox(Inches(1), Inches(5.4), Inches(11.3), Inches(1.2))
-tf3 = txBox3.text_frame
-tf3.word_wrap = True
-p = tf3.add_paragraph()
-p.alignment = PP_ALIGN.CENTER
-r = p.add_run()
-r.text = "Md. Mahamudul Hasan Zubayer  \u2022  Supervisor: Dr. Md. Maruf Hassan"
-r.font.size = Pt(16)
-r.font.color.rgb = LIGHT_GRAY
+p4 = tf.add_paragraph()
+p4.text = "Md. Mahamudul Hasan Zubayer"
+p4.font.size = Pt(16)
+p4.alignment = PP_ALIGN.CENTER
+p4.space_before = Pt(24)
 
-p2 = tf3.add_paragraph()
-p2.alignment = PP_ALIGN.CENTER
-r2 = p2.add_run()
-r2.text = "Department of Computer Science and Engineering, Southeast University"
-r2.font.size = Pt(14)
-r2.font.color.rgb = LIGHT_GRAY
+p5 = tf.add_paragraph()
+p5.text = "Department of Computer Science & Engineering"
+p5.font.size = Pt(14)
+p5.alignment = PP_ALIGN.CENTER
+
+p6 = tf.add_paragraph()
+p6.text = "Southeast University, Dhaka, Bangladesh"
+p6.font.size = Pt(14)
+p6.alignment = PP_ALIGN.CENTER
 
 
-# ── Finalize ────────────────────────────────────────────────
-set_slide_numbers()
-out_path = os.path.join(os.path.dirname(__file__), "thesis_defense_presentation.pptx")
-prs.save(out_path)
-print(f"Presentation saved to: {out_path}")
+# ── SAVE ─────────────────────────────────────────────────────────────
+output_path = "/home/zub/code/TCN_HMAC_Defense_Final_st/thesis_presentation.pptx"
+prs.save(output_path)
+print(f"Presentation saved to: {output_path}")
 print(f"Total slides: {len(prs.slides)}")

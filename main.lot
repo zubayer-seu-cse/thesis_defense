@@ -1,7 +1,7 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Summary of Related Work Categorization}}{48}{table.caption.7}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Summary of Related Work Categorization}}{49}{table.caption.7}%
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {4.1}{\ignorespaces InSDN Dataset Source Files}}{51}{table.caption.8}%
 \contentsline {table}{\numberline {4.2}{\ignorespaces Raw Label Distribution in the InSDN Dataset}}{53}{table.caption.9}%
@@ -10,7 +10,7 @@
 \contentsline {table}{\numberline {4.5}{\ignorespaces Post-Deduplication Label Distribution}}{58}{table.caption.13}%
 \contentsline {table}{\numberline {4.6}{\ignorespaces PCA Configuration and Results}}{59}{table.caption.14}%
 \contentsline {table}{\numberline {4.7}{\ignorespaces Stratified Train/Validation/Test Split}}{61}{table.caption.16}%
-\contentsline {table}{\numberline {4.8}{\ignorespaces Input Tensor Shapes After Reshaping}}{61}{table.caption.17}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Input Tensor Shapes After Reshaping}}{62}{table.caption.17}%
 \contentsline {table}{\numberline {4.9}{\ignorespaces Computed Class Weights}}{62}{table.caption.18}%
 \contentsline {table}{\numberline {4.10}{\ignorespaces Complete Preprocessing Pipeline Summary}}{63}{table.caption.19}%
 \addvspace {10\p@ }
@@ -39,5 +39,5 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {9.1}{\ignorespaces Performance Comparison with Existing IDS Approaches}}{118}{table.caption.49}%
 \contentsline {table}{\numberline {9.2}{\ignorespaces Architectural Comparison of IDS Models}}{119}{table.caption.50}%
-\contentsline {table}{\numberline {9.3}{\ignorespaces Comparison with SDN Security Frameworks}}{120}{table.caption.51}%
+\contentsline {table}{\numberline {9.3}{\ignorespaces Comparison with SDN Security Frameworks}}{121}{table.caption.51}%
 \addvspace {10\p@ }

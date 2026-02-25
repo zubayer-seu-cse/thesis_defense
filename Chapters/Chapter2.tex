@@ -6,15 +6,15 @@ Before diving into the design of the TCN-HMAC framework, it is worth laying out 
 \section{Software-Defined Networking Architecture}\label{sec:bg_sdn}
 %% ============================================================
 
-At its core, SDN is a paradigm shift: instead of scattering control logic across dozens of routers and switches---each running its own instance of OSPF or BGP---you pull that logic into a single piece of software sitting on a commodity server. The payoff is a unified view of the network and the ability to program its behaviour from one place. The cost, as we discuss later, is a new class of security risks. The subsections that follow walk through each architectural layer, the protocols that stitch them together, and the forwarding model that dictates how traffic actually moves.
+At its core, SDN is a paradigm shift: instead of scattering control logic across dozens of routers and switches-each running its own instance of OSPF or BGP-you pull that logic into a single piece of software sitting on a commodity server. The payoff is a unified view of the network and the ability to program its behaviour from one place. The cost, as we discuss later, is a new class of security risks. The subsections that follow walk through each architectural layer, the protocols that stitch them together, and the forwarding model that dictates how traffic actually moves.
 
 \subsection{Data Plane}\label{subsec:bg_data_plane}
 
-The data plane, also referred to as the infrastructure layer, constitutes the lowest layer of the SDN architecture. It comprises the physical and virtual network devices---switches, routers, and access points---that are responsible for the actual forwarding, dropping, and modification of network packets. In a traditional network, these devices contain embedded control logic that independently computes forwarding decisions using distributed routing protocols. In SDN, however, data-plane devices are deliberately simplified: they function as programmable forwarding elements whose behavior is entirely dictated by flow rules received from the SDN controller \cite{pfaff2015design}.
+The data plane, also referred to as the infrastructure layer, constitutes the lowest layer of the SDN architecture. It comprises the physical and virtual network devices-switches, routers, and access points-that are responsible for the actual forwarding, dropping, and modification of network packets. In a traditional network, these devices contain embedded control logic that independently computes forwarding decisions using distributed routing protocols. In SDN, however, data-plane devices are deliberately simplified: they function as programmable forwarding elements whose behavior is entirely dictated by flow rules received from the SDN controller \cite{pfaff2015design}.
 
 Each forwarding device in the data plane maintains one or more \textit{flow tables}, which are ordered collections of flow rules. A flow rule consists of three principal components: (1) \textit{match fields}, which define the criteria for selecting packets based on header fields such as source and destination MAC addresses, IP addresses, port numbers, VLAN tags, and protocol types; (2) \textit{actions}, which specify the operations to be performed on matched packets, such as forwarding to a specific port, dropping, modifying header fields, or encapsulating the packet for delivery to the controller; and (3) \textit{counters}, which maintain statistics about the number of packets and bytes that have matched the rule and the duration for which the rule has been active \cite{openflow2015spec}.
 
-When a packet arrives at an SDN-enabled switch, the switch performs a lookup in its flow tables, proceeding through the tables in pipeline order. If a matching rule is found, the corresponding action set is executed immediately. If no match is found in any table and a table-miss flow entry exists, the default action is performed---typically sending the packet to the controller via a \texttt{Packet-In} message. The controller then examines the packet, makes a forwarding decision, and installs appropriate flow rules in the switch to handle subsequent packets belonging to the same flow. This reactive flow installation mechanism is fundamental to understanding both the flexibility and the security vulnerabilities of SDN architectures.
+When a packet arrives at an SDN-enabled switch, the switch performs a lookup in its flow tables, proceeding through the tables in pipeline order. If a matching rule is found, the corresponding action set is executed immediately. If no match is found in any table and a table-miss flow entry exists, the default action is performed-typically sending the packet to the controller via a \texttt{Packet-In} message. The controller then examines the packet, makes a forwarding decision, and installs appropriate flow rules in the switch to handle subsequent packets belonging to the same flow. This reactive flow installation mechanism is fundamental to understanding both the flexibility and the security vulnerabilities of SDN architectures.
 
 Open vSwitch (OVS) is the most widely deployed software-based OpenFlow switch implementation \cite{pfaff2015design}. OVS supports a comprehensive set of OpenFlow features including multiple flow tables, group tables for multipath forwarding, meter tables for rate limiting, and extensive match field support. OVS operates in both the kernel space (for high-performance packet forwarding through a fast-path datapath module) and the user space (for management, control communication, and slow-path processing). The versatility of OVS has made it the de facto standard for SDN research, development, and testing, and it is the switch implementation employed in the experimental evaluation of this thesis.
 
@@ -40,21 +40,21 @@ The Ryu SDN Framework \cite{ryu2024framework} is an open-source, Python-based SD
 
 \subsection{Application Layer}\label{subsec:bg_app_layer}
 
-The application layer sits atop the control plane and encompasses the diverse ecosystem of network applications that leverage the programmability and global visibility provided by the SDN controller. These applications communicate with the controller through northbound APIs---typically RESTful HTTP interfaces or direct Python API calls (in the case of the Ryu framework)---and implement higher-level network functions such as:
+The application layer sits atop the control plane and encompasses the diverse ecosystem of network applications that leverage the programmability and global visibility provided by the SDN controller. These applications communicate with the controller through northbound APIs-typically RESTful HTTP interfaces or direct Python API calls (in the case of the Ryu framework)-and implement higher-level network functions such as:
 
 \begin{itemize}
     \item \textbf{Traffic Engineering:} Applications that optimize traffic distribution across the network to balance load, minimize congestion, and maximize throughput.
     
     \item \textbf{Firewalls and Access Control:} Applications that enforce security policies by installing flow rules that permit or deny traffic based on predefined criteria.
     
-    \item \textbf{Intrusion Detection Systems:} Applications that monitor network traffic patterns and flow statistics to detect anomalous behavior indicative of security threats---this is the category into which the TCN-based IDS component of this thesis falls.
+    \item \textbf{Intrusion Detection Systems:} Applications that monitor network traffic patterns and flow statistics to detect anomalous behavior indicative of security threats-this is the category into which the TCN-based IDS component of this thesis falls.
     
     \item \textbf{Quality of Service (QoS) Management:} Applications that allocate network resources to ensure that critical applications receive guaranteed bandwidth, latency, and jitter levels \cite{karakus2017quality}.
     
     \item \textbf{Network Monitoring and Visualization:} Applications that provide real-time dashboards and alerting capabilities based on the flow statistics and topology information maintained by the controller.
 \end{itemize}
 
-The layered SDN architecture---comprising the data plane, control plane, and application plane---connected through well-defined southbound and northbound interfaces, creates a modular and extensible framework for network management. However, this same architecture introduces the security challenges detailed in Chapter~\ref{chap:intro}, which motivate the design of the TCN-HMAC framework proposed in this thesis.
+The layered SDN architecture-comprising the data plane, control plane, and application plane-connected through well-defined southbound and northbound interfaces, creates a modular and extensible framework for network management. However, this same architecture introduces the security challenges detailed in Chapter~\ref{chap:intro}, which motivate the design of the TCN-HMAC framework proposed in this thesis.
 
 \subsection{OpenFlow Protocol}\label{subsec:bg_openflow}
 
@@ -72,7 +72,7 @@ The OpenFlow message types can be categorized into three classes:
 
 The OpenFlow specification recommends the use of Transport Layer Security (TLS) to protect the control channel between the controller and switches. However, as noted in Section~\ref{subsec:sdn_security_challenges}, TLS adoption remains inconsistent across deployments, and TLS alone does not provide end-to-end semantic integrity verification of flow rules. This gap motivates the HMAC-based verification mechanism employed in the TCN-HMAC framework.
 
-The \texttt{Flow-Mod} message is of particular importance to this thesis because it is the primary mechanism through which flow rules are installed in switches. A \texttt{Flow-Mod} message contains a cookie field---a 64-bit opaque value that the controller can set arbitrarily and that is returned in flow statistics and \texttt{Flow-Removed} messages. The TCN-HMAC framework leverages this cookie field to embed HMAC-based integrity tags without modifying the OpenFlow protocol itself.
+The \texttt{Flow-Mod} message is of particular importance to this thesis because it is the primary mechanism through which flow rules are installed in switches. A \texttt{Flow-Mod} message contains a cookie field-a 64-bit opaque value that the controller can set arbitrarily and that is returned in flow statistics and \texttt{Flow-Removed} messages. The TCN-HMAC framework leverages this cookie field to embed HMAC-based integrity tags without modifying the OpenFlow protocol itself.
 
 %% ============================================================
 \section{Temporal Convolutional Networks}\label{sec:bg_tcn}
@@ -94,7 +94,7 @@ In practice, causal convolutions in TCNs are implemented using standard one-dime
 
 \subsection{Dilated Convolutions}\label{subsec:bg_dilated_conv}
 
-A significant limitation of standard causal convolutions is that the receptive field---the number of input time steps that influence a given output---grows linearly with the number of convolutional layers. Specifically, a stack of $L$ layers with kernel size $K$ produces a receptive field of $1 + L(K-1)$ time steps. Achieving a large receptive field therefore requires either very deep networks (many layers) or very wide kernels (large $K$), both of which increase computational cost and parameter count \cite{oord2016wavenet}.
+A significant limitation of standard causal convolutions is that the receptive field-the number of input time steps that influence a given output-grows linearly with the number of convolutional layers. Specifically, a stack of $L$ layers with kernel size $K$ produces a receptive field of $1 + L(K-1)$ time steps. Achieving a large receptive field therefore requires either very deep networks (many layers) or very wide kernels (large $K$), both of which increase computational cost and parameter count \cite{oord2016wavenet}.
 
 Dilated convolutions resolve this limitation by introducing a dilation factor $d$ that controls the spacing between the kernel elements. For a dilation factor $d$, the dilated causal convolution is defined as:
 
@@ -102,13 +102,13 @@ Dilated convolutions resolve this limitation by introducing a dilation factor $d
     (\mathbf{x} *_{d} \mathbf{f})(t) = \sum_{k=0}^{K-1} f_k \cdot x_{t - d \cdot k}
 \end{equation}
 
-\noindent where $d$ is the dilation rate. When $d = 1$, the dilated convolution reduces to a standard convolution. As $d$ increases, the kernel elements are spaced further apart, effectively allowing the convolution to ``skip'' over input elements and access a wider range of temporal context. The key insight is that by exponentially increasing the dilation factor across layers---typically using a geometric progression $d_l = 2^{l-1}$ for layer $l$---the receptive field grows exponentially with the number of layers rather than linearly. Specifically, for $L$ layers with dilation factors $d_l = 2^{l-1}$ and kernel size $K$, the receptive field is:
+\noindent where $d$ is the dilation rate. When $d = 1$, the dilated convolution reduces to a standard convolution. As $d$ increases, the kernel elements are spaced further apart, effectively allowing the convolution to ``skip'' over input elements and access a wider range of temporal context. The key insight is that by exponentially increasing the dilation factor across layers-typically using a geometric progression $d_l = 2^{l-1}$ for layer $l$-the receptive field grows exponentially with the number of layers rather than linearly. Specifically, for $L$ layers with dilation factors $d_l = 2^{l-1}$ and kernel size $K$, the receptive field is:
 
 \begin{equation}
     R = 1 + (K - 1) \sum_{l=0}^{L-1} 2^l = 1 + (K - 1)(2^L - 1)
 \end{equation}
 
-For the TCN architecture employed in this thesis with $K = 3$ and $L = 6$ (dilation factors $[1, 2, 4, 8, 16, 32]$), the receptive field is $1 + 2 \times (2^6 - 1) = 1 + 2 \times 63 = 127$ time steps. Since the input sequence length is 24 (corresponding to 24 PCA components), this receptive field of 127 time steps is more than sufficient to capture dependencies across the entire input sequence, ensuring that the deepest layer has global context access.
+For the TCN architecture employed in this thesis with $K = 3$ and $L = 6$ (dilation factors $[1, 2, 4, 8, 16, 32]$), the receptive field is $1 + 2 \times (2^6 - 1) = 1 + 2 \times 63 = 127$ positions. Since the input dimensionality is 24 (corresponding to 24 PCA components), this receptive field of 127 is more than sufficient to capture dependencies across the entire feature space, ensuring that the deepest layer has global context access.
 
 \subsection{Residual Connections}\label{subsec:bg_residual}
 
@@ -120,7 +120,7 @@ In a TCN residual block, the input $\mathbf{x}$ is processed through a sequence 
     \text{output} = \text{ReLU}(\mathcal{F}(\mathbf{x}) + \mathbf{x})
 \end{equation}
 
-\noindent where $\mathcal{F}(\mathbf{x})$ represents the residual function learned by the convolutional layers, and $\mathbf{x}$ is the identity shortcut connection. When the dimensionality of $\mathbf{x}$ does not match that of $\mathcal{F}(\mathbf{x})$---for example, when the number of channels (filters) changes between layers---a $1 \times 1$ convolutional projection is applied to $\mathbf{x}$ to align the dimensions:
+\noindent where $\mathcal{F}(\mathbf{x})$ represents the residual function learned by the convolutional layers, and $\mathbf{x}$ is the identity shortcut connection. When the dimensionality of $\mathbf{x}$ does not match that of $\mathcal{F}(\mathbf{x})$-for example, when the number of channels (filters) changes between layers-a $1 \times 1$ convolutional projection is applied to $\mathbf{x}$ to align the dimensions:
 
 \begin{equation}
     \text{output} = \text{ReLU}(\mathcal{F}(\mathbf{x}) + W_s \mathbf{x})
@@ -144,25 +144,25 @@ Batch normalization \cite{ioffe2015batch} is a regularization technique that nor
     y_i = \gamma \hat{x}_i + \beta
 \end{equation}
 
-Batch normalization addresses the internal covariate shift problem---the phenomenon where the distribution of layer inputs changes during training as the parameters of preceding layers are updated. By stabilizing these distributions, batch normalization enables the use of higher learning rates, reduces sensitivity to weight initialization, and acts as a regularizer that can reduce the need for dropout in some architectures. In the TCN architecture employed in this thesis, batch normalization is applied after each convolutional layer and before the activation function, following the convention established in the original TCN literature \cite{bai2018empirical}.
+Batch normalization addresses the internal covariate shift problem-the phenomenon where the distribution of layer inputs changes during training as the parameters of preceding layers are updated. By stabilizing these distributions, batch normalization enables the use of higher learning rates, reduces sensitivity to weight initialization, and acts as a regularizer that can reduce the need for dropout in some architectures. In the TCN architecture employed in this thesis, batch normalization is applied after each convolutional layer and before the activation function, following the convention established in the original TCN literature \cite{bai2018empirical}.
 
 \subsection{Dropout and Spatial Dropout}\label{subsec:bg_dropout}
 
 Dropout \cite{srivastava2014dropout} is a regularization technique that randomly sets a fraction $p$ of the activations to zero during each training iteration. This prevents the network from developing co-dependent feature detectors and encourages the learning of more robust, distributed representations. During inference, all activations are retained but scaled by a factor of $(1 - p)$ to compensate for the difference in expected activation magnitude (or, equivalently, the training activations can be scaled by $\frac{1}{1-p}$, which is the inverted dropout approach used in most modern frameworks).
 
-For one-dimensional convolutional networks processing sequential data, standard element-wise dropout can disrupt the spatial structure of the feature maps. Spatial dropout addresses this issue by dropping entire feature map channels rather than individual elements. Specifically, for a feature tensor of shape $(N, T, C)$ where $N$ is the batch size, $T$ is the temporal dimension, and $C$ is the number of channels, spatial dropout creates a binary mask of shape $(N, 1, C)$ and broadcasts it across the temporal dimension. This ensures that when a channel is dropped, it is dropped for all time steps simultaneously, preserving the temporal coherence of the remaining channels.
+For one-dimensional convolutional networks processing sequential data, standard element-wise dropout can disrupt the spatial structure of the feature maps. Spatial dropout addresses this issue by dropping entire feature map channels rather than individual elements. Specifically, for a feature tensor of shape $(N, D, C)$ where $N$ is the batch size, $D$ is the feature dimensionality (or sequence length for temporal data), and $C$ is the number of channels, spatial dropout creates a binary mask of shape $(N, 1, C)$ and broadcasts it across dimension $D$. This ensures that when a channel is dropped, it is dropped for all positions simultaneously, preserving the spatial coherence of the remaining channels.
 
 The TCN architecture in this thesis employs spatial dropout with a rate of $p = 0.2$ after each pair of convolutional-batch normalization-activation operations within the residual blocks. Standard dropout with the same rate is applied in the dense classification head. These dropout rates were determined through preliminary hyperparameter search and provide an effective balance between regularization strength and model expressiveness.
 
 \subsection{Global Average Pooling}\label{subsec:bg_gap}
 
-After the sequence of residual blocks, the TCN produces a three-dimensional feature tensor of shape $(N, T, C)$, where $N$ is the batch size, $T$ is the sequence length, and $C$ is the number of channels in the final convolutional layer. To convert this temporal feature representation into a fixed-length vector suitable for classification, global average pooling (GAP) is applied along the temporal dimension:
+After the sequence of residual blocks, the TCN produces a three-dimensional feature tensor of shape $(N, D, C)$, where $N$ is the batch size, $D$ is the feature dimensionality (or sequence length for temporal data), and $C$ is the number of channels in the final convolutional layer. To convert this multi-channel feature representation into a fixed-length vector suitable for classification, global average pooling (GAP) is applied along dimension $D$:
 
 \begin{equation}
-    z_c = \frac{1}{T} \sum_{t=0}^{T-1} h_{t,c}
+    z_c = \frac{1}{D} \sum_{i=0}^{D-1} h_{i,c}
 \end{equation}
 
-\noindent where $h_{t,c}$ is the activation at time step $t$ for channel $c$, and $z_c$ is the resulting pooled value for channel $c$. GAP reduces the feature tensor from shape $(N, T, C)$ to $(N, C)$, producing a compact representation that captures the average temporal behavior across the entire sequence for each feature channel.
+\noindent where $h_{i,c}$ is the activation at position $i$ for channel $c$, and $z_c$ is the resulting pooled value for channel $c$. GAP reduces the feature tensor from shape $(N, D, C)$ to $(N, C)$, producing a compact representation that captures the average behavior across the entire input for each feature channel.
 
 GAP offers several advantages over alternative aggregation strategies such as flattening or temporal max pooling: (1) it is parameter-free, adding no additional trainable weights; (2) it provides inherent robustness to temporal shifts in the input, since averaging over time is less sensitive to the exact position of discriminative patterns; and (3) it produces a more compact representation than flattening, reducing the risk of overfitting in the subsequent dense layers.
 
@@ -179,7 +179,7 @@ TCNs offer several compelling advantages over recurrent neural network architect
     
     \item \textbf{Memory Efficiency:} TCNs share convolutional filters across all time steps, resulting in a parameter count that is independent of the sequence length. RNNs, while also sharing parameters across time steps through their recurrent connections, require maintaining hidden states for the duration of the sequence during both training (for backpropagation through time) and inference, consuming additional memory proportional to the sequence length.
     
-    \item \textbf{Empirical Performance:} Bai et al.\ \cite{bai2018empirical} conducted a comprehensive empirical evaluation demonstrating that TCNs achieve competitive or superior performance compared to canonical recurrent architectures (LSTM, GRU) across a diverse range of sequence modeling benchmarks. Subsequent studies specifically in the network intrusion detection domain \cite{Lopes2023TCN, LiLi2025TCNSE, Nazre2024TCN} have confirmed these findings, showing that TCNs offer favorable accuracy--latency tradeoffs for real-time security applications.
+    \item \textbf{Empirical Performance:} Bai et al.\ \cite{bai2018empirical} conducted a comprehensive empirical evaluation demonstrating that TCNs achieve competitive or superior performance compared to canonical recurrent architectures (LSTM, GRU) across a diverse range of sequence modeling benchmarks. Subsequent studies specifically in the network intrusion detection domain \cite{Lopes2023TCN, LiLi2025TCNSE, Nazre2024TCN} have confirmed these findings, showing that TCNs offer favorable accuracy-latency tradeoffs for real-time security applications.
 \end{enumerate}
 
 These advantages collectively make TCNs an attractive choice for the intrusion detection component of the TCN-HMAC framework, where real-time inference speed, training stability, and high detection accuracy are primary requirements.
@@ -188,7 +188,7 @@ These advantages collectively make TCNs an attractive choice for the intrusion d
 \section{Hash-Based Message Authentication Codes}\label{sec:bg_hmac}
 %% ============================================================
 
-An HMAC is, at its heart, a way to slap a tamper-evident seal on a message using a shared secret \cite{krawczyk1997hmac}. Unlike digital signatures, which rely on public-key cryptography and are comparatively expensive, HMACs use symmetric keys and run fast---fast enough to authenticate thousands of messages per second without anyone noticing the overhead. That speed is precisely why HMACs suit SDN flow-rule verification so well.
+An HMAC is, at its heart, a way to slap a tamper-evident seal on a message using a shared secret \cite{krawczyk1997hmac}. Unlike digital signatures, which rely on public-key cryptography and are comparatively expensive, HMACs use symmetric keys and run fast-fast enough to authenticate thousands of messages per second without anyone noticing the overhead. That speed is precisely why HMACs suit SDN flow-rule verification so well.
 
 \subsection{Mathematical Definition}\label{subsec:bg_hmac_math}
 
@@ -207,14 +207,14 @@ Given a cryptographic hash function $H$ (such as SHA-256 \cite{nist2015sha}), a 
     \item $opad$ is the outer padding constant: the byte \texttt{0x5C} repeated $B$ times
 \end{itemize}
 
-The double-hashing construction---where the message is first hashed with the key XORed with the inner pad, and the result is then hashed again with the key XORed with the outer pad---is essential for the security of the HMAC. This construction prevents length-extension attacks and other vulnerabilities that would affect a naïve $H(K \| M)$ construction.
+The double-hashing construction-where the message is first hashed with the key XORed with the inner pad, and the result is then hashed again with the key XORed with the outer pad-is essential for the security of the HMAC. This construction prevents length-extension attacks and other vulnerabilities that would affect a naïve $H(K \| M)$ construction.
 
 \subsection{Security Properties}\label{subsec:bg_hmac_security}
 
 HMACs provide two fundamental security guarantees:
 
 \begin{enumerate}
-    \item \textbf{Message Integrity:} Any modification to the message $M$---even a single bit change---will produce a completely different HMAC value with overwhelming probability. This property enables the recipient to detect any tampering with the message during transmission.
+    \item \textbf{Message Integrity:} Any modification to the message $M$-even a single bit change-will produce a completely different HMAC value with overwhelming probability. This property enables the recipient to detect any tampering with the message during transmission.
     
     \item \textbf{Message Authentication:} Only a party possessing the secret key $K$ can compute a valid HMAC for a given message. This property ensures that a message with a valid HMAC was originated by a party that knows the key, thereby authenticating the source of the message.
 \end{enumerate}
@@ -223,7 +223,7 @@ The security of HMAC relies on the underlying hash function being collision-resi
 
 \subsection{Computational Efficiency}\label{subsec:bg_hmac_efficiency}
 
-A critical advantage of HMAC for SDN flow rule verification is its computational efficiency. HMAC computation requires only two invocations of the underlying hash function, regardless of the message length (for messages shorter than the hash block size). On modern processors with hardware acceleration for SHA-256 (available in Intel SHA Extensions and ARM Cryptography Extensions), a single HMAC-SHA256 computation can complete in less than $1~\mu s$ for typical flow rule messages. This efficiency is in stark contrast to asymmetric cryptographic operations such as RSA-2048 signature generation, which typically requires $0.5$--$2~ms$ per operation, or ECDSA-256 signature generation, which requires $0.1$--$0.5~ms$ per operation \cite{rivest1978method}.
+A critical advantage of HMAC for SDN flow rule verification is its computational efficiency. HMAC computation requires only two invocations of the underlying hash function, regardless of the message length (for messages shorter than the hash block size). On modern processors with hardware acceleration for SHA-256 (available in Intel SHA Extensions and ARM Cryptography Extensions), a single HMAC-SHA256 computation can complete in less than $1~\mu s$ for typical flow rule messages. This efficiency is in stark contrast to asymmetric cryptographic operations such as RSA-2048 signature generation, which typically requires $0.5$-$2~ms$ per operation, or ECDSA-256 signature generation, which requires $0.1$-$0.5~ms$ per operation \cite{rivest1978method}.
 
 In the SDN context, where flow rules may be installed, modified, and deleted at rates of hundreds or thousands per second, the sub-microsecond HMAC computation time ensures that integrity verification does not introduce perceptible latency overhead. This property is fundamental to the practicality of the TCN-HMAC framework, as it enables real-time verification without degrading network performance.
 
@@ -237,17 +237,17 @@ This verification scheme has several desirable properties: (1) it requires no mo
 \section{Deep Learning for Network Intrusion Detection}\label{sec:bg_dl_ids}
 %% ============================================================
 
-Network Intrusion Detection Systems (NIDS) monitor live traffic for signs of malicious activity, policy violations, or unusual behaviour \cite{moustafa2023feature}. The classical approach is signature-based: compare what you see against a catalogue of known-bad patterns. This works passably well for known attacks but is blind to anything the catalogue does not already contain. That blind spot---zero-day attacks, novel exploit chains, traffic patterns that have never been seen before---has pushed the community toward anomaly-based methods that learn what ``normal'' looks like and raise an alarm when something deviates.
+Network Intrusion Detection Systems (NIDS) monitor live traffic for signs of malicious activity, policy violations, or unusual behaviour \cite{moustafa2023feature}. The classical approach is signature-based: compare what you see against a catalogue of known-bad patterns. This works passably well for known attacks but is blind to anything the catalogue does not already contain. That blind spot-zero-day attacks, novel exploit chains, traffic patterns that have never been seen before-has pushed the community toward anomaly-based methods that learn what ``normal'' looks like and raise an alarm when something deviates.
 
 \subsection{Machine Learning Approaches}\label{subsec:bg_ml_ids}
 
-Classical machine learning algorithms have been extensively applied to network intrusion detection. Random Forests \cite{breiman2001random} construct ensembles of decision trees trained on random subsets of features and samples, achieving robust classification through majority voting. XGBoost \cite{chen2016xgboost} extends gradient-boosted decision trees with regularization and second-order optimization, offering strong performance on tabular data. Support Vector Machines (SVMs) find optimal hyperplanes for class separation in high-dimensional feature spaces. These methods have demonstrated moderate success on benchmark intrusion detection datasets but share several limitations: they require extensive manual feature engineering, struggle with high-dimensional and correlated features, and have limited ability to capture complex nonlinear patterns and temporal dependencies in network traffic \cite{pan2023feature}.
+Classical machine learning algorithms have been extensively applied to network intrusion detection. Random Forests \cite{breiman2001random} construct ensembles of decision trees trained on random subsets of features and samples, achieving robust classification through majority voting. XGBoost \cite{chen2016xgboost} extends gradient-boosted decision trees with regularization and second-order optimization, offering strong performance on tabular data. Support Vector Machines (SVMs) find optimal hyperplanes for class separation in high-dimensional feature spaces. These methods have demonstrated moderate success on benchmark intrusion detection datasets but share several limitations: they require extensive manual feature engineering, struggle with high-dimensional and correlated features, and have limited ability to capture complex nonlinear interactions in network traffic statistics \cite{pan2023feature}.
 
 \subsection{Deep Learning Approaches}\label{subsec:bg_dl_ids_approaches}
 
 Deep learning architectures have emerged as powerful alternatives that can automatically learn hierarchical feature representations from raw or minimally preprocessed data, eliminating the need for manual feature engineering \cite{ismail2019deep}.
 
-\textbf{Convolutional Neural Networks (CNNs):} One-dimensional CNNs can extract local spatial patterns from feature vectors by applying sliding convolutional filters. While effective for capturing local correlations between adjacent features, standard CNNs lack inherent temporal awareness and treat the input as a fixed-length feature vector rather than a temporal sequence. This limits their ability to model the sequential dependencies present in network flow data.
+\textbf{Convolutional Neural Networks (CNNs):} One-dimensional CNNs can extract local spatial patterns from feature vectors by applying sliding convolutional filters. While effective for capturing local correlations between adjacent features, standard CNNs with fixed kernel sizes may not capture multi-scale patterns that span both local and global feature interactions.
 
 \textbf{Recurrent Neural Networks (RNNs):} LSTM networks \cite{hochreiter1997long} and GRUs \cite{cho2014learning} are designed to model sequential data by maintaining hidden states that capture temporal dependencies. LSTMs introduce gating mechanisms (input, forget, and output gates) that control the flow of information through the network, enabling the selective retention and updating of long-term memories. While highly effective for sequence modeling, LSTMs and GRUs suffer from sequential processing constraints that limit parallelism and increase inference latency.
 
@@ -255,7 +255,7 @@ Deep learning architectures have emerged as powerful alternatives that can autom
 
 \textbf{Transformers:} Transformer-based architectures \cite{vaswani2017attention, wu2022rtids} use self-attention mechanisms to model dependencies between all positions in a sequence simultaneously, enabling the capture of long-range interactions without the sequential processing constraint of RNNs. However, the quadratic computational complexity of self-attention with respect to the sequence length makes Transformers computationally expensive for long sequences, and the large number of parameters in typical Transformer configurations can lead to overfitting on small to medium-sized intrusion detection datasets.
 
-\textbf{Temporal Convolutional Networks:} TCNs \cite{bai2018empirical} combine the parallel processing efficiency of CNNs with the temporal modeling capability of dilated causal convolutions, achieving a favorable balance between detection accuracy, inference speed, and model complexity. The application of TCNs to network intrusion detection has been explored in several recent studies \cite{Lopes2023TCN, Benfarhat2025TCN, LiLi2025TCNSE, Nazre2024TCN, Sun2025TCN}, with results demonstrating competitive or superior performance compared to recurrent alternatives.
+\textbf{Temporal Convolutional Networks:} TCNs \cite{bai2018empirical} combine the parallel processing efficiency of CNNs with dilated causal convolutions to create multi-scale receptive fields, achieving a favorable balance between detection accuracy, inference speed, and model complexity. The application of TCNs to network intrusion detection has been explored in several recent studies \cite{Lopes2023TCN, Benfarhat2025TCN, LiLi2025TCNSE, Nazre2024TCN, Sun2025TCN}, with results demonstrating competitive or superior performance compared to recurrent alternatives. While TCNs were originally designed for temporal sequence modeling, their dilated convolutional architecture is also effective for extracting multi-scale patterns from structured feature representations.
 
 \subsection{Feature Engineering for Intrusion Detection}\label{subsec:bg_feature_eng}
 
@@ -328,7 +328,7 @@ Dimensionality reduction is achieved by projecting the data onto the first $k < 
     \text{Variance Retained} = \frac{\sum_{i=1}^{k} \lambda_i}{\sum_{i=1}^{p} \lambda_i}
 \end{equation}
 
-In this thesis, PCA is applied to reduce the 48-dimensional feature space of the preprocessed InSDN dataset to 24 principal components that retain 95.43\% of the total variance. This reduction halves the input dimensionality while preserving the vast majority of the discriminative information, resulting in faster model training and inference, reduced risk of overfitting, and improved model generalization. The 24 PCA components are subsequently treated as a temporal sequence of length 24 with a single channel, which serves as the input to the TCN model.
+In this thesis, PCA is applied to reduce the 48-dimensional feature space of the preprocessed InSDN dataset to 24 principal components that retain 95.43\% of the total variance. This reduction halves the input dimensionality while preserving the vast majority of the discriminative information, resulting in faster model training and inference, reduced risk of overfitting, and improved model generalization. The 24 PCA components are subsequently reshaped from $(24,)$ to $(24, 1)$ to serve as input to the TCN model, where the dilated convolutional layers extract multi-scale patterns across the feature space.
 
 %% ============================================================
 \section{Class Imbalance Handling}\label{sec:bg_class_imbalance}
@@ -354,6 +354,6 @@ In this thesis, class weighting is employed as the primary strategy for handling
 \section{Chapter Summary}\label{sec:bg_summary}
 %% ============================================================
 
-This chapter has surveyed the technical building blocks underpinning the TCN-HMAC framework. We began with the layered SDN architecture---data plane, control plane, application plane, and the OpenFlow protocol that connects them---and then turned to the TCN, walking through causal and dilated convolutions, residual connections, batch normalisation, dropout, and global average pooling. The HMAC was examined next: its mathematical construction, its security properties, and its suitability for high-throughput flow-rule verification. Finally, we reviewed deep learning-based IDS approaches, the standard evaluation metrics, PCA, and class-imbalance handling strategies. With this groundwork in place, the chapters that follow can focus on how these pieces fit together in the proposed framework.
+This chapter has surveyed the technical building blocks underpinning the TCN-HMAC framework. We began with the layered SDN architecture-data plane, control plane, application plane, and the OpenFlow protocol that connects them-and then turned to the TCN, walking through causal and dilated convolutions, residual connections, batch normalisation, dropout, and global average pooling. The HMAC was examined next: its mathematical construction, its security properties, and its suitability for high-throughput flow-rule verification. Finally, we reviewed deep learning-based IDS approaches, the standard evaluation metrics, PCA, and class-imbalance handling strategies. With this groundwork in place, the chapters that follow can focus on how these pieces fit together in the proposed framework.
 
 \endinput

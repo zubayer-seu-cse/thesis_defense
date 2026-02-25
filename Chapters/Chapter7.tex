@@ -1,6 +1,6 @@
 \chapter{Experimental Setup}\label{chap:experiment}
 
-Results are only as trustworthy as the setup that produces them. This chapter spells out every detail of the experimental environment---hardware, software, data splits, evaluation metrics, baselines, and reproducibility measures---so that readers can judge the results in context and, if they wish, replicate them.
+Results are only as trustworthy as the setup that produces them. This chapter spells out every detail of the experimental environment-hardware, software, data splits, evaluation metrics, baselines, and reproducibility measures-so that readers can judge the results in context and, if they wish, replicate them.
 
 %% ============================================================
 \section{Computing Platform}\label{sec:computing_platform}
@@ -140,13 +140,13 @@ These weights are applied in the loss function during training, effectively over
 \section{Input Representation}\label{sec:input_representation}
 %% ============================================================
 
-The TCN model expects input tensors of shape $(N, T, C)$ where $N$ is the batch size, $T$ is the sequence length (temporal dimension), and $C$ is the number of input channels. The 24 PCA-transformed features are treated as a temporal sequence with one channel:
+The TCN model expects input tensors of shape $(N, D, C)$ where $N$ is the batch size, $D$ is the feature dimensionality, and $C$ is the number of input channels. The 24 PCA-transformed features are formatted as a multi-dimensional representation with one channel:
 
 \begin{equation}
     \mathbf{X} \in \mathbb{R}^{N \times 24 \times 1}
 \end{equation}
 
-This representation treats each PCA component as a time step, allowing the TCN's causal convolutions to capture relationships between sequential PCA components. While PCA components are not inherently temporal, the ordering by explained variance ratio creates a meaningful sequence from the most important to the least important features, and the TCN's causal structure captures hierarchical dependencies within this ordering.
+This representation allows the TCN's dilated 1D convolutions to extract multi-scale patterns across the feature space. The PCA components are ordered by explained variance ratio, creating a meaningful structure from the most discriminative to the least discriminative features. The TCN's dilated convolutional architecture captures both local interactions (between adjacent principal components) and global relationships (across the full 24-dimensional feature space) through its hierarchical receptive field growth.
 
 %% ============================================================
 \section{Evaluation Metrics}\label{sec:eval_metrics}
@@ -168,7 +168,7 @@ The model's performance is evaluated using a comprehensive suite of binary class
     \text{Precision} = \frac{TP}{TP + FP}
 \end{equation}
 
-High precision indicates few false alarms, which is important for operational deployability---a system with many false alarms wastes the administrator's time and may lead to alarm fatigue.
+High precision indicates few false alarms, which is important for operational deployability-a system with many false alarms wastes the administrator's time and may lead to alarm fatigue.
 
 \textbf{Recall (Sensitivity, Detection Rate):} The proportion of actual attacks that are correctly detected:
 \begin{equation}

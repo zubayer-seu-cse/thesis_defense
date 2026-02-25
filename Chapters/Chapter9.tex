@@ -1,6 +1,6 @@
 \chapter{Comparative Analysis}\label{chap:comparative}
 
-Good results mean little in a vacuum. This chapter puts the TCN-HMAC framework head-to-head with fifteen existing approaches, comparing along three axes: detection performance against other IDS models on SDN-relevant datasets, architectural efficiency (parameters, model size, inference speed), and security coverage relative to alternative SDN defence strategies.
+Good results mean little in a vacuum. This chapter puts the TCN-HMAC framework head-to-head with sixteen existing approaches, comparing along three axes: detection performance against other IDS models on SDN-relevant datasets, architectural efficiency (parameters, model size, inference speed), and security coverage relative to alternative SDN defence strategies.
 
 %% ============================================================
 \section{Performance Comparison with Existing IDS Models}\label{sec:perf_comparison}
@@ -31,6 +31,7 @@ Benfarhat et al. \cite{Benfarhat2025TCN} & 2025 & TCN+Att & CIC-IDS-2017 & 99.73
 Mei et al. \cite{Mei2024BiTCN} & 2024 & BiTCN & CIC-IDS-2017 & 99.60 & 99.55 & 99.60 & 99.57 \\
 Deng et al. \cite{Deng2024BiTCNMHSA} & 2024 & BiTCN-MHSA & CIC-IDS-2017 & 99.72 & 99.68 & 99.72 & 99.70 \\
 Sun et al. \cite{Sun2025TCN} & 2025 & TCN-IDS & IoT dataset & 98.90 & 98.85 & 98.90 & 98.87 \\
+Wang et al. \cite{Wang2025TCN_SDN} & 2025 & TCN & InSDN & 97.00 & 96.40 & 96.91 & 96.72 \\
 Nazre et al. \cite{Nazre2024TCN} & 2024 & TCN ensemble & UNSW-NB15 & 99.12 & 99.10 & 99.12 & 99.11 \\
 Ahmad et al. \cite{Ahmad2021CNN_SDN} & 2021 & CNN & InSDN & 99.20 & 99.10 & 99.20 & 99.15 \\
 El-Sayed et al. \cite{elsayed2020insdn} & 2020 & DT/RF & InSDN & 98.50 & 98.40 & 98.50 & 98.45 \\
@@ -42,7 +43,7 @@ El-Sayed et al. \cite{elsayed2020insdn} & 2020 & DT/RF & InSDN & 98.50 & 98.40 &
 
 \subsection{Analysis of Comparative Results}\label{subsec:comp_analysis}
 
-The numbers in Tables~\ref{tab:perf_comparison}--\ref{tab:sdn_security_comparison} tell a consistent story. Several observations stand out:
+The numbers in Tables~\ref{tab:perf_comparison}-\ref{tab:sdn_security_comparison} tell a consistent story. Several observations stand out:
 
 \textbf{1. Competitive Accuracy:} The proposed TCN-HMAC model achieves 99.85\% accuracy, which is highly competitive with the best results in the literature. The CNN-BiLSTM model of Said et al.\ \cite{Said2023CNNBiLSTM} reports 99.90\% accuracy on the same InSDN dataset, which is marginally higher by 0.05\%. However, this small difference is within the statistical margin of error (confidence interval $\pm$0.04\%, see Section~\ref{sec:stat_significance}) and may not represent a statistically significant advantage.
 
@@ -50,9 +51,9 @@ The numbers in Tables~\ref{tab:perf_comparison}--\ref{tab:sdn_security_compariso
 
 \textbf{3. Advantage over RNN-Based Models:} The TCN model outperforms all pure recurrent architectures (LSTM, GRU) by a significant margin. Basfar's LSTM model \cite{Basfar2025LSTM} achieves 99.23\% accuracy, 0.62\% lower than TCN-HMAC. This advantage is consistent with the theoretical analysis of TCN's superiority over recurrent architectures for this type of classification task (Section~\ref{subsec:bg_tcn_advantages}).
 
-\textbf{4. Dataset-Specific Considerations:} Direct comparison across different datasets must be interpreted with caution. Models evaluated on NSL-KDD, CIC-IDS-2017, or UNSW-NB15 cannot be directly compared to models evaluated on InSDN, as the difficulty of classification varies across datasets. The most meaningful comparisons are with models evaluated on InSDN: Said et al.\ \cite{Said2023CNNBiLSTM} (99.90\%), Ataa et al.\ \cite{Ataa2024SDNDL} (99.70\%), Kanimozhi et al.\ \cite{Kanimozhi2025DRL} (98.85\%), Ahmad et al.\ \cite{Ahmad2021CNN_SDN} (99.20\%), and El-Sayed et al.\ \cite{elsayed2020insdn} (98.50\%).
+\textbf{4. Dataset-Specific Considerations:} Direct comparison across different datasets must be interpreted with caution. Models evaluated on NSL-KDD, CIC-IDS-2017, or UNSW-NB15 cannot be directly compared to models evaluated on InSDN, as the difficulty of classification varies across datasets. The most meaningful comparisons are with models evaluated on InSDN: Said et al.\ \cite{Said2023CNNBiLSTM} (99.90\%), Ataa et al.\ \cite{Ataa2024SDNDL} (99.70\%), Kanimozhi et al.\ \cite{Kanimozhi2025DRL} (98.85\%), Ahmad et al.\ \cite{Ahmad2021CNN_SDN} (99.20\%), El-Sayed et al.\ \cite{elsayed2020insdn} (98.50\%), and Wang et al.\ \cite{Wang2025TCN_SDN} (97.00\%). Notably, Wang et al.\ is the only other TCN-based model evaluated on InSDN; its 2.85-point accuracy deficit relative to TCN-HMAC underscores the importance of the preprocessing pipeline (PCA, Pearson correlation thresholding, class weighting) and flow-level feature engineering employed in this thesis compared with their packet-length-only input design.
 
-\textbf{5. TCN Architecture Variants:} Among TCN variants, the proposed model achieves the highest accuracy. Li et al.'s TCN-SE \cite{LiLi2025TCNSE} (99.62\%), Benfarhat et al.'s TCN+Attention \cite{Benfarhat2025TCN} (99.73\%), Mei et al.'s BiTCN \cite{Mei2024BiTCN} (99.60\%), and Deng et al.'s BiTCN-MHSA \cite{Deng2024BiTCNMHSA} (99.72\%) all achieve lower accuracy than the proposed model, despite some employing more complex architectural enhancements (squeeze-and-excitation, attention mechanisms, bidirectional processing). This suggests that the simplicity of the proposed TCN architecture, combined with effective preprocessing (PCA, class weighting), is sufficient for high performance without architectural complexity overhead.
+\textbf{5. TCN Architecture Variants:} Among TCN variants, the proposed model achieves the highest accuracy. Li et al.'s TCN-SE \cite{LiLi2025TCNSE} (99.62\%), Benfarhat et al.'s TCN+Attention \cite{Benfarhat2025TCN} (99.73\%), Mei et al.'s BiTCN \cite{Mei2024BiTCN} (99.60\%), Deng et al.'s BiTCN-MHSA \cite{Deng2024BiTCNMHSA} (99.72\%), and Wang et al.'s plain TCN \cite{Wang2025TCN_SDN} (97.00\%) all achieve lower accuracy than the proposed model, despite some employing more complex architectural enhancements (squeeze-and-excitation, attention mechanisms, bidirectional processing). Wang et al.'s result on the same InSDN dataset is particularly instructive: their packet-length-only feature design coupled with just three residual blocks yields 97.00\% accuracy and 2.1~ms inference, whereas the proposed model's flow-level feature set with PCA and six dilated residual blocks achieves 99.85\% accuracy at 0.17~ms, a 2.85-point accuracy improvement and 12$\times$ faster inference. This suggests that the simplicity of the proposed TCN architecture, combined with effective preprocessing (PCA, class weighting), is sufficient for high performance without architectural complexity overhead.
 
 %% ============================================================
 \section{Architectural Comparison}\label{sec:arch_comparison}
@@ -85,7 +86,7 @@ BiTCN-MHSA & $\sim$500K & $\sim$2MB & $\sim$0.5ms & Partial & Stable & No \\
 
 \subsection{Parameter Efficiency}\label{subsec:param_efficiency}
 
-The proposed TCN model contains only 157K parameters, making it one of the smallest deep learning models in the comparison. The CNN-BiLSTM model that achieves comparable accuracy requires approximately $2$M parameters---12$\times$ more than the TCN. This parameter efficiency has direct practical implications:
+The proposed TCN model contains only 157K parameters, making it one of the smallest deep learning models in the comparison. The CNN-BiLSTM model that achieves comparable accuracy requires approximately $2$M parameters-12$\times$ more than the TCN. This parameter efficiency has direct practical implications:
 
 \begin{itemize}
     \item \textbf{Faster Deployment:} The 612~KB model can be loaded and initialized in milliseconds, compared to seconds for multi-megabyte models.
@@ -185,7 +186,7 @@ Based on the comprehensive comparative analysis, the TCN-HMAC framework offers t
 \begin{enumerate}
     \item \textbf{Highest Detection Rate:} 99.97\% detection rate, the highest among all compared IDS models, reducing missed attacks by 70\% compared to the next-best approach.
     
-    \item \textbf{Parameter Efficiency:} Only 157K parameters (612~KB model size), 5--30$\times$ smaller than comparable deep learning IDS models without sacrificing accuracy.
+    \item \textbf{Parameter Efficiency:} Only 157K parameters (612~KB model size), 5-30$\times$ smaller than comparable deep learning IDS models without sacrificing accuracy.
     
     \item \textbf{Fastest Inference:} 0.17~ms end-to-end processing time, enabling classification of 5,000+ flows per second on a single GPU.
     
@@ -205,19 +206,19 @@ Based on the comprehensive comparative analysis, the TCN-HMAC framework offers t
 The following papers were cited in the literature review and comparative analysis. While their titles and authors are known from the existing references, full documents would enable deeper quantitative comparison with detailed per-attack-type metrics, training curves, and ablation study results:
 
 \begin{enumerate}
-    \item \textbf{Said et al.} (2023) -- ``CNN-BiLSTM for SDN Intrusion Detection'' \cite{Said2023CNNBiLSTM}: Achieves very close accuracy to our model on InSDN. Full paper comparison of feature selection methodology, training time, and per-attack-type metrics would strengthen the analysis.
+    \item \textbf{Said et al.} (2023) - ``CNN-BiLSTM for SDN Intrusion Detection'' \cite{Said2023CNNBiLSTM}: Achieves very close accuracy to our model on InSDN. Full paper comparison of feature selection methodology, training time, and per-attack-type metrics would strengthen the analysis.
     
-    \item \textbf{Lopes et al.} (2023) -- ``TCN for Network Intrusion Detection'' \cite{Lopes2023TCN}: As the most directly comparable TCN-based IDS, detailed architectural and preprocessing differences would provide valuable insights.
+    \item \textbf{Lopes et al.} (2023) - ``TCN for Network Intrusion Detection'' \cite{Lopes2023TCN}: As the most directly comparable TCN-based IDS, detailed architectural and preprocessing differences would provide valuable insights.
     
-    \item \textbf{Ataa et al.} (2024) -- ``Deep Learning for SDN IDS'' \cite{Ataa2024SDNDL}: Evaluated on InSDN, making it directly comparable. Ensemble approach comparison would be informative.
+    \item \textbf{Ataa et al.} (2024) - ``Deep Learning for SDN IDS'' \cite{Ataa2024SDNDL}: Evaluated on InSDN, making it directly comparable. Ensemble approach comparison would be informative.
     
-    \item \textbf{Li et al.} (2025) -- ``TCN with Squeeze-and-Excitation for IDS'' \cite{LiLi2025TCNSE}: TCN-SE architecture comparison could clarify the value of attention mechanisms for NIDS.
+    \item \textbf{Li et al.} (2025) - ``TCN with Squeeze-and-Excitation for IDS'' \cite{LiLi2025TCNSE}: TCN-SE architecture comparison could clarify the value of attention mechanisms for NIDS.
     
-    \item \textbf{Benfarhat et al.} (2025) -- ``TCN with Attention for CIC-IDS'' \cite{Benfarhat2025TCN}: Another TCN variant with attention, evaluated on CIC-IDS-2017.
+    \item \textbf{Benfarhat et al.} (2025) - ``TCN with Attention for CIC-IDS'' \cite{Benfarhat2025TCN}: Another TCN variant with attention, evaluated on CIC-IDS-2017.
     
-    \item \textbf{Deng et al.} (2024) -- ``BiTCN-MHSA for Network Intrusion Detection'' \cite{Deng2024BiTCNMHSA}: Bidirectional TCN with multi-head self-attention represents an alternative TCN enhancement strategy.
+    \item \textbf{Deng et al.} (2024) - ``BiTCN-MHSA for Network Intrusion Detection'' \cite{Deng2024BiTCNMHSA}: Bidirectional TCN with multi-head self-attention represents an alternative TCN enhancement strategy.
     
-    \item \textbf{Kanimozhi et al.} (2025) -- ``Deep Reinforcement Learning for SDN IDS'' \cite{Kanimozhi2025DRL}: DRL-based approach on InSDN, representing a fundamentally different paradigm.
+    \item \textbf{Kanimozhi et al.} (2025) - ``Deep Reinforcement Learning for SDN IDS'' \cite{Kanimozhi2025DRL}: DRL-based approach on InSDN, representing a fundamentally different paradigm.
 \end{enumerate}
 
 \textit{Note: The performance values for the above papers are based on their reported results; exact reproduction on the InSDN testbed under identical conditions is recommended for a strictly fair comparison. Readers are encouraged to consult the original publications for detailed methodological descriptions.}
@@ -226,6 +227,6 @@ The following papers were cited in the literature review and comparative analysi
 \section{Chapter Summary}\label{sec:comp_summary}
 %% ============================================================
 
-Pulling the threads together, the comparative analysis confirms that TCN-HMAC occupies a unique spot in the SDN security landscape: it matches or exceeds the detection accuracy of larger, more complex models while being the only approach that pairs deep-learning IDS with HMAC-based control-plane authentication. The 612~KB model, 0.17~ms inference time, and five-minute retraining cycle make it practical for production deployment, and the dual-layer defence strategy closes gaps that single-mechanism approaches leave open. Where certain models edge ahead on one metric or another, none matches the proposed framework's overall combination of performance, efficiency, and security breadth.
+Pulling the threads together, the comparative analysis confirms that TCN-HMAC occupies a unique spot in the SDN security landscape: it matches or exceeds the detection accuracy of larger, more complex models while being the only approach that pairs deep-learning IDS with HMAC-based control-plane authentication. The 612~KB model, 0.17~ms inference time, and five-minute retraining cycle make it practical for production deployment, and the dual-layer defence strategy closes gaps that single-mechanism approaches leave open. Where certain models edge ahead on one metric or another, none of the sixteen compared approaches matches the proposed framework's overall combination of performance, efficiency, and security breadth.
 
 \endinput

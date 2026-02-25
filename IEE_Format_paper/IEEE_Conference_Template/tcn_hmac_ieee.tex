@@ -28,7 +28,7 @@ Dhaka, Bangladesh}
 \maketitle
 
 \begin{abstract}
-Software-Defined Networking (SDN) has reshaped modern network management by separating the control plane from the data plane, bringing centralized programmability and fine-grained traffic control. That very centralization, opens the door to serious security risks such as, network intrusion, information theft, eavesdropping, and, in worst-case scenarios, complete network failure. As attack strategies grow more sophisticated, relying on conventional firewalls alone is no longer tenable, and while TLS encryption can protect the control channel, its computational overhead makes it a poor fit for resource-constrained SDN deployments. This paper presents a lightweight hybrid security framework that tackles these threats on two fronts. The first layer of defense is a custom Temporal Convolutional Network (TCN) exported in ONNX format and deployed as a controller application, it inspects flow statistics in real time and flags the traffic as malicious or benign. Backing this up is an auxiliary agent that runs as a co-located subprocess, verifying every flow rule installation through HMAC-based integrity checks and periodically executing a challenge--response protocol to confirm controller authenticity. The framework is evaluated on the InSDN dataset, which covers DDoS, MITM, Probe, and Brute-force attack categories. The TCN achieves 99.85\% classification accuracy, while the HMAC verification adds negligible computational overhead, roughly 0.7 ms per operation. Taken together, these results demonstrate that the proposed TCN-HMAC approach delivers robust, multi-layered SDN security without sacrificing the real-time performance modern networks demand.
+Software-Defined Networking (SDN) has reshaped modern network management by separating the control plane from the data plane, bringing centralized programmability and fine-grained traffic control. That very centralization, opens the door to serious security risks such as, network intrusion, information theft, eavesdropping, and, in worst-case scenarios, complete network failure. As attack strategies grow more sophisticated, relying on conventional firewalls alone is no longer tenable, and while TLS encryption can protect the control channel, its computational overhead makes it a poor fit for resource-constrained SDN deployments. This paper presents a lightweight hybrid security framework that tackles these threats on two fronts. The first layer of defense is a custom Temporal Convolutional Network (TCN) exported in ONNX format and deployed as a controller application, it inspects flow statistics in real time and flags the traffic as malicious or benign. Backing this up is an auxiliary agent that runs as a co-located subprocess, verifying every flow rule installation through HMAC-based integrity checks and periodically executing a challenge-response protocol to confirm controller authenticity. The framework is evaluated on the InSDN dataset, which covers DDoS, MITM, Probe, and Brute-force attack categories. The TCN achieves 99.85\% classification accuracy, while the HMAC verification adds negligible computational overhead, roughly 0.7 ms per operation. Taken together, these results demonstrate that the proposed TCN-HMAC approach delivers robust, multi-layered SDN security without sacrificing the real-time performance modern networks demand.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -41,43 +41,31 @@ This section introduces the security challenges inherent in Software-Defined Net
 
 The appeal of Software-Defined Networking, including programmability, centralised policy, and hardware independence, comes with an uncomfortable corollary: a compromised controller can redirect, copy, or silently drop arbitrary traffic~\cite{kreutz2015sdn}. Two bodies of work have attacked this problem from opposite ends. Machine-learning IDS classify data-plane traffic but leave the OpenFlow channel wide open; TLS encrypts that channel but cannot verify individual flow-rule commands or detect application-layer intrusions~\cite{Ahmed2023HMACSDN}. Blockchain-based alternatives offer strong integrity guarantees, yet their consensus latencies, measured in seconds, are incompatible with the millisecond-scale reactions an SDN controller requires~\cite{Song2023IS2N}.
 
-A common misconception is that TLS alone can secure the SDN control plane. In practice, TLS falls short in two fundamental ways. First, TLS provides transport-layer confidentiality and authentication but does not validate the \emph{semantic} integrity of OpenFlow messages. A compromised controller---a realistic threat given SDN's single-point-of-control architecture---can issue well-formed but malicious \texttt{Flow\_Mod} messages that TLS will faithfully encrypt and deliver; this is a controller-level insider threat that TLS was never designed to prevent. Second, TLS secures only the controller--switch channel and has no visibility into the switch's local data plane. A switch compromised through a malicious end-host exploit, physical access, or firmware attack can have its flow tables modified locally, bypassing both the controller and TLS entirely. HMAC-based flow rule verification addresses both gaps: it enables an auxiliary agent to independently verify each flow rule's authenticity regardless of controller trustworthiness, while periodic shadow-table audits detect unauthorised local modifications that occur outside the TLS-protected channel.
+TLS provides transport-layer confidentiality but cannot validate semantic integrity of OpenFlow messages. A compromised controller can issue malicious \texttt{Flow\_Mod} commands that TLS encrypts faithfully, while local switch compromises bypass the control channel entirely. Existing solutions address either intrusion detection or integrity verification, not both, leaving SDN vulnerable to multi-vector attacks.
 
-Existing SDN security solutions address either data-plane intrusion detection or control-plane integrity verification, but not both simultaneously. Machine learning and deep learning-based IDS can classify malicious traffic with high accuracy, yet they provide no protection against control-plane threats such as unauthorized flow rule injection or controller impersonation. Conversely, cryptographic approaches like TLS and HMAC can authenticate control messages, but they cannot detect data-plane intrusions. This gap leaves SDN deployments vulnerable to multi-vector attacks that target both planes concurrently.
+TCN-HMAC addresses this gap by combining a lightweight Temporal Convolutional Network for data-plane intrusion detection with HMAC-SHA256-based control-plane authentication. Key contributions: (1) First framework unifying deep learning IDS with cryptographic flow rule verification and challenge-response authentication. (2) Novel auxiliary agent architecture for co-located shadow-table verification running as a controller subprocess.
 
-This work aims to address the above gap through the following objectives: (1) Design a lightweight Temporal Convolutional Network (TCN) that achieves satisfactory accuracy on SDN-specific traffic with a compact model footprint suitable for real-time deployment~\textbf{[RO1]}. (2) Develop an HMAC-based auxiliary agent architecture that provides control-plane message authentication, flow rule integrity verification, and controller identity validation with negligible computational overhead~\textbf{[RO2]}. (3) Demonstrate through comparative evaluation that the unified TCN-HMAC framework matches or outperforms existing approaches in detection performance while uniquely providing control-plane security~\textbf{[RO3]}.
-
-To bridge these two worlds, TCN-HMAC is proposed as a single lightweight system in which a Temporal Convolutional Network inspects data-plane flows while an HMAC-SHA256 mechanism authenticates every control-plane message, verifies flow rules against a shadow table, and periodically re-authenticates controller identity. The key contributions of this paper are as follows:
-\begin{enumerate}
-    \item \textbf{First unified detection verification framework for SDN:} To the best of the authors' knowledge, TCN-HMAC is the first framework that integrates temporal deep learning-based intrusion detection with lightweight HMAC-based flow rule integrity verification and challenge--response controller authentication in a single deployable SDN security solution. Prior work addresses either detection or verification in isolation, leaving critical security gaps.
-    \item \textbf{Novel auxiliary agent architecture for co-located cryptographic verification:} A lightweight auxiliary agent is introduced that runs as a co-located subprocess alongside the SDN controller, performing HMAC-based flow rule verification against a shadow table and periodic challenge, an approach not explored in any prior SDN security study, as per the authors' knowledge.
-\end{enumerate}
-
-The remainder of this paper is organized as follows. Section~II reviews related work on deep learning-based IDS, TCN variants, and SDN control-plane security. Section~III describes the proposed TCN-HMAC framework architecture, including the TCN model design and HMAC communication integrity protocols. Section~IV outlines the experimental setup, dataset, and training configuration. Section~V presents the classification results, training dynamics, and system overhead measurements. Section~VI provides a comparative analysis against fifteen existing approaches. Finally, Section~VII concludes the paper and identifies directions for future work.
-
-In summary, the central problem addressed in this work is the absence of a unified, lightweight SDN security solution that simultaneously protects both the data plane and the control plane. TCN-HMAC is proposed as the first framework to fill this gap by combining temporal deep learning-based intrusion detection with cryptographic control-plane verification.
+Section~II reviews related work, Section~III presents the framework architecture, Section~IV describes experimental setup, Section~V reports results, Section~VI provides comparative analysis, and Section~VII concludes.
 
 \section{Related Work}
 
-This section reviews the existing literature across six categories: cryptographic SDN security, ML-based IDS, deep learning-based IDS, TCN variants, blockchain-based solutions, and hybrid authentication approaches. The review reveals that no prior work combines deep learning-based intrusion detection with cryptographic control-plane verification in a single framework.
+Existing SDN security approaches span cryptographic mechanisms, ML/DL-based IDS, and TCN variants, but no prior work unifies detection with control-plane verification.
 
-Several studies have proposed cryptographic mechanisms to protect the SDN control plane. Pradeep et al.~\cite{Pradeep2023EnsureS} introduced EnsureS, a batch hashing scheme for flow rule verification with sub-millisecond overhead. Ahmed et al.~\cite{Ahmed2023HMACSDN} developed a modular HMAC-SHA256 framework for authenticating \texttt{flow\_mod} messages without protocol modifications. Buruaga et al.~\cite{buruaga2025quantum} addressed quantum-era threats by integrating post-quantum TLS into the SDN control channel, though with substantially higher computational cost. While these approaches provide integrity guarantees, they all operate reactively, verifying rules only after issuance, and none incorporates proactive intrusion detection. TCN-HMAC extends this line of work by pairing HMAC verification with a TCN-based IDS, covering threats such as DDoS, reconnaissance, and brute-force attacks that do not involve direct flow rule tampering.
+Cryptographic solutions protect the control plane but lack intrusion detection. Pradeep et al.~\cite{Pradeep2023EnsureS} proposed batch hashing for flow rule verification, Ahmed et al.~\cite{Ahmed2023HMACSDN} developed modular HMAC-SHA256 authentication, and Buruaga et al.~\cite{buruaga2025quantum} integrated post-quantum TLS at high computational cost. All operate reactively without proactive threat detection.
 
-Traditional machine learning classifiers have been widely applied to SDN intrusion detection. Sharma and Tyagi~\cite{Sharma2023LightweightIDS} achieved 98.12\% accuracy with an ensemble-based lightweight IDS for MITM and DoS detection. Ayad et al.~\cite{Ayad2025MLSDN} systematically evaluated Random Forest, XGBoost, and Decision Tree on multiple SDN datasets, finding that ensemble methods consistently outperform individual classifiers. Basfar et al.~\cite{Basfar2024EMRMR} proposed an enhanced feature selection method (EMRMR) that reduces dimensionality while preserving discriminative power. However, all these approaches rely on manually engineered features, struggle with high-dimensional temporal data, and offer no control-plane protection. The proposed TCN-based approach automatically learns temporal feature representations from raw flow data and pairs detection with HMAC-based verification, a capability that no ML-based IDS provides.
+Traditional ML classifiers achieve moderate accuracy but require manual feature engineering. Sharma and Tyagi~\cite{Sharma2023LightweightIDS} reached 98.12\%, Ayad et al.~\cite{Ayad2025MLSDN} showed ensemble methods outperform individual classifiers, and Basfar et al.~\cite{Basfar2024EMRMR} proposed EMRMR feature selection. None provides control-plane protection.
 
-Deep learning models have advanced detection accuracy beyond traditional ML limits. Said et al.~\cite{Said2023CNNBiLSTM} combined CNN with BiLSTM on InSDN, achieving 99.90\% accuracy, but the bidirectional path requires future time steps, an impractical constraint for real-time deployment, and the ${\sim}$2M-parameter model is 12$\times$ larger than the proposed model. Shihab et al.~\cite{Shihab2025CNNLSTM} proposed a CNN-LSTM hybrid with SMOTE oversampling, while Kumar et al.~\cite{Kumar2025HybridDL} used meta-heuristic hyperparameter optimization for a hybrid DL model. Kanimozhi et al.~\cite{Kanimozhi2025DRL} tried deep reinforcement learning (DDQN) on InSDN (98.85\%), at considerably higher training and inference cost. Critically, none of these studies addresses control-plane security. TCN-HMAC achieves a comparable 99.85\% accuracy with a 612\,KB model (0.17\,ms inference) while additionally protecting the control channel, a capability absent from all deep learning IDS approaches in the literature.
+Deep learning improves accuracy but lacks control security. Said et al.~\cite{Said2023CNNBiLSTM} achieved 99.90\% on InSDN using CNN-BiLSTM (${\sim}$2M parameters, 2\,ms inference), while Kanimozhi et al.~\cite{Kanimozhi2025DRL} tried DRL (98.85\%) at high cost. TCN-HMAC matches accuracy with 12${\times}$ fewer parameters and faster inference while adding control-plane protection.
 
-Temporal Convolutional Networks have recently gained traction for network IDS. Lopes et al.~\cite{Lopes2023TCN} first applied a TCN to intrusion detection, achieving 99.75\% accuracy on CIC-IDS-2017. Subsequent work has explored squeeze-and-excitation blocks~\cite{LiLi2025TCNSE}, attention mechanisms~\cite{Benfarhat2025TCN}, bidirectional processing~\cite{Mei2024BiTCN}, and multi-head self-attention~\cite{Deng2024BiTCNMHSA}. Xu et al.~\cite{Xu2025GTCNG} fused graph neural networks with TCN for imbalanced detection. Notably, none of these fancier variants clearly outperforms a plain TCN paired with careful preprocessing, and all were evaluated on non-SDN datasets without any control-plane integration. The present work is the first to apply a TCN specifically to the InSDN dataset with SDN-tailored preprocessing and, uniquely, to integrate it with cryptographic flow rule verification.
+TCNs show promise for IDS. Lopes et al.~\cite{Lopes2023TCN} achieved 99.75\% on CIC-IDS-2017, with subsequent work exploring attention~\cite{Benfarhat2025TCN}, bidirectional processing~\cite{Mei2024BiTCN}, and graph fusion~\cite{Xu2025GTCNG}. Wang et al.~\cite{Wang2025TCN_SDN} applied TCN to InSDN (97.00\%, 2.1\,ms), versus our 99.85\% and 0.17\,ms. None integrates control-plane security.
 
-Blockchain has been explored for decentralized trust in SDN. Song et al.~\cite{Song2023IS2N} used blockchain to record network intents in intent-driven SDN, while Rahman et al.~\cite{Rahman2022BCSDN} surveyed blockchain for controller authentication and flow rule provenance. Poorazad et al.~\cite{Poorazad2023BlockchainIDS} combined blockchain with deep learning for IoT-SDN threat detection. Despite their strong integrity guarantees, all blockchain-based approaches suffer from consensus latencies measured in seconds, orders of magnitude too slow for the millisecond-scale reactions SDN controllers require. TCN-HMAC achieves comparable integrity assurance through HMAC verification at ${\sim}$2\,$\mu$s per message, making it four to six orders of magnitude faster than blockchain-based alternatives.
+Blockchain approaches offer integrity but suffer consensus delays (seconds) incompatible with SDN~\cite{Song2023IS2N, Rahman2022BCSDN}. TCN-HMAC achieves comparable integrity at ${\sim}$2\,$\mu$s per message.
 
-Hybrid security frameworks that combine detection with verification have received growing attention. Liang et al.~\cite{Liang2021NIDSReview} reviewed SDN-based IDS mechanisms against rule injection and replay threats, noting that existing approaches address either detection or verification but not both. Khan et al.~\cite{Khan2021MitmDefender} proposed a real-time MITM defense using behavioral flow tracking, while Malik and Habib~\cite{Malik2021SDoS} deployed lightweight agents near switches for DoS detection. These agent-based concepts partially align with the proposed auxiliary agent design, but each targets only a single attack class and lacks comprehensive integrity verification. TCN-HMAC fills this gap by incorporating multiple types of attacks, flow rule shadow-table verification, and challenge--response controller authentication in one lightweight package.
-
-To summarize, the existing literature addresses detection and verification largely as separate problems. TCN-HMAC is, to the authors' knowledge, the first system that folds temporal-convolutional intrusion detection and cryptographic control-plane protection into a single lightweight, deployable framework. The key finding from this review is that while individual components such as HMAC verification, ML-based IDS, and blockchain authentication have been explored independently, none of the existing approaches provides a unified solution that simultaneously addresses data-plane threat detection and control-plane integrity, the precise gap that TCN-HMAC is designed to fill.
+Hybrid frameworks partially address dual security. Khan et al.~\cite{Khan2021MitmDefender} targeted MITM, Malik and Habib~\cite{Malik2021SDoS} focused on DoS. TCN-HMAC provides comprehensive multi-class detection with complete control-plane verification.
 
 \section{Proposed Framework}
 
-This section presents the TCN-HMAC framework in three parts: the overall system architecture, the TCN model design for intrusion detection, and the HMAC-based communication integrity mechanisms including key exchange, message authentication, flow rule verification, and challenge--response protocols.
+This section presents the TCN-HMAC framework in three parts: the overall system architecture, the TCN model design for intrusion detection, and the HMAC-based communication integrity mechanisms including key exchange, message authentication, flow rule verification, and challenge-response protocols.
 
 \begin{figure}[t]
     \centering
@@ -95,7 +83,7 @@ TCN-HMAC operates at two security boundaries within the SDN architecture (Fig.~\
     \item \textbf{Control $\leftrightarrow$ Data plane:} the HMAC mechanism authenticates every \texttt{Flow\_Mod} and \texttt{Stats\_Reply} message between controller and switches.
 \end{itemize}
 
-An Auxiliary Agent runs as a sidecar process alongside the controller, handling HMAC key management, flow rule verification against a shadow table, and periodic challenge--response authentication.
+An Auxiliary Agent runs as a sidecar process alongside the controller, handling HMAC key management, flow rule verification against a shadow table, and periodic challenge-response authentication.
 
 \subsection{TCN Model}
 
@@ -105,12 +93,12 @@ Input consists of 24 principal components derived by applying PCA (retaining 95.
 
 \subsection{HMAC Communication Integrity}
 
-Key Establishment: Upon switch connection, the Auxiliary Agent generates a per-switch symmetric key $K_{sw}$, encrypts it with the controller's RSA public key along with an HMAC tag over the pre-shared agent--controller key, and transmits the bundle securely. The procedure is formalized in Algorithm~\ref{alg:key_exchange}.
+Key Establishment: Upon switch connection, the Auxiliary Agent generates a per-switch symmetric key $K_{sw}$, encrypts it with the controller's RSA public key along with an HMAC tag over the pre-shared agent-controller key, and transmits the bundle securely. The procedure is formalized in Algorithm~\ref{alg:key_exchange}.
 
 \begin{algorithm}[t]
 \caption{Secure Key Exchange for a New Switch}\label{alg:key_exchange}
 \small
-\KwIn{Agent--Controller key $K_{ac}$, Controller keys $PK_c$/$PR_c$, Switch ID $SW_{id}$}
+\KwIn{Agent-Controller key $K_{ac}$, Controller keys $PK_c$/$PR_c$, Switch ID $SW_{id}$}
 \KwOut{Shared secret key for the new switch}
 \tcp{Agent Side}
 $K_{sw} \leftarrow$ Generate random symmetric key\;
@@ -151,36 +139,13 @@ $C_{\text{exp}} \leftarrow \text{HMAC}_{K_{sw}}(flow\_str)$\;
 }
 \end{algorithm}
 
-Challenge Response Mechanism: Switches periodically send a random nonce to the controller; the controller must return a valid HMAC response. Verification failure triggers failover to a backup controller. This mechanism is formalized in Algorithm~\ref{alg:challenge_response}.
+Challenge Response Mechanism: Switches periodically send a random nonce to the controller; the controller must return a valid HMAC response. Verification failure triggers failover to a backup controller.
 
-\begin{algorithm}[t]
-\caption{Controller Verification via Challenge--Response}\label{alg:challenge_response}
-\small
-\KwIn{Interval $T$, controller key $K_{sw}$, backup controller $C_{bk}$}
-\KwOut{Detect and recover from compromised controller}
-\For{every $T$ seconds}{
-    $nonce \leftarrow$ Generate random challenge\;
-    Send $nonce$ to controller\;
-    $response \leftarrow$ Controller returns $\text{HMAC}_{K_{sw}}(nonce)$\;
-    \eIf{$\text{HMAC}_{K_{sw}}(nonce) \neq response$}{
-        Alert administrator; activate $C_{bk}$\;
-    }{
-        Continue monitoring\;
-    }
-}
-\end{algorithm}
-
-In summary, the proposed TCN-HMAC framework provides a layered security architecture where the TCN model handles data-plane intrusion detection through a compact yet effective deep learning pipeline, while the HMAC subsystem secures the control plane through key exchange, per-message authentication, flow rule shadow-table verification, and periodic challenge--response protocols. Together, these components address both security boundaries of the SDN architecture without introducing significant computational overhead.
+In summary, the TCN-HMAC framework provides layered security where the TCN handles data-plane intrusion detection through a compact deep learning pipeline, while HMAC secures the control plane through key exchange, message authentication, flow rule verification, and challenge-response protocols.
 
 \section{Experimental Setup}
 
-This section describes the dataset, preprocessing pipeline, and training configuration used to evaluate the proposed TCN-HMAC framework.
-
-InSDN~\cite{elsayed2020insdn} contains 343,889 labeled samples (84 features) spanning benign traffic and four attack categories: DDoS, MITM, Probe, and Brute-force. After a 15-stage preprocessing pipeline (deduplication, cleaning, scaling, PCA), 182,831 samples with 24 features remain. These are split 70/10/20 for training, validation, and testing (36,567 test samples).
-
-Implementation uses TensorFlow 2.19.0 on Google Colab (NVIDIA T4 GPU). The Adam optimizer ($\eta = 10^{-3}$), binary cross-entropy loss with class weights, batch size 2,048, early stopping on validation AUC (patience 15), and ReduceLROnPlateau scheduling are employed. Training converges in roughly 30 epochs.
-
-The experimental configuration is designed to ensure reproducibility and fair evaluation. The InSDN dataset is selected because it is the most comprehensive SDN-specific benchmark available, and the 70/10/20 split ensures sufficient data for training, hyperparameter tuning, and unbiased test-set evaluation.
+InSDN~\cite{elsayed2020insdn} contains 343,889 labeled samples (84 features) spanning benign traffic and four attack types: DDoS, MITM, Probe, and Brute-force. After 15-stage preprocessing (deduplication, cleaning, scaling, PCA to 24 features retaining 95.43\% variance), 182,831 samples remain, split 70/10/20 for training/validation/testing. Implementation uses TensorFlow 2.19.0 on Google Colab (NVIDIA T4 GPU), Adam optimizer ($\eta = 10^{-3}$), batch size 2,048, and early stopping.
 
 \section{Results}
 
@@ -188,7 +153,7 @@ This section presents the experimental results that validate the research object
 
 \subsection{Classification Performance}
 
-Table~\ref{tab:results} presents the held-out test-set metrics.
+Table~\ref{tab:results} presents test-set metrics achieving 99.85\% accuracy, 99.97\% recall, 99.89\% F1, and 0.9999 AUC-ROC. The confusion matrix records only 54 misclassifications out of 36,567 samples (47 false positives, 7 false negatives).
 
 \begin{table}[t]
 \centering
@@ -200,67 +165,21 @@ Table~\ref{tab:results} presents the held-out test-set metrics.
 Accuracy        & 99.85\% \\
 Precision       & 99.80\% \\
 Recall (DR)     & 99.97\% \\
-Specificity     & 99.63\% \\
 F1-Score        & 99.89\% \\
 AUC-ROC         & 0.9999  \\
 FAR             & 0.37\%  \\
-MCC             & 0.9966  \\
 \bottomrule
 \end{tabular}
 \label{tab:results}
 \end{table}
 
-The confusion matrix (Fig.~\ref{fig:cm}) records 12,776 true negatives, 23,737 true positives, 47 false positives, and only 7 false negatives out of 36,567 samples. The model misses just 3 attacks in every 10,000. These results directly fulfill \textbf{[RO1]}, the TCN achieves classification accuracy of 99.85\% with a compact 612\,KB model footprint and 0.17\,ms inference latency, confirming its suitability for real-time SDN deployment.
+\subsection{Training and Overhead}
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.65\columnwidth]{../../Figures/results/plot_confusion_matrix.png}
-    \caption{Confusion matrix on the held-out test set (36,567 samples).}
-    \label{fig:cm}
-\end{figure}
-
-\subsection{Training Dynamics}
-
-Validation accuracy exceeds 99.5\% within 5 epochs (Fig.~\ref{fig:curves}). Training and validation curves closely overlap throughout, confirming that generalization holds without overfitting. AUC-ROC stabilizes above 0.999 by epoch 10.
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.75\columnwidth]{../../Figures/results/plot_accuracy.png}
-    \caption{Training and validation accuracy over 30 epochs.}
-    \label{fig:curves}
-\end{figure}
-
-\subsection{HMAC and System Overhead}
-
-HMAC-SHA256 computation requires roughly 2\,$\mu$s per message, sustaining over 500,000 messages per second on a single core, well in excess of typical OpenFlow rates (1K--10K\,msg/s). The Auxiliary Agent adds 0.7\,ms to control latency, 4.4\% additional CPU usage, and 13.7\,MB RAM, while successfully detecting all injected invalid flow rules during testing. End-to-end per-flow latency totals approximately 170\,$\mu$s (Table~\ref{tab:latency}). These measurements confirm \textbf{[RO2]}, the HMAC-based auxiliary agent provides comprehensive control-plane security, including message authentication, flow rule integrity verification, and controller identity validation, with negligible computational overhead.
-
-In summary, the experimental results validate both \textbf{[RO1]} and \textbf{[RO2]}. The TCN model achieves 99.85\% accuracy with a 612\,KB footprint and 0.17\,ms inference, satisfying the lightweight real-time detection objective. The HMAC auxiliary agent adds only 0.7\,ms latency and 4.4\% CPU overhead while providing complete control-plane protection, confirming that cryptographic verification can be integrated without compromising system performance.
-
-\begin{table}[t]
-\centering
-\caption{End-to-End Per-Flow Latency Breakdown}
-\begin{tabular}{@{}lr@{}}
-\toprule
-\textbf{Component} & \textbf{Latency} \\
-\midrule
-HMAC Verification  & $\sim$2\,$\mu$s \\
-Feature Extraction  & $\sim$50\,$\mu$s \\
-Preprocessing       & $\sim$10\,$\mu$s \\
-TCN Inference (GPU) & $\sim$100\,$\mu$s \\
-Decision + Response & $\sim$5\,$\mu$s \\
-HMAC Signing        & $\sim$2\,$\mu$s \\
-\midrule
-\textbf{Total}      & $\sim$\textbf{170\,$\mu$s} \\
-\bottomrule
-\end{tabular}
-\label{tab:latency}
-\end{table}
+Validation accuracy exceeds 99.5\% within 5 epochs with no overfitting. HMAC-SHA256 requires ${\sim}$2\,$\mu$s per message (500K msg/s throughput). The Auxiliary Agent adds 0.7\,ms latency, 4.4\% CPU, and 13.7\,MB RAM. End-to-end per-flow latency totals ${\sim}$170\,$\mu$s, suitable for real-time SDN.
 
 \section{Comparative Analysis}
 
-This section benchmarks TCN-HMAC against 14 existing approaches to validate. The analysis demonstrates that TCN-HMAC achieves the highest detection rate among all compared models while maintaining the smallest model footprint and fastest inference time, and remains the only approach that also provides control-plane authentication.
-
-Table~\ref{tab:comparison} benchmarks TCN-HMAC against 14 existing approaches. On InSDN, TCN-HMAC posts the highest detection rate (99.97\%) among all models. Said et al.~\cite{Said2023CNNBiLSTM} report 0.05\% higher accuracy, but their CNN-BiLSTM requires approximately 2\,M parameters (12$\times$ that of TCN-HMAC) and roughly 2\,ms inference (12$\times$ slower), and offers no control-plane protection.
+Table~\ref{tab:comparison} benchmarks TCN-HMAC against 15 existing approaches. TCN-HMAC achieves the highest detection rate (99.97\%) on InSDN. Said et al.~\cite{Said2023CNNBiLSTM} report marginally higher accuracy (99.90\%) but require ${\sim}$2M parameters (12${\times}$ larger) and ${\sim}$2\,ms inference (12${\times}$ slower) without control-plane protection. Wang et al.~\cite{Wang2025TCN_SDN}, the only other TCN on InSDN, achieve 97.00\% (2.85 points lower) with 12${\times}$ slower inference. Among TCN variants, the proposed model outperforms TCN-SE, TCN+Attention, BiTCN, and BiTCN-MHSA without attention or bidirectional mechanisms. Critically, TCN-HMAC is the only approach providing both intrusion detection and control-plane authentication.
 
 \begin{table}[t]
 \centering
@@ -283,6 +202,7 @@ CNN-GRU~\cite{Yang2024CNNGRU} & NSL-KDD & 99.35 & 99.35 & 99.27 \\
 LSTM~\cite{Basfar2025LSTM} & NSL-KDD & 99.23 & 99.23 & 99.11 \\
 CNN~\cite{Ahmad2021CNN_SDN} & InSDN & 99.20 & 99.20 & 99.15 \\
 DRL~\cite{Kanimozhi2025DRL} & InSDN & 98.85 & 98.85 & 98.87 \\
+TCN~\cite{Wang2025TCN_SDN} & InSDN & 97.00 & 96.91 & 96.72 \\
 DT/RF~\cite{elsayed2020insdn} & InSDN & 98.50 & 98.50 & 98.45 \\
 \bottomrule
 \end{tabular}%
@@ -290,15 +210,11 @@ DT/RF~\cite{elsayed2020insdn} & InSDN & 98.50 & 98.50 & 98.45 \\
 \label{tab:comparison}
 \end{table}
 
-Among the TCN family specifically, the proposed model outperforms TCN-SE (99.62\%), TCN+Attention (99.73\%), BiTCN (99.60\%), and BiTCN-MHSA (99.72\%), all without attention layers or bidirectional wiring. The evidence suggests that a disciplined preprocessing pipeline (StandardScaler, PCA, class weighting) paired with a clean architecture can match or beat structurally more complex alternatives.
-
-At 612\,KB the model is significantly smaller than comparable deep-learning IDS models, and at 0.17\,ms its inference is the fastest in the comparison, supporting over 5,000 flows per second on a single GPU. Crucially, TCN-HMAC remains the only evaluated approach that also protects the control channel. These findings collectively validate \textbf{[RO3]}, confirming that the unified framework matches or exceeds existing approaches while uniquely providing control-plane security.
-
-In conclusion, the comparative analysis demonstrates that TCN-HMAC achieves the highest detection rate (99.97\%) among all 14 evaluated approaches while maintaining the smallest model footprint and fastest inference time. Unlike every other compared approach, TCN-HMAC additionally provides control-plane authentication, making it the only framework that addresses both SDN security boundaries simultaneously.
+Among the TCN family specifically, the proposed model outperforms TCN-SE (99.62\%), TCN+Attention (99.73\%), BiTCN (99.60\%), and BiTCN-MHSA (99.72\%) without attention or bidirectional processing. At 612\,KB with 0.17\,ms inference, it is the most efficient deep-learning IDS in the comparison. Crucially, TCN-HMAC is the only approach providing control-plane authentication.
 
 \section{Conclusion}
 
-This paper presented TCN-HMAC, a unified security framework for Software-Defined Networks that outperforms existing approaches across multiple dimensions. Compared to the closest InSDN-based model without control-plane protection (DNN Ensemble~\cite{Ataa2024SDNDL}), TCN-HMAC achieves 0.15\% higher accuracy and 0.27\% higher recall; against traditional ML baselines (DT/RF~\cite{elsayed2020insdn}), the improvement reaches 1.35\% in accuracy and 1.47\% in recall. Within the TCN based approaches, the proposed model surpasses TCN-SE~\cite{LiLi2025TCNSE} by 0.23\%, BiTCN~\cite{Mei2024BiTCN} by 0.25\%, TCN+Attention~\cite{Benfarhat2025TCN} by 0.12\%, and BiTCN-MHSA~\cite{Deng2024BiTCNMHSA} by 0.13\% in accuracy, all without requiring attention layers or bidirectional processing. In terms of model efficiency, TCN-HMAC is parameter wise smaller and inference time wise faster than the closest competing deep learning model (CNN-BiLSTM~\cite{Said2023CNNBiLSTM}), while its HMAC verification is faster than blockchain-based alternatives~\cite{Song2023IS2N}. Crucially, TCN-HMAC is the only evaluated approach that provides both intrusion detection and control-plane authentication, filling a critical gap in the existing literature. Future work includes cross-dataset validation on NSL-KDD, CIC-IDS-2017, and UNSW-NB15, multi-class attack-type identification, adversarial robustness evaluation, and production-grade integration with open-source controllers such as ONOS and Ryu.
+TCN-HMAC achieves 99.85\% accuracy on InSDN, surpassing traditional ML (DT/RF: 98.50\%) by 1.35\%, deep learning models without control protection (DNN Ensemble: 99.70\%) by 0.15\%, and other TCN variants (Wang et al.: 97.00\%) by 2.85\%. With 612\,KB and 0.17\,ms inference, it is 12${\times}$ smaller and faster than CNN-BiLSTM while uniquely providing HMAC-based control-plane authentication. Future work includes cross-dataset validation, multi-class attack identification, adversarial robustness evaluation, and production integration with ONOS and Ryu.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

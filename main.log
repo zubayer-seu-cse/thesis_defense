@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.2.21)  25 FEB 2026 13:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.2.21)  25 FEB 2026 21:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1693,9 +1693,15 @@ im-i-na-tive abil-ity through-
  [15] (./Chapters/Chapter1.tex
 Chapter 1.
 
-Overfull \hbox (10.70015pt too wide) in paragraph at lines 3--4
+Overfull \hbox (2.85497pt too wide) in paragraph at lines 3--4
 \T1/mdbch/m/n/12 be-haviour of many oth-er-wise ``dumb'' switches [[][]1[][]]. 
-The pay-off is considerable---administrators
+The pay-off is considerable-administrators
+ []
+
+
+Overfull \hbox (2.57166pt too wide) in paragraph at lines 7--8
+\T1/mdbch/m/n/12 clas-si-fies traf-fic as be-nign or ma-li-cious with high ac-c
+u-racy. On the in-tegrity side, a lightweight
  []
 
 LaTeX Font Info:    Font shape `T1/mdbch/m/sl' will be
@@ -1712,34 +1718,10 @@ LaTeX Font Info:    Font shape `T1/mdbch/m/it' will be
 (Font)              scaled to size 11.52008pt on input line 19.
  [2
 design size mismatch in local font md-chro8t in virtual font mdbchro8t.vf ignor
-ed.]
-Overfull \hbox (6.96667pt too wide) in paragraph at lines 25--26
-\T1/mdbch/m/n/12 comes the most crit-i-cal com-po-nent in the net-work. A suc-c
-ess-ful at-tack against the controller---
- []
-
-[3] [4]
-Overfull \hbox (5.9194pt too wide) in paragraph at lines 49--50
-[]\T1/mdbch/b/n/12 Brute-Force At-tacks. \T1/mdbch/m/n/12 Brute-force at-tacks 
-in-volve the sys-tem-atic enu-mer-a-tion of credentials---
- []
-
-[5]
+ed.] [3] [4] [5]
 Overfull \hbox (0.30902pt too wide) in paragraph at lines 55--56
 []\T1/mdbch/b/n/12 Cryptographic and Protocol-Based Ap-proaches. \T1/mdbch/m/n/
 12 TLS-based pro-tec-tion of the con-trol chan-
- []
-
-
-Overfull \hbox (3.80513pt too wide) in paragraph at lines 55--56
-\T1/mdbch/m/n/12 tifi-cate man-age-ment com-plex-ity, com-pu-ta-tional over-hea
-d of asym-met-ric cryp-tog-ra-phy, and---
- []
-
-
-Overfull \hbox (6.06918pt too wide) in paragraph at lines 57--58
-[]\T1/mdbch/b/n/12 Machine Learn-ing and Deep Learn-ing Ap-proaches. \T1/mdbch/
-m/n/12 Tra-di-tional ma-chine learn-ing models---
  []
 
 [6] [7]
@@ -1766,13 +1748,7 @@ Overfull \hbox (0.59534pt too wide) in paragraph at lines 146--147
 ing two com-ple-men-tary func-
  []
 
-[12] [13] [14]
-Overfull \hbox (5.28203pt too wide) in paragraph at lines 189--190
-\T1/mdbch/m/n/12 metrics---accuracy, pre-ci-sion, re-call, F1-score, con-fu-sio
-n ma-trix, and la-tency measurements---
- []
-
-) (./Chapters/Chapter2.tex [15]
+[12] [13] [14]) (./Chapters/Chapter2.tex [15]
 Chapter 2.
 [16
 
@@ -1798,13 +1774,7 @@ LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
  [20] [21]
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
 (Font)              scaled to size 7.68005pt on input line 120.
- [22]
-Overfull \hbox (0.40894pt too wide) in paragraph at lines 147--148
-[]\T1/mdbch/m/n/12 Batch nor-mal-iza-tion ad-dresses the in-ter-nal co-vari-ate
- shift problem---the phe-nomenon where
- []
-
-[23] [24] [25] [26] [27] [28] [29]
+ [22] [23] [24] [25] [26] [27] [28] [29]
 Overfull \hbox (3.26907pt too wide) in paragraph at lines 265--266
 []\T1/mdbch/b/n/12 Packet Header Fea-tures: \T1/mdbch/m/n/12 In-for-ma-tion ex-
 tracted from packet head-ers, in-clud-ing source
@@ -1818,6 +1788,12 @@ Overfull \hbox (0.34299pt too wide) in paragraph at lines 269--270
 
 [30] [31] [32] [33]) (./Chapters/Chapter3.tex [34]
 Chapter 3.
+
+Overfull \hbox (0.39513pt too wide) in paragraph at lines 3--4
+\T1/mdbch/m/n/12 learning IDS, au-then-ti-ca-tion and ac-cess con-trol, TCN-bas
+ed de-tec-tion, hy-brid se-cu-rity frame-
+ []
+
 [35
 
 ] [36] [37]
@@ -1826,35 +1802,35 @@ Overfull \hbox (3.02394pt too wide) in paragraph at lines 39--40
 ions on a per-mis-sioned blockchain
  []
 
-[38] [39] [40] [41] [42] [43] [44] [45] [46]
-Overfull \hbox (2.7846pt too wide) in paragraph at lines 173--174
+[38] [39] [40] [41] [42] [43] [44] [45] [46] [47]
+Overfull \hbox (2.7846pt too wide) in paragraph at lines 175--176
 \T1/mdbch/m/n/12 SDN en-vi-ron-ments, com-par-ing InSDN with other avail-able d
 atasets in-clud-ing CICFlowMeter-
  []
 
-[47]
-Underfull \hbox (badness 10000) in paragraph at lines 194--194
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--196
 []\T1/mdbch/m/n/12 Cryptographic
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 199--199
+Underfull \hbox (badness 10000) in paragraph at lines 201--201
 []\T1/mdbch/m/n/12 Hybrid (DL +
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 200--200
+Underfull \hbox (badness 10000) in paragraph at lines 202--202
 []\T1/mdbch/b/n/12 TCN-HMAC (Pro-
  []
 
-
-Overfull \hbox (4.80045pt too wide) in paragraph at lines 211--212
+[48]
+Overfull \hbox (4.80045pt too wide) in paragraph at lines 213--214
 []\T1/mdbch/b/n/12 Gap 2: Ver-i-fi-ca-tion with-out De-tec-tion. \T1/mdbch/m/n/
 12 Cryp-to-graphic and protocol-based ap-proaches
  []
 
-[48]
-Overfull \hbox (1.59447pt too wide) in paragraph at lines 220--221
+
+Overfull \hbox (1.59447pt too wide) in paragraph at lines 222--223
 []\T1/mdbch/m/n/12 The TCN-HMAC frame-work is de-signed to close ev-ery one of 
 these gaps: it pairs a lightweight
  []
@@ -1923,16 +1899,16 @@ n \T1/mdbch/m/n/12 and \T1/pcr/m/n/12 Idle Mean/Std/Max/Min
  []
 
 [52]
-<Figures/results/eda_class_distribution.png, id=1809, 772.5663pt x 281.853pt>
+<Figures/results/eda_class_distribution.png, id=1811, 772.5663pt x 281.853pt>
 File: Figures/results/eda_class_distribution.png Graphic file (type png)
 <use Figures/results/eda_class_distribution.png>
 Package pdftex.def Info: Figures/results/eda_class_distribution.png  used on in
 put line 98.
 (pdftex.def)             Requested size: 386.96027pt x 141.1713pt.
 
-Overfull \hbox (46.40373pt too wide) in paragraph at lines 107--108
-\T1/mdbch/m/n/12 tial stages. The first nine---consolidation, clean-ing, fea-tu
-re reduction---run in the \T1/pcr/m/n/12 preprocess.py
+Overfull \hbox (30.71336pt too wide) in paragraph at lines 107--108
+\T1/mdbch/m/n/12 tial stages. The first nine-consolidation, clean-ing, fea-ture
+ reduction-run in the \T1/pcr/m/n/12 preprocess.py
  []
 
 [53]
@@ -1973,19 +1949,14 @@ Overfull \hbox (4.54926pt too wide) in paragraph at lines 197--198
  []
 
 [57] [58] [59]
-<Figures/results/pca_explained_variance.png, id=1846, 642.4803pt x 281.853pt>
+<Figures/results/pca_explained_variance.png, id=1848, 642.4803pt x 281.853pt>
 File: Figures/results/pca_explained_variance.png Graphic file (type png)
 <use Figures/results/pca_explained_variance.png>
 Package pdftex.def Info: Figures/results/pca_explained_variance.png  used on in
 put line 287.
 (pdftex.def)             Requested size: 386.96027pt x 169.75821pt.
- [60 <./Figures/results/pca_explained_variance.png>]
-Overfull \hbox (55.42107pt too wide) in paragraph at lines 329--330
-\T1/mdbch/m/n/12 three-dimensional in-put ten-sors of shape \T1/pcr/m/n/12 (bat
-ch_size, sequence_length, channels)\T1/mdbch/m/n/12 ,
- []
-
-[61] [62]) (./Chapters/Chapter5.tex [63]
+ [60 <./Figures/results/pca_explained_variance.png>] [61]
+[62]) (./Chapters/Chapter5.tex [63]
 Chapter 5.
 [64
 
@@ -2023,15 +1994,15 @@ Overfull \hbox (56.2794pt too wide) in paragraph at lines 281--282
 [73] [74] [75]) (./Chapters/Chapter6.tex [76]
 Chapter 6.
 
-Overfull \hbox (15.14082pt too wide) in paragraph at lines 3--4
+Overfull \hbox (13.05568pt too wide) in paragraph at lines 3--4
 \T1/mdbch/m/n/12 message-authentication pro-to-col, the flow-rule ver-i-fi-ca-t
-ion mech-a-nism, the challenge--response
+ion mech-a-nism, the challenge-response
  []
 
 [77
 
 ]
-<Figures/system_architecture.drawio.png, id=1969, 710.655pt x 607.26875pt>
+<Figures/system_architecture.drawio.png, id=1971, 710.655pt x 607.26875pt>
 File: Figures/system_architecture.drawio.png Graphic file (type png)
 <use Figures/system_architecture.drawio.png>
 Package pdftex.def Info: Figures/system_architecture.drawio.png  used on input 
@@ -2128,12 +2099,12 @@ Chapter 8.
 [102
 
 ]
-<Figures/results/plot_loss.png, id=2235, 570.933pt x 354.123pt>
+<Figures/results/plot_loss.png, id=2237, 570.933pt x 354.123pt>
 File: Figures/results/plot_loss.png Graphic file (type png)
 <use Figures/results/plot_loss.png>
 Package pdftex.def Info: Figures/results/plot_loss.png  used on input line 31.
 (pdftex.def)             Requested size: 364.19667pt x 225.90306pt.
-<Figures/results/plot_accuracy.png, id=2236, 570.933pt x 354.123pt>
+<Figures/results/plot_accuracy.png, id=2238, 570.933pt x 354.123pt>
 File: Figures/results/plot_accuracy.png Graphic file (type png)
 <use Figures/results/plot_accuracy.png>
 Package pdftex.def Info: Figures/results/plot_accuracy.png  used on input line 
@@ -2141,14 +2112,14 @@ Package pdftex.def Info: Figures/results/plot_accuracy.png  used on input line
 (pdftex.def)             Requested size: 364.19667pt x 225.90306pt.
  [103 <./Figures/results/plot_loss.png>] [104 <./Figures/results/plot_accuracy.
 png>]
-<Figures/results/plot_confusion_matrix.png, id=2248, 362.7954pt x 354.123pt>
+<Figures/results/plot_confusion_matrix.png, id=2250, 362.7954pt x 354.123pt>
 File: Figures/results/plot_confusion_matrix.png Graphic file (type png)
 <use Figures/results/plot_confusion_matrix.png>
 Package pdftex.def Info: Figures/results/plot_confusion_matrix.png  used on inp
 ut line 108.
 (pdftex.def)             Requested size: 250.38564pt x 244.40456pt.
  [105] [106 <./Figures/results/plot_confusion_matrix.png>] [107]
-<Figures/results/plot_precision_recall.png, id=2265, 570.933pt x 354.123pt>
+<Figures/results/plot_precision_recall.png, id=2267, 570.933pt x 354.123pt>
 File: Figures/results/plot_precision_recall.png Graphic file (type png)
 <use Figures/results/plot_precision_recall.png>
 Package pdftex.def Info: Figures/results/plot_precision_recall.png  used on inp
@@ -2156,13 +2127,13 @@ ut line 186.
 (pdftex.def)             Requested size: 364.19667pt x 225.90306pt.
 
 [108 <./Figures/results/plot_precision_recall.png>]
-<Figures/results/plot_roc_curve.png, id=2271, 498.663pt x 426.393pt>
+<Figures/results/plot_roc_curve.png, id=2273, 498.663pt x 426.393pt>
 File: Figures/results/plot_roc_curve.png Graphic file (type png)
 <use Figures/results/plot_roc_curve.png>
 Package pdftex.def Info: Figures/results/plot_roc_curve.png  used on input line
  215.
 (pdftex.def)             Requested size: 318.66948pt x 272.4872pt.
-<Figures/results/plot_auc.png, id=2272, 570.933pt x 354.123pt>
+<Figures/results/plot_auc.png, id=2274, 570.933pt x 354.123pt>
 File: Figures/results/plot_auc.png Graphic file (type png)
 <use Figures/results/plot_auc.png>
 Package pdftex.def Info: Figures/results/plot_auc.png  used on input line 222.
@@ -2184,19 +2155,19 @@ Overfull \hbox (38.80533pt too wide) in paragraph at lines 317--318
 Chapter 9.
 [117
 
-] [118]
-Overfull \hbox (0.49963pt too wide) in paragraph at lines 94--95
+] [118] [119]
+Overfull \hbox (0.49963pt too wide) in paragraph at lines 95--96
 []\T1/mdbch/b/n/12 Edge De-ploy-ment: \T1/mdbch/m/n/12 The small model size en-
 ables de-ploy-ment on resource-constrained
  []
 
-[119] [120]
-Overfull \hbox (1.62132pt too wide) in paragraph at lines 167--168
+[120] [121]
+Overfull \hbox (1.62132pt too wide) in paragraph at lines 168--169
 \T1/mdbch/m/n/12 TLS pro-vides transport-layer en-cryp-tion and au-then-ti-ca-t
 ion for the Open-Flow chan-nel. How-
  []
 
-[121] [122] [123]) (./Chapters/Chapter10.tex [124]
+[122] [123]) (./Chapters/Chapter10.tex [124]
 Chapter 10.
 [125
 
@@ -2223,7 +2194,7 @@ ack meth-ods (FGSM, PGD, C&W)
 
 ] [134]
 [135] [136]
-Underfull \hbox (badness 1221) in paragraph at lines 273--276
+Underfull \hbox (badness 1221) in paragraph at lines 167--168
 \T1/mdbch/m/n/12 us-ing MuZero and blockchain,'' \T1/mdbch/m/it/12 Fu-ture Gen-
 er-a-tion Com-puter Sys-tems\T1/mdbch/m/n/12 , vol. 164,
  []
@@ -2237,10 +2208,10 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: A23EB2457BC39D184DA34C216872842F;41425.
  ) 
 Here is how much of TeX's memory you used:
- 28319 strings out of 474222
- 496328 string characters out of 5748733
- 1949975 words of memory out of 5000000
- 49200 multiletter control sequences out of 15000+600000
+ 28321 strings out of 474222
+ 496365 string characters out of 5748733
+ 1946975 words of memory out of 5000000
+ 49201 multiletter control sequences out of 15000+600000
  638947 words of font info for 131 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  110i,15n,107p,1755b,589s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -2259,10 +2230,10 @@ texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chrma.pfb></usr/share/texmf/f
 onts/type1/public/tex-gyre/qhvb.pfb></usr/share/texmf/fonts/type1/public/tex-gy
 re/qhvbi.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb>
 
-Output written on main.pdf (156 pages, 932513 bytes).
+Output written on main.pdf (156 pages, 934968 bytes).
 PDF statistics:
- 2759 PDF objects out of 2984 (max. 8388607)
- 2523 compressed objects within 26 object streams
- 784 named destinations out of 1000 (max. 500000)
+ 2764 PDF objects out of 2984 (max. 8388607)
+ 2528 compressed objects within 26 object streams
+ 785 named destinations out of 1000 (max. 500000)
  1815 words of extra memory for PDF output out of 10000 (max. 10000000)
 

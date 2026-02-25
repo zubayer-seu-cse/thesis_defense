@@ -59,7 +59,7 @@
 \contentsline {section}{\numberline {3.5}TCN-Based Intrusion Detection}{42}{section.3.5}%
 \contentsline {section}{\numberline {3.6}Authentication and Access Control in SDN}{45}{section.3.6}%
 \contentsline {section}{\numberline {3.7}Hybrid Security Approaches}{46}{section.3.7}%
-\contentsline {subsection}{\numberline {3.7.1}The Hybrid Gap}{46}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.1}The Hybrid Gap}{47}{subsection.3.7.1}%
 \contentsline {section}{\numberline {3.8}Dataset Studies for SDN Intrusion Detection}{47}{section.3.8}%
 \contentsline {section}{\numberline {3.9}Summary of Literature and Research Gaps}{48}{section.3.9}%
 \contentsline {chapter}{\numberline {4}Dataset and Preprocessing}{50}{chapter.4}%
@@ -86,7 +86,7 @@
 \contentsline {section}{\numberline {4.5}Principal Component Analysis}{59}{section.4.5}%
 \contentsline {section}{\numberline {4.6}Data Splitting}{60}{section.4.6}%
 \contentsline {subsection}{\numberline {4.6.1}Input Reshaping for TCN}{61}{subsection.4.6.1}%
-\contentsline {section}{\numberline {4.7}Class Weighting}{62}{section.4.7}%
+\contentsline {section}{\numberline {4.7}Class Weighting}{61}{section.4.7}%
 \contentsline {section}{\numberline {4.8}Preprocessing Pipeline Summary}{63}{section.4.8}%
 \contentsline {chapter}{\numberline {5}TCN Model Architecture}{64}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Model Overview}{64}{section.5.1}%
@@ -186,16 +186,16 @@
 \contentsline {subsection}{\numberline {9.1.1}Analysis of Comparative Results}{117}{subsection.9.1.1}%
 \contentsline {section}{\numberline {9.2}Architectural Comparison}{119}{section.9.2}%
 \contentsline {subsection}{\numberline {9.2.1}Parameter Efficiency}{119}{subsection.9.2.1}%
-\contentsline {subsection}{\numberline {9.2.2}Inference Speed}{119}{subsection.9.2.2}%
+\contentsline {subsection}{\numberline {9.2.2}Inference Speed}{120}{subsection.9.2.2}%
 \contentsline {subsection}{\numberline {9.2.3}Gradient Stability}{120}{subsection.9.2.3}%
 \contentsline {subsection}{\numberline {9.2.4}Communication Authentication}{120}{subsection.9.2.4}%
-\contentsline {section}{\numberline {9.3}Comparison with SDN Security Frameworks}{120}{section.9.3}%
+\contentsline {section}{\numberline {9.3}Comparison with SDN Security Frameworks}{121}{section.9.3}%
 \contentsline {subsection}{\numberline {9.3.1}vs. HMAC-Only Approaches}{121}{subsection.9.3.1}%
 \contentsline {subsection}{\numberline {9.3.2}vs. Blockchain-Based Approaches}{121}{subsection.9.3.2}%
-\contentsline {subsection}{\numberline {9.3.3}vs. TLS-Only Approaches}{121}{subsection.9.3.3}%
+\contentsline {subsection}{\numberline {9.3.3}vs. TLS-Only Approaches}{122}{subsection.9.3.3}%
 \contentsline {section}{\numberline {9.4}Advantage Summary}{122}{section.9.4}%
 \contentsline {section}{\numberline {9.5}Papers for Further Comparison}{123}{section.9.5}%
-\contentsline {section}{\numberline {9.6}Chapter Summary}{123}{section.9.6}%
+\contentsline {section}{\numberline {9.6}Chapter Summary}{124}{section.9.6}%
 \contentsline {chapter}{\numberline {10}Conclusion and Future Work}{125}{chapter.10}%
 \contentsline {section}{\numberline {10.1}Summary of Research}{125}{section.10.1}%
 \contentsline {section}{\numberline {10.2}Key Findings}{126}{section.10.2}%

@@ -33,25 +33,25 @@ The experimental evaluation and comparative analysis yield the following key fin
 The TCN model achieves exceptional classification performance on the InSDN dataset:
 
 \begin{itemize}
-    \item \textbf{Accuracy:} 99.85\% --- correctly classifying 36,513 of 36,567 test samples.
-    \item \textbf{Detection Rate:} 99.97\% --- detecting 23,737 of 23,744 attack flows, missing only 7.
-    \item \textbf{False Alarm Rate:} 0.37\% --- incorrectly flagging only 47 of 12,823 benign flows.
-    \item \textbf{AUC-ROC:} 0.9999 --- near-perfect discrimination between benign and attack classes.
-    \item \textbf{F1-Score:} 99.89\% --- balanced precision-recall performance.
-    \item \textbf{MCC:} 0.9966 --- near-perfect correlation between predictions and ground truth.
+    \item \textbf{Accuracy:} 99.85\% - correctly classifying 36,513 of 36,567 test samples.
+    \item \textbf{Detection Rate:} 99.97\% - detecting 23,737 of 23,744 attack flows, missing only 7.
+    \item \textbf{False Alarm Rate:} 0.37\% - incorrectly flagging only 47 of 12,823 benign flows.
+    \item \textbf{AUC-ROC:} 0.9999 - near-perfect discrimination between benign and attack classes.
+    \item \textbf{F1-Score:} 99.89\% - balanced precision-recall performance.
+    \item \textbf{MCC:} 0.9966 - near-perfect correlation between predictions and ground truth.
 \end{itemize}
 
-These results confirm that TCNs are not just competitive with heavier architectures (CNN-BiLSTM, Transformer, DRL) for network intrusion detection---they can match or outperform them while staying small enough to live inside a controller.
+These results confirm that TCNs are not just competitive with heavier architectures (CNN-BiLSTM, Transformer, DRL) for network intrusion detection-they can match or outperform them while staying small enough to live inside a controller.
 
 \subsection{Computational Efficiency}\label{subsec:finding_efficiency}
 
 The TCN model's computational efficiency makes it uniquely suitable for real-time SDN deployment:
 
 \begin{itemize}
-    \item \textbf{Model Size:} 612~KB --- 5--30$\times$ smaller than comparable deep learning IDS models.
-    \item \textbf{Inference Time:} $\sim$0.17~ms per flow --- enabling classification of 5,000+ flows per second.
-    \item \textbf{Training Time:} $\sim$5 minutes --- enabling rapid model updates and retraining.
-    \item \textbf{FLOPs:} $\sim$7.1M per inference --- 250$\times$ less than typical CNN image classifiers.
+    \item \textbf{Model Size:} 612~KB - 5-30$\times$ smaller than comparable deep learning IDS models.
+    \item \textbf{Inference Time:} $\sim$0.17~ms per flow - enabling classification of 5,000+ flows per second.
+    \item \textbf{Training Time:} $\sim$5 minutes - enabling rapid model updates and retraining.
+    \item \textbf{FLOPs:} $\sim$7.1M per inference - 250$\times$ less than typical CNN image classifiers.
 \end{itemize}
 
 \subsection{Dual Security Coverage}\label{subsec:finding_dual}
@@ -73,7 +73,7 @@ The experimental results validate the theoretical advantages of TCN over recurre
     \item \textbf{Parallelizable Inference:} TCN's convolutional operations are fully parallelizable, unlike the sequential processing required by LSTM/GRU. This enables efficient GPU utilization and faster inference.
     \item \textbf{Stable Gradients:} Residual connections provide deterministic gradient paths, eliminating vanishing/exploding gradient problems and enabling deeper architectures without training instability.
     \item \textbf{Fixed Receptive Field:} The receptive field is determined by architecture design (number of blocks, dilation rates, kernel size) rather than learned during training, providing predictable and interpretable temporal coverage.
-    \item \textbf{Rapid Convergence:} The model converges in $\sim$30 epochs, compared to 50--100+ epochs typically required for LSTM models on similar datasets.
+    \item \textbf{Rapid Convergence:} The model converges in $\sim$30 epochs, compared to 50-100+ epochs typically required for LSTM models on similar datasets.
 \end{itemize}
 
 %% ============================================================
@@ -142,7 +142,7 @@ Based on the findings and limitations of this research, the following directions
 
 \subsection{Multi-Dataset Evaluation}\label{subsec:future_multidataset}
 
-Evaluating the TCN model on multiple standard IDS datasets (NSL-KDD, CIC-IDS-2017, UNSW-NB15, CSE-CIC-IDS-2018) would establish the model's generalization capability and identify dataset-specific tuning requirements. Cross-dataset transfer learning---training on one dataset and evaluating on another---would assess the model's ability to generalize to unseen network environments.
+Evaluating the TCN model on multiple standard IDS datasets (NSL-KDD, CIC-IDS-2017, UNSW-NB15, CSE-CIC-IDS-2018) would establish the model's generalization capability and identify dataset-specific tuning requirements. Cross-dataset transfer learning-training on one dataset and evaluating on another-would assess the model's ability to generalize to unseen network environments.
 
 \subsection{Multi-Class Classification}\label{subsec:future_multiclass}
 
@@ -172,7 +172,7 @@ Implementing the HMAC protocol in a production SDN controller (e.g., ONOS, OpenD
 
 \subsection{Model Optimization for Edge Deployment}\label{subsec:future_edge}
 
-Applying model compression techniques---quantization (FP32 $\rightarrow$ INT8), pruning (removing redundant weights), and knowledge distillation (training a smaller student model to mimic the TCN teacher)---could further reduce the model's size and inference time for deployment on resource-constrained edge devices and programmable switches.
+Applying model compression techniques-quantization (FP32 $\rightarrow$ INT8), pruning (removing redundant weights), and knowledge distillation (training a smaller student model to mimic the TCN teacher)-could further reduce the model's size and inference time for deployment on resource-constrained edge devices and programmable switches.
 
 \subsection{Explainable AI Integration}\label{subsec:future_xai}
 
@@ -182,8 +182,8 @@ Integrating explainable AI techniques (SHAP, LIME, attention visualization) woul
 \section{Concluding Remarks}\label{sec:concluding_remarks}
 %% ============================================================
 
-SDN has fundamentally reshaped how we build and manage networks, but its centralised architecture comes with security trade-offs that old-school, per-device thinking cannot address. This thesis has shown that a lightweight TCN paired with HMAC-based control-plane authentication can deliver near-perfect intrusion detection (99.85\% accuracy, 99.97\% DR, 0.37\% FAR) in a package that weighs 612~KB and processes a flow in under 0.2~ms. The framework is not a silver bullet---no single system can be---but it narrows the gap between what the SDN control plane needs and what existing solutions provide.
+SDN has fundamentally reshaped how we build and manage networks, but its centralised architecture comes with security trade-offs that old-school, per-device thinking cannot address. This thesis has shown that a lightweight TCN paired with HMAC-based control-plane authentication can deliver near-perfect intrusion detection (99.85\% accuracy, 99.97\% DR, 0.37\% FAR) in a package that weighs 612~KB and processes a flow in under 0.2~ms. The framework is not a silver bullet-no single system can be-but it narrows the gap between what the SDN control plane needs and what existing solutions provide.
 
-As SDN adoption deepens across enterprise, cloud, and telecom networks, the demand for security solutions that are both effective and lightweight will only grow. The future-work roadmap sketched in this chapter---multi-dataset validation, multi-class detection, adversarial hardening, federated training, and edge deployment---charts a path toward making TCN-HMAC (or its successors) a practical, deployable cornerstone of SDN security.
+As SDN adoption deepens across enterprise, cloud, and telecom networks, the demand for security solutions that are both effective and lightweight will only grow. The future-work roadmap sketched in this chapter-multi-dataset validation, multi-class detection, adversarial hardening, federated training, and edge deployment-charts a path toward making TCN-HMAC (or its successors) a practical, deployable cornerstone of SDN security.
 
 \endinput
